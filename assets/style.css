@@ -737,11 +737,6 @@ a:hover { color: var(--accent-dark); }
   .stats span { font-size: 11.8px; }
 }
 
-/* 极窄屏：副标题两个岗位并排会折行，缩小字号保持单行 */
-@media (max-width: 380px) {
-  .hero__title em { font-size: .78em; }
-}
-
 /* ---------- 简历说明弹窗 ---------- */
 
 .modal {
