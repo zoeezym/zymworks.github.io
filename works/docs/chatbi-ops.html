@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>衡数 ChatBI Studio · 权限合规与发布运维 · 周一鸣作品集</title>
+<link rel="stylesheet" href="../../assets/doc.css">
+</head>
+<body>
+<header class="top">
+  <div class="top__in">
+    <a class="back" href="../../index.html#docs">← 返回作品集</a>
+    <span class="crumb">衡数 ChatBI Studio</span>
+    <a class="dl" href="../../index.html#contact">联系我</a>
+  </div>
+</header>
+<main>
+  <div class="doc__head">
+    <p class="doc__kicker">衡数 ChatBI Studio · 文档</p>
+    <h1 class="doc__title">衡数 ChatBI Studio · 权限合规与发布运维</h1>
+    <p class="doc__lede">四道防线、输出约束十条、P0—P3 故障分级、影子比对、SLA 与发布流程</p>
+    <p class="doc__meta">源文件 <code>【原型】衡数ChatBI/03-权限合规与发布运维.md</code> · 约 5,837 字 · 2026-10</p>
+  </div>
+  <div class="doc__body">
+<nav class="toc"><p class="toc__t">本页目录</p><ol><li><a href="#1-数据安全的四道防线">1. 数据安全的四道防线</a></li><li><a href="#2-数据源接入安全">2. 数据源接入安全</a></li><li><a href="#3-输出层约束清单">3. 输出层约束清单</a></li><li><a href="#4-数据分级与脱敏">4. 数据分级与脱敏</a></li><li><a href="#5-审计日志">5. 审计日志</a></li><li><a href="#6-发布流程">6. 发布流程</a></li><li><a href="#7-监控与告警">7. 监控与告警</a></li><li><a href="#8-sla">8. SLA</a></li><li><a href="#9-运营后台说明">9. 运营后台说明</a></li></ol></nav>
+    <article class="doc__article">
+<div class="tw"><table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody><tr><td>文档</td><td>03-权限合规与发布运维-v0.1</td></tr><tr><td>对应文件</td><td><code>衡数ChatBI-原型.html</code> 视图3 数据源工作台、视图4 可信度看板</td></tr><tr><td>作用</td><td>补齐原型完全缺失的三块：数据安全、合规、发布运维。这三块决定企业能不能采购</td></tr><tr><td>日期</td><td>2026-10-27</td></tr><tr><td>事实边界</td><td>合规要求按《数据安全法》《个人信息保护法》与等保通用要求推演，未逐条对照企业内控；留存期等标「待确认」</td></tr></tbody></table></div>
+<hr>
+<h2 id="1-数据安全的四道防线">1. 数据安全的四道防线</h2>
+<p>ChatBI 的风险点很集中：它能用自然语言访问全库数据，任何一层漏了，业务用户就能绕过原有报表系统的权限。</p>
+<div class="tw"><table><thead><tr><th>防线</th><th>位置</th><th>拦什么</th><th>失效后果</th></tr></thead><tbody><tr><td>第一道：数据源接入</td><td>连接层</td><td>只允许只读账号；表白名单外不可查</td><td>全库裸奔</td></tr><tr><td>第二道：SQL 生成</td><td>语法解析</td><td>写操作、系统表、大表全扫</td><td>数据被改或库被打挂</td></tr><tr><td>第三道：执行注入</td><td>执行层</td><td>租户过滤、行级权限、列级掩码</td><td>越权看数</td></tr><tr><td>第四道：结果输出</td><td>渲染层</td><td>SQL 原文、原始行数、敏感字段</td><td>信息泄露</td></tr></tbody></table></div>
+<p>四道防线必须独立生效。不能指望&quot;模型不会生成危险 SQL&quot;这一件事。</p>
+<hr>
+<h2 id="2-数据源接入安全">2. 数据源接入安全</h2>
+<h3 id="2-1-接入要求">2.1 接入要求</h3>
+<div class="tw"><table><thead><tr><th>项</th><th>要求</th><th>校验方式</th></tr></thead><tbody><tr><td>账号权限</td><td>必须只读账号；保存时检测账号是否有 INSERT/UPDATE/DELETE 权限</td><td>连接测试时执行 <code>SHOW GRANTS</code>（MySQL）或等价查询</td></tr><tr><td>绑定地址</td><td>账号限定来源 IP 为 ChatBI 服务出口 IP</td><td>连接失败即提示&quot;IP 未在白名单&quot;</td></tr><tr><td>表白名单</td><td>每个数据源维护可查表清单，默认空，需管理员逐表勾选</td><td>生成 SQL 后提取表名比对清单</td></tr><tr><td>敏感表标记</td><td>含个人信息的表需标记级别，标记后自动套用列掩码</td><td>配置时强制选择级别</td></tr><tr><td>凭据存储</td><td>加密存储（KMS 或独立密钥），界面只显示&quot;已配置&quot;，不回显明文</td><td>代码审计</td></tr><tr><td>凭据轮换</td><td>每 90 天提醒；过期前 7 天告警</td><td>定时任务</td></tr><tr><td>连通性</td><td>断连自动重试 3 次，仍失败则数据源置为&quot;不可用&quot;，相关问句直接提示</td><td>健康检查</td></tr></tbody></table></div>
+<h3 id="2-2-只读护栏实现">2.2 只读护栏实现</h3>
+<p>不能只靠关键词黑名单。要求三层：</p>
+<ol><li><strong>语句类型白名单</strong>：解析后只允许 <code>SELECT</code>。含 <code>WITH</code> 的也允许，但最终语句必须是 SELECT。</li><li><strong>危险关键字黑名单</strong>：<code>INSERT / UPDATE / DELETE / DROP / TRUNCATE / ALTER / CREATE / GRANT / LOAD_FILE / INTO OUTFILE / SLEEP / BENCHMARK</code> 出现即拦。</li><li><strong>执行层兜底</strong>：数据库账号本身无写权限。即使前两层被绕过，也写不进去。</li></ol>
+<p>第 3 层是最可靠的，前两层是为了给出清晰的失败提示。</p>
+<h3 id="2-3-大表保护">2.3 大表保护</h3>
+<div class="tw"><table><thead><tr><th>规则</th><th>默认</th><th>行为</th></tr></thead><tbody><tr><td>无 WHERE 的聚合查询</td><td>允许，但估算扫描量</td><td>超阈值拒绝</td></tr><tr><td>无时间条件的明细查询</td><td>拒绝</td><td>提示&quot;请补充时间范围&quot;</td></tr><tr><td>扫描行数估算超上限</td><td>拒绝</td><td>提示缩小范围</td></tr><tr><td>笛卡尔积风险（join 无关联条件）</td><td>拒绝</td><td>提示补充关联条件</td></tr></tbody></table></div>
+<hr>
+<h2 id="3-输出层约束清单">3. 输出层约束清单</h2>
+<div class="tw"><table><thead><tr><th>#</th><th>约束</th><th>拦截位置</th><th>违规时的表现</th></tr></thead><tbody><tr><td>1</td><td>业务用户看不到原始 SQL</td><td>渲染层按权限判断</td><td>按钮变灰，提示需要分析权限</td></tr><tr><td>2</td><td>结论文案中的数字必须存在于结果集</td><td>渲染层比对</td><td>降级为纯数据展示 + 告警</td></tr><tr><td>3</td><td>不使用无阈值程度词</td><td>文本检测</td><td>替换为带百分比的中性表述</td></tr><tr><td>4</td><td>不做因果判断</td><td>文本检测（&quot;因为&quot;&quot;导致&quot;&quot;由于&quot;）</td><td>改为&quot;同时观察到&quot;</td></tr><tr><td>5</td><td>敏感字段掩码</td><td>结果集后处理</td><td>手机号 138••••8321</td></tr><tr><td>6</td><td>返回行数上限</td><td>执行层 LIMIT</td><td>截断 + 提示</td></tr><tr><td>7</td><td>导出加水印</td><td>导出服务</td><td>水印含工号与时间</td></tr><tr><td>8</td><td>未发布指标的口径不得引用</td><td>检索层过滤</td><td>只检索&quot;已发布&quot;状态</td></tr><tr><td>9</td><td>结果不得跨租户</td><td>执行层强制 tenant 过滤</td><td>查询返回空 + 告警</td></tr><tr><td>10</td><td>会话记录不含敏感明文</td><td>落库前脱敏</td><td>日志里的手机号已掩码</td></tr></tbody></table></div>
+<p>第 2 条值得单独说：模型生成结论时容易把 1.28 万写成 128 万，或者把&quot;环比下降&quot;写成&quot;环比上升&quot;。渲染层比对数字能拦住大部分这类问题，这是成本最低的幻觉拦截手段。</p>
+<hr>
+<h2 id="4-数据分级与脱敏">4. 数据分级与脱敏</h2>
+<h3 id="4-1-分级">4.1 分级</h3>
+<div class="tw"><table><thead><tr><th>级别</th><th>定义</th><th>字段示例</th><th>展示规则</th><th>导出</th></tr></thead><tbody><tr><td>P0 公开</td><td>可对外</td><td>商品名称、区域名称</td><td>原样</td><td>允许</td></tr><tr><td>P1 内部</td><td>内部经营数据</td><td>订单量、销售额、库存</td><td>原样（需数据域权限）</td><td>允许，带水印</td></tr><tr><td>P2 敏感</td><td>可识别到具体人</td><td>手机号、地址、订单号</td><td>掩码</td><td>禁止（需单独申请）</td></tr><tr><td>P3 高敏</td><td>强监管</td><td>证件号、银行卡、位置轨迹</td><td>不展示，仅聚合</td><td>禁止</td></tr></tbody></table></div>
+<h3 id="4-2-脱敏规则">4.2 脱敏规则</h3>
+<div class="tw"><table><thead><tr><th>字段</th><th>规则</th><th>说明</th></tr></thead><tbody><tr><td>手机号</td><td>保留前 3 后 4</td><td>138••••8321</td></tr><tr><td>证件号</td><td>保留前 4 后 4</td><td>3201**********1234</td></tr><tr><td>姓名</td><td>保留姓</td><td>张*</td></tr><tr><td>地址</td><td>保留到区县</td><td>江苏省南京市玄武区</td></tr><tr><td>银行卡</td><td>保留后 4</td><td>•••• 1234</td></tr><tr><td>订单号</td><td>保留后 6</td><td>•••••• 882391</td></tr></tbody></table></div>
+<p>规则可配置。P2/P3 字段在 SQL 层仍会查出明文，掩码在结果集后处理阶段做——这一点要写清楚，因为&quot;SQL 层不查明文&quot;需要列级权限支持，多数数据源做不到。</p>
+<h3 id="4-3-数据留存">4.3 数据留存</h3>
+<div class="tw"><table><thead><tr><th>数据</th><th>留存期</th><th>依据</th></tr></thead><tbody><tr><td>查询日志（含 SQL）</td><td>1 年</td><td>审计要求，待确认</td></tr><tr><td>会话内容</td><td>90 天</td><td>产品体验优化</td></tr><tr><td>导出的报告</td><td>跟随用户云端存储策略</td><td>—</td></tr><tr><td>评估集与标注结果</td><td>长期</td><td>版本对比需要</td></tr><tr><td>模型调用日志（脱敏后）</td><td>6 个月</td><td>排障与优化</td></tr></tbody></table></div>
+<hr>
+<h2 id="5-审计日志">5. 审计日志</h2>
+<h3 id="5-1-记录内容">5.1 记录内容</h3>
+<div class="tw"><table><thead><tr><th>事件</th><th>字段</th></tr></thead><tbody><tr><td>问数</td><td>用户、租户、问句原文、命中指标、生成 SQL、执行耗时、返回行数、终端 IP、时间</td></tr><tr><td>权限拒绝</td><td>用户、请求的数据域、拒绝原因</td></tr><tr><td>行级注入</td><td>用户、注入字段、注入值、原 SQL、最终 SQL</td></tr><tr><td>配置变更</td><td>操作人、对象、变更前后值、时间、复核人</td></tr><tr><td>凭据操作</td><td>操作人、数据源、动作（新增/轮换/删除）、时间（不记明文）</td></tr><tr><td>导出</td><td>用户、导出范围、行数、水印编号</td></tr><tr><td>权限变更</td><td>操作人、被变更用户、角色前后值</td></tr><tr><td>语义层发布 / 回滚</td><td>操作人、版本号、变更指标清单</td></tr></tbody></table></div>
+<h3 id="5-2-约束">5.2 约束</h3>
+<ul><li>日志独立存储，业务库删除不影响日志。</li><li>日志不可修改，只能追加。</li><li>查询日志本身也是审计事件。</li><li>审计员角色只读，不能删除。</li><li>支持按用户、按数据域、按时间段、按是否命中敏感字段四个维度筛选。</li></ul>
+<hr>
+<h2 id="6-发布流程">6. 发布流程</h2>
+<h3 id="6-1-变更类型与管控">6.1 变更类型与管控</h3>
+<div class="tw"><table><thead><tr><th>变更</th><th>风险</th><th>管控</th></tr></thead><tbody><tr><td>提示词调整</td><td>中</td><td>必须跑全量评估集，通过率不得低于上一版 2pt 以上</td></tr><tr><td>语义层新增指标</td><td>低</td><td>走评审，发布后观察 3 天澄清触发率</td></tr><tr><td>语义层修改公式</td><td>高</td><td>必须提供影响分析 + 影子比对，灰度发布</td></tr><tr><td>模型版本升级</td><td>中</td><td>全量评估集 + 20 条真实会话回放，双跑一周</td></tr><tr><td>数据源新增</td><td>中</td><td>表白名单逐表确认，敏感表标记级别</td></tr><tr><td>权限规则变更</td><td>高</td><td>双人复核，变更后 24 小时内抽检 20 条会话</td></tr><tr><td>前端版本</td><td>低</td><td>常规灰度</td></tr></tbody></table></div>
+<h3 id="6-2-语义层变更的影子比对">6.2 语义层变更的影子比对</h3>
+<p>公式变更不能直接生效。流程：</p>
+<ol><li>新版本以 <code>shadow</code> 状态上线，不对外服务。</li><li>采集近 7 天真实问句（脱敏），用新旧两版分别计算，记录差异。</li><li>差异幅度超预期（如收入类指标偏差 &gt; 2%）则暂停，人工核对差异原因。</li><li>确认无问题后切换为 <code>active</code>，旧版保留 30 天可回滚。</li></ol>
+<p>这条流程的价值：口径改了没人知道，业务拿两套数字对不上，是这类产品最致命的事故。</p>
+<h3 id="6-3-灰度与回滚">6.3 灰度与回滚</h3>
+<div class="tw"><table><thead><tr><th>层级</th><th>手段</th><th>生效时间</th><th>影响范围</th></tr></thead><tbody><tr><td>提示词灰度</td><td>按用户 hash 分桶 10% / 50% / 100%</td><td>即时</td><td>命中分桶的用户</td></tr><tr><td>语义层灰度</td><td>按租户或按用户组</td><td>即时</td><td>指定范围</td></tr><tr><td>模型灰度</td><td>按租户切模型</td><td>5 分钟</td><td>指定租户</td></tr><tr><td>功能开关</td><td>单功能开关（如双通道验证、澄清机制）</td><td>即时</td><td>全局或单租户</td></tr><tr><td>版本回滚</td><td>语义层一键切回上一版</td><td>即时</td><td>全局</td></tr></tbody></table></div>
+<p>回滚触发条件：通过率环比降 ≥ 5pt、单租户错误率 &gt; 5%、出现数据错误客诉 ≥ 2 起。</p>
+<hr>
+<h2 id="7-监控与告警">7. 监控与告警</h2>
+<div class="tw"><table><thead><tr><th>指标</th><th>阈值</th><th>通知</th><th>处置</th></tr></thead><tbody><tr><td>查询失败率</td><td>&gt; 3% 持续 10 分钟</td><td>研发值班</td><td>查数据源连通性与执行层</td></tr><tr><td>查询 P95 时延</td><td>&gt; 20s</td><td>研发</td><td>查慢查询与扫描量</td></tr><tr><td>模型调用错误率</td><td>&gt; 2%</td><td>研发</td><td>切备用通道</td></tr><tr><td>生成 SQL 被拦截率</td><td>&gt; 5%</td><td>产品 + 研发</td><td>说明提示词或用户引导有问题</td></tr><tr><td>空结果率</td><td>&gt; 25%</td><td>产品</td><td>说明口径覆盖不足或用户不会问</td></tr><tr><td>澄清触发率</td><td>突增 50%</td><td>产品</td><td>语义层可能未生效或被回滚</td></tr><tr><td>单租户查询量</td><td>超日均 3 倍</td><td>平台管理员</td><td>可能有爬取或滥用</td></tr><tr><td>敏感字段查询</td><td>单用户单日 &gt; 50 次</td><td>安全</td><td>核实是否正常业务</td></tr><tr><td>数据源不可用</td><td>任一数据源健康检查失败 3 次</td><td>数据管理员 + 研发</td><td>确认网络与凭据</td></tr><tr><td>评估通过率</td><td>环比降 3pt</td><td>质量负责人</td><td>拉失败模式复盘</td></tr></tbody></table></div>
+<hr>
+<h2 id="8-sla">8. SLA</h2>
+<div class="tw"><table><thead><tr><th>级别</th><th>定义</th><th>响应</th><th>恢复</th><th>补偿</th></tr></thead><tbody><tr><td>P0</td><td>全租户不可用或数据错误外泄</td><td>10 分钟</td><td>2 小时</td><td>按合同</td></tr><tr><td>P1</td><td>主要功能不可用（问数不可用、SQL 全部执行失败）</td><td>30 分钟</td><td>4 小时</td><td>按合同</td></tr><tr><td>P2</td><td>部分功能异常（某数据源不可用、看板数据延迟）</td><td>2 小时</td><td>1 工作日</td><td>—</td></tr><tr><td>P3</td><td>体验问题（文案、样式、非核心交互）</td><td>1 工作日</td><td>按版本</td><td>—</td></tr></tbody></table></div>
+<p>可用性目标：SaaS 99.5%，私有化 99.9%（按合同）。统计口径为月度，不含计划内维护窗口（需提前 3 天通知）。</p>
+<hr>
+<h2 id="9-运营后台说明">9. 运营后台说明</h2>
+<div class="tw"><table><thead><tr><th>模块</th><th>功能</th><th>角色</th><th>复核</th></tr></thead><tbody><tr><td>数据源</td><td>新增/编辑/停用、连接测试、表白名单、敏感级别</td><td>数据管理员</td><td>新增需平台管理员复核</td></tr><tr><td>指标治理</td><td>评审队列、变更影响分析、版本管理</td><td>指标管理员 + 质量负责人</td><td>强制双角色</td></tr><tr><td>行级权限</td><td>用户属性维护、过滤规则配置、注入日志</td><td>平台管理员</td><td>规则变更需复核</td></tr><tr><td>用户与配额</td><td>用户、角色、数据源授权、每日次数</td><td>平台管理员</td><td>否</td></tr><tr><td>评估管理</td><td>评估集维护、跑批、标注任务、Kappa 计算</td><td>质量负责人</td><td>否</td></tr><tr><td>告警</td><td>规则、通知渠道、处置记录</td><td>平台管理员</td><td>否</td></tr><tr><td>审计</td><td>查询日志、操作日志、导出</td><td>审计员</td><td>否</td></tr><tr><td>租户</td><td>租户信息、配额、模型配置、功能开关</td><td>平台管理员</td><td>是</td></tr></tbody></table></div>
+<h3 id="9-1-配置变更的生效与留痕">9.1 配置变更的生效与留痕</h3>
+<div class="tw"><table><thead><tr><th>配置</th><th>生效</th><th>是否要求填写变更原因</th></tr></thead><tbody><tr><td>表白名单增减</td><td>即时</td><td>是</td></tr><tr><td>指标公式</td><td>走评审 + 影子比对</td><td>是</td></tr><tr><td>行级过滤规则</td><td>即时</td><td>是（且需复核）</td></tr><tr><td>用户配额</td><td>即时</td><td>否</td></tr><tr><td>提示词</td><td>灰度</td><td>是</td></tr><tr><td>功能开关</td><td>即时</td><td>是</td></tr></tbody></table></div>
+<h3 id="9-2-常见配置事故与对策">9.2 常见配置事故与对策</h3>
+<div class="tw"><table><thead><tr><th>事故</th><th>原因</th><th>对策</th></tr></thead><tbody><tr><td>某门店业务用户看到全国数据</td><td>行级规则配了但未生效（注入失败被忽略）</td><td>注入失败必须拒绝执行，不允许降级为不过滤</td></tr><tr><td>语义层被误改，两天内所有收入数字偏高</td><td>单人可以改公式</td><td>改变公式必须双角色，且走影子比对</td></tr><tr><td>只读账号实际有写权限</td><td>接入时未校验</td><td>连接测试强制检查账号权限</td></tr><tr><td>数据源凭据过期，一周无人发现</td><td>无到期提醒</td><td>90 天轮换提醒 + 到期前 7 天告警</td></tr></tbody></table></div>
+    </article>
+  </div>
+  <div class="doc__foot">
+    <a href="../../index.html#docs">← 全部文档</a>
+  </div>
+</main>
+</body>
+</html>

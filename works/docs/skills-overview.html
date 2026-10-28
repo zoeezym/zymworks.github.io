@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>业务场景 Skill 作品说明 · 周一鸣作品集</title>
+<link rel="stylesheet" href="../../assets/doc.css">
+</head>
+<body>
+<header class="top">
+  <div class="top__in">
+    <a class="back" href="../../index.html#docs">← 返回作品集</a>
+    <span class="crumb">业务场景 Skill 包</span>
+    <a class="dl" href="../../index.html#contact">联系我</a>
+  </div>
+</header>
+<main>
+  <div class="doc__head">
+    <p class="doc__kicker">业务场景 Skill 包 · 文档</p>
+    <h1 class="doc__title">业务场景 Skill 作品说明</h1>
+    <p class="doc__lede">四个 Skill 包的定位、两层路由设计、已实现与设计推演的边界</p>
+    <p class="doc__meta">源文件 <code>业务场景skills/00-Skill作品集说明.md</code> · 约 6,151 字 · 2026-10</p>
+  </div>
+  <div class="doc__body">
+<nav class="toc"><p class="toc__t">本页目录</p><ol><li><a href="#1-这批作品在证明什么">1. 这批作品在证明什么</a></li><li><a href="#2-通用方法-两层技能结构">2. 通用方法：两层技能结构</a></li><li><a href="#3-案例一-ai-审批-多业务子场景路由">3. 案例一：AI 审批（多业务子场景路由）</a></li><li><a href="#4-案例二-智能比数">4. 案例二：智能比数</a></li><li><a href="#5-案例三-网络域投诉工单诊断">5. 案例三：网络域投诉工单诊断</a></li><li><a href="#6-四个包的横向对比">6. 四个包的横向对比</a></li><li><a href="#7-面试怎么讲这批作品">7. 面试怎么讲这批作品</a></li><li><a href="#8-仓库卫生待处理">8. 仓库卫生待处理</a></li></ol></nav>
+    <article class="doc__article">
+<div class="tw"><table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody><tr><td>文档</td><td>00-Skill作品集说明</td></tr><tr><td>覆盖</td><td>3 个业务方向、4 个 Skill 包、2 张流程图、1 份原始场景笔记</td></tr><tr><td>作用</td><td>把散落的 zip 与 html 组织成可被面试官理解的案例。原始 zip 未改动，本文是唯一的说明入口</td></tr><tr><td>日期</td><td>2026-10-27</td></tr><tr><td>事实边界</td><td>业务规则来自实际运维与审批场景的整理，具体数值与制度条款以业务方文件为准；文中区分&quot;已实现&quot;与&quot;设计推演&quot;</td></tr></tbody></table></div>
+<hr>
+<h2 id="1-这批作品在证明什么">1. 这批作品在证明什么</h2>
+<p>原型证明&quot;我能设计界面与流程&quot;，Skill 包证明&quot;我能把业务规则写成机器可执行的东西&quot;。这两件事的能力要求完全不同：前者要有产品直觉，后者要能把模糊的业务语言拆成判定条件、边界、失败分支。</p>
+<p>三个 Skill 共用一套方法，这套方法才是作品集里真正可复用的资产。</p>
+<hr>
+<h2 id="2-通用方法-两层技能结构">2. 通用方法：两层技能结构</h2>
+<h3 id="2-1-结构">2.1 结构</h3>
+<pre><code>SKILL.md                    入口。写清什么时候用、怎么判、输出什么、什么情况不该用
+references/                 领域知识。规则表、表结构说明、场景库、话术
+scripts/                    可执行逻辑。判定引擎、CLI、自测</code></pre>
+<p><code>references</code> 与 <code>scripts</code> 的分工是关键：规则写进 md 会被人改错，写进 py 会被业务看不懂。实际做法是——<strong>规则表的权威版本放在 references 里给人看，脚本读同一份结构化数据做判定</strong>。这样业务能审规则，研发能跑逻辑，两边不会漂移。</p>
+<h3 id="2-2-两层路由">2.2 两层路由</h3>
+<div class="tw"><table><thead><tr><th>层</th><th>职责</th><th>形态</th><th>例子</th></tr></thead><tbody><tr><td>L1 路由</td><td>判断这是哪一类业务，走哪个分支</td><td>意图识别 + 关键要素检查</td><td>&quot;这个合同要不要评审&quot;→ 判定为审批类，进入契约受理</td></tr><tr><td>L2 规则</td><td>在分支内按条件给出结论</td><td>决策表 / 决策树</td><td>&quot;折扣 35%，客户非危险等级&quot;→ 档位 B，需地市审批</td></tr></tbody></table></div>
+<p>做成两层的原因：单层规则表会膨胀到几百条无法维护；分两层后，L1 只有 5–8 个分支，每个分支内的 L2 规则表 20–40 条，各自可独立迭代。</p>
+<h3 id="2-3-每个包必须回答的五个问题">2.3 每个包必须回答的五个问题</h3>
+<ol><li>什么输入是合格的（必填要素清单）</li><li>缺要素怎么办（追问，还是拒绝）</li><li>判定结果有几种（含&quot;无法判定&quot;这一种）</li><li>每条规则出自哪里（可追溯）</li><li>怎么证明它是对的（selftest 覆盖哪些用例）</li></ol>
+<p>第 3 点是多数人漏掉的：判定系统必须有&quot;无法判定&quot;这个输出，否则遇到边界情况只能瞎猜。</p>
+<hr>
+<h2 id="3-案例一-ai-审批-多业务子场景路由">3. 案例一：AI 审批（多业务子场景路由）</h2>
+<p><strong>目录</strong>：<code>AI审批skill（多业务子场景路由）/</code></p>
+<p><strong>包</strong>：<code>contract-intake-router.zip</code>（13 文件）、<code>approval-review-advisor.zip</code>（15 文件） <strong>图</strong>：<code>审批业务流程脉络图.html</code>（36 KB）</p>
+<h3 id="3-1-业务问题">3.1 业务问题</h3>
+<p>一个合同进来，要不要走审批、走到哪一级、需要哪些材料，原来靠老员工经验。新人判断错会导致两种后果：该审的没审（合规风险），不该审的审了（流程成本）。三个场景的判断逻辑还互相交叉，同一个合同可能同时触发折扣审批和危险等级审批，走严还是走宽没有统一标准。</p>
+<h3 id="3-2-做了什么">3.2 做了什么</h3>
+<div class="tw"><table><thead><tr><th>组件</th><th>内容</th><th>完成度</th></tr></thead><tbody><tr><td>L1 路由</td><td>按合同要素判定属于 S1 专线折扣 / S2 客户危险等级 / S3 楼宇物业套餐</td><td>已实现</td></tr><tr><td>S1 规则</td><td>折扣档位判定、档位 C 的效益评估分支、折扣基线查找、折扣矩阵</td><td>已实现</td></tr><tr><td>S2 规则</td><td>危险/非危险分岔、审批层级编码、开闭区间严格定义</td><td>已实现</td></tr><tr><td>S3 规则</td><td>从严到宽顺序匹配、四档链路、严格度单调关系、档位覆盖盲区</td><td>已实现</td></tr><tr><td>跨场景</td><td>取严链路、审批严重度标尺</td><td>已实现（标尺为推演规则）</td></tr><tr><td>引擎</td><td><code>approval_engine.py</code> 27 KB，两包共用</td><td>已实现</td></tr><tr><td>CLI</td><td><code>review_cli.py</code>、<code>intake_cli.py</code></td><td>已实现</td></tr><tr><td>自测</td><td><code>selftest.py</code> 11 KB / 7 KB</td><td>已实现</td></tr><tr><td>演示数据</td><td><code>demo_handoffs.json</code> 26 KB、<code>demo_contracts.json</code> 8 KB</td><td>已实现</td></tr></tbody></table></div>
+<h3 id="3-3-设计上值得讲的三点">3.3 设计上值得讲的三点</h3>
+<ol><li><strong>区间开闭必须写死。</strong> &quot;折扣 30%–40%&quot;到底含不含 40%，直接决定审批层级。文档里对每个区间标注了开闭，代码里用半开区间统一实现，避免&quot;看起来一样实际差一档&quot;。</li><li><strong>覆盖盲区必须兜底。</strong> S3 的四档无法穷尽所有情况，存在落在档位之间的合同。设计上给了一个兜底分支（走最严或转人工），规则表不追求覆盖所有可能。</li><li><strong>跨场景取严。</strong> 一个合同同时命中两个场景时，取审批层级更高的一方，并把另一方的原因也带上，避免审批人只看到一半信息。</li></ol>
+<h3 id="3-4-已知问题">3.4 已知问题</h3>
+<div class="tw"><table><thead><tr><th>问题</th><th>影响</th><th>处理</th></tr></thead><tbody><tr><td>两个包共用 <code>approval_engine.py</code>，各存一份</td><td>改一处忘另一处会不一致</td><td>待合并为单包 + 一个共用依赖目录</td></tr><tr><td><code>references</code> 内文件名在 Linux/Mac 解压后乱码（GBK 编码打包）</td><td>跨平台不可用</td><td>重新用 UTF-8 打包</td></tr><tr><td>审批严重度标尺是推演规则，未与业务制度逐条核对</td><td>对外讲述时可能被质疑</td><td>讲述时明确说明是设计推演</td></tr></tbody></table></div>
+<hr>
+<h2 id="4-案例二-智能比数">4. 案例二：智能比数</h2>
+<p><strong>目录</strong>：<code>智能比数skill/</code> <strong>包</strong>：<code>data-table.zip</code>（6 文件） <strong>图</strong>：<code>黔南智能比数助手-对话页面原型.html</code>（57 KB）</p>
+<h3 id="4-1-业务问题">4.1 业务问题</h3>
+<p>业务人员每周要拿两份表格做比对：哪几行新增、哪几行消失、同一条记录的字段变了什么。用 Excel 手工做，几万行要几小时，还容易看错列。更麻烦的是每次比对的规则不一样——有时按订单号，有时按&quot;手机号+日期&quot;，有时要模糊匹配。</p>
+<h3 id="4-2-做了什么">4.2 做了什么</h3>
+<div class="tw"><table><thead><tr><th>组件</th><th>内容</th></tr></thead><tbody><tr><td>主脚本</td><td><code>data_merge_compare.py</code> 66 KB，处理合并、比对、字段差异、汇总统计</td></tr><tr><td>工具桥接</td><td><code>_tool_bridge.py</code> 19 KB，与运行时做参数与文件交互</td></tr><tr><td>操作说明</td><td><code>references/operations.md</code> 17 KB，写清每种比对模式的参数与输出格式</td></tr><tr><td>入口</td><td><code>SKILL.md</code> 12 KB，含何时用、参数怎么填、常见错误</td></tr><tr><td>前端</td><td>对话式比对界面原型，支持多轮修改比对条件</td></tr></tbody></table></div>
+<h3 id="4-3-设计上值得讲的两点">4.3 设计上值得讲的两点</h3>
+<ol><li><strong>比对键必须由用户明确指定。</strong> 不能让脚本猜哪列是主键。猜错会导致全表都算差异，比不做更糟。所以 SKILL.md 里把&quot;确认比对键&quot;列为必填步骤，缺则追问。</li><li><strong>输出拆成三块，不能混在一起。</strong> 新增集、消失集、变更集分开输出，变更集里再列字段级差异。混在一起的结果没人看得下去。</li></ol>
+<h3 id="4-4-已知问题">4.4 已知问题</h3>
+<div class="tw"><table><thead><tr><th>问题</th><th>影响</th><th>处理</th></tr></thead><tbody><tr><td>zip 内含 <code>__pycache__</code> 与 <code>.pyc</code></td><td>仓库脏、跨 Python 版本可能报错</td><td>打包前清理</td></tr><tr><td>与 ChatBI 项目的定位有重叠（都是对话式数据处理）</td><td>面试讲述时容易混</td><td>讲清区别：ChatBI 是&quot;问数&quot;，比数是&quot;两份表的差异&quot;，一个面向查询一个面向核对</td></tr><tr><td>无 selftest</td><td>改动后无法快速验证</td><td>补 10 条样例与期望输出的比对脚本</td></tr></tbody></table></div>
+<hr>
+<h2 id="5-案例三-网络域投诉工单诊断">5. 案例三：网络域投诉工单诊断</h2>
+<p><strong>目录</strong>：<code>网络域投诉工单处理skill/</code> <strong>包</strong>：<code>sd-workorder-diagnosis.zip</code>（5 文件，全 references，无 scripts） <strong>图</strong>：<code>工单看不见诊断决策树.html</code> <strong>笔记</strong>：<code>看不见工单，场景分析以及日常处理方法.md</code></p>
+<h3 id="5-1-业务问题">5.1 业务问题</h3>
+<p>一线报&quot;看不见工单&quot;，原因可能有 7 类：报文解析异常、工单被别人领走、卡在营服外勘、派单工号已离职、待班长派单、装维操作不规范、受理缺关键参数。每类的排查路径和处置动作都不同，新人只能问老员工。</p>
+<h3 id="5-2-做了什么">5.2 做了什么</h3>
+<div class="tw"><table><thead><tr><th>组件</th><th>内容</th><th>完成度</th></tr></thead><tbody><tr><td>SKILL.md</td><td>入口、判定顺序、输出现场处置建议</td><td>已实现</td></tr><tr><td>场景库</td><td><code>scenarios.md</code> 6.7 KB，7 类场景</td><td>已实现</td></tr><tr><td>表结构说明</td><td><code>database_tables.md</code> 10.9 KB，涉及的库表与关键字段</td><td>已实现</td></tr><tr><td>案例库</td><td><code>demo_cases.md</code> 10.5 KB</td><td>已实现</td></tr><tr><td>模拟数据</td><td><code>mock_data.md</code> 29 KB</td><td>已实现</td></tr><tr><td>决策树</td><td>独立 SVG，从&quot;看不见工单&quot;到 7 类场景的判定路径</td><td>已实现</td></tr><tr><td>可执行脚本</td><td>无</td><td>未实现</td></tr></tbody></table></div>
+<h3 id="5-3-这个包的核心价值">5.3 这个包的核心价值</h3>
+<p>它是四个包里业务纵深最深的一个。7 类场景来自真实运维里反复出现的问题，其中&quot;工单被别人领走&quot;这类问题，表面是系统问题，实际是组织协作问题——处置动作是查出领单工号并告知，而不是改数据。</p>
+<p><strong>这类知识的产品化难点在于：它是判断经验，写不成严格的判定规则。</strong> 决策树是合适的载体，规则引擎在这里不合适，因为分支之间没有严格的互斥条件，更多是&quot;先查什么、看到什么再查什么&quot;的顺序判断。</p>
+<h3 id="5-4-已知问题">5.4 已知问题</h3>
+<div class="tw"><table><thead><tr><th>问题</th><th>影响</th><th>处理</th></tr></thead><tbody><tr><td>只有 references 没有 scripts，不能真正执行</td><td>更像知识库而非工具</td><td>补一个查询辅助脚本（输入工单号 → 输出该查哪些表）</td></tr><tr><td>原始笔记含内部库名 <code>lnrmdb_shandong</code>、表名</td><td>公开仓库的信息边界问题</td><td>已在本仓库保留原笔记，但不应在对外材料中引用具体库名</td></tr><tr><td>决策树是 SVG 片段，不是完整 HTML</td><td>双击打开显示异常</td><td>补 <code>&lt;html&gt;&lt;body&gt;</code> 外壳</td></tr><tr><td><code>mock_data.md</code> 未说明与真实表结构的对应关系</td><td>学习者不知道哪些字段是真的</td><td>补一节字段映射说明</td></tr></tbody></table></div>
+<hr>
+<h2 id="6-四个包的横向对比">6. 四个包的横向对比</h2>
+<div class="tw"><table><thead><tr><th>维度</th><th>AI 审批</th><th>智能比数</th><th>工单诊断</th></tr></thead><tbody><tr><td>业务纵深</td><td>中（制度型）</td><td>低（通用能力）</td><td>高（经验型）</td></tr><tr><td>规则确定性</td><td>高（可写成决策表）</td><td>低（依赖用户指定）</td><td>低（依赖顺序判断）</td></tr><tr><td>工程完成度</td><td>高（引擎 + CLI + selftest）</td><td>中（脚本强，无自测）</td><td>低（纯知识）</td></tr><tr><td>可复用性</td><td>中（绑定审批场景）</td><td>高（任何表格比对都用）</td><td>低（绑定特定系统表结构）</td></tr><tr><td>面试讲述价值</td><td>高（能讲规则设计）</td><td>中（能讲数据能力）</td><td>高（能讲业务理解）</td></tr></tbody></table></div>
+<hr>
+<h2 id="7-面试怎么讲这批作品">7. 面试怎么讲这批作品</h2>
+<h3 id="7-1-90-秒版">7.1 90 秒版</h3>
+<blockquote><p>我做了三个业务场景的 Skill 包，分别是合同审批路由、表格比对、网络工单诊断。它们共用一套方法：SKILL.md 做入口，references 放业务规则，scripts 做判定。  最关键的设计是两层路由。第一层判断这是哪类业务，第二层在分支内按条件给结论。这样规则表不会膨胀到无法维护，每个分支可以独立迭代。  审批那个包工程完成度最高，有判定引擎和自测。工单诊断那个包业务纵深最深，7 类场景都是真实运维里反复出现的，但它的判断是经验型的，用决策树比用规则引擎合适。  这批东西证明的是我能把模糊的业务语言拆成判定条件、边界和失败分支，并且知道什么场景该用规则、什么场景该用检索。</p></blockquote>
+<h3 id="7-2-高频追问与落点">7.2 高频追问与落点</h3>
+<div class="tw"><table><thead><tr><th>追问</th><th>应答要点</th><th>落点</th></tr></thead><tbody><tr><td>为什么分两层</td><td>单层规则表会到几百条无法维护；分层后 L1 只有 5–8 个分支</td><td>§2.2</td></tr><tr><td>遇到规则覆盖不到的情况怎么办</td><td>必须有&quot;无法判定&quot;这个输出，走兜底或转人工；盲目兜底比报错更危险</td><td>§2.3、§3.3</td></tr><tr><td>怎么保证规则没写错</td><td>selftest 覆盖边界用例，尤其是区间的开闭</td><td>§3.2</td></tr><tr><td>知识型场景为什么不用规则引擎</td><td>分支之间没有严格互斥条件，是顺序判断，决策树更合适</td><td>§5.3</td></tr><tr><td>这几个包能直接上线吗</td><td>审批包能跑但缺线上评估；比数包能用但缺自测；工单包是知识库不能执行</td><td>§3.4、§4.4、§5.4</td></tr><tr><td>你觉得哪个做得最不好</td><td>工单包。它只有知识没有执行，用起来还是靠人查</td><td>§5.4</td></tr></tbody></table></div>
+<h3 id="7-3-不要说的话">7.3 不要说的话</h3>
+<ul><li>不说&quot;这套框架可以复用到任何业务&quot;——不同业务确定性差异极大，这话一追问就崩。</li><li>不说&quot;准确率 95%&quot;——没有评估就没有准确率。</li><li>不把三个包说成三个项目——它是一个方法在三个场景的应用，说成一个方法更有说服力。</li></ul>
+<hr>
+<h2 id="8-仓库卫生待处理">8. 仓库卫生待处理</h2>
+<div class="tw"><table><thead><tr><th>#</th><th>问题</th><th>处理方式</th><th>优先级</th></tr></thead><tbody><tr><td>1</td><td><code>data-table.zip</code> 含 <code>__pycache__</code>、<code>.pyc</code></td><td>重新打包，剔除缓存</td><td>高</td></tr><tr><td>2</td><td>审批两包 <code>references</code> 文件名乱码</td><td>用 UTF-8 重新打包</td><td>高</td></tr><tr><td>3</td><td><code>工单看不见诊断决策树.html</code> 是 SVG 片段</td><td>补 HTML 外壳</td><td>中</td></tr><tr><td>4</td><td>审批两包共用 <code>approval_engine.py</code> 各存一份</td><td>合并为单包 + 共用依赖</td><td>中</td></tr><tr><td>5</td><td>工单包只有知识无执行</td><td>补一个查询辅助脚本</td><td>低</td></tr><tr><td>6</td><td>原始笔记含内部库名</td><td>保留但加脱敏说明，对外材料不引用</td><td>高</td></tr><tr><td>7</td><td>四个包均无 README 说明相互关系</td><td>本文即为该说明</td><td>已完成</td></tr></tbody></table></div>
+    </article>
+  </div>
+  <div class="doc__foot">
+    <a href="../../index.html#docs">← 全部文档</a>
+  </div>
+</main>
+</body>
+</html>

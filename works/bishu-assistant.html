@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小思Bot - 管理后台首页原型</title>
+<style>
+/* ===================================================================
+   以下 CSS 全部从源码抽取：
+   - variables.scss → 全局变量
+   - global.scss → CSS自定义属性 + 主题
+   - Sidebar.vue <style> → 侧边栏
+   - ChatPanel.vue <style> → 聊天面板
+   - WelcomeArea.vue <style> → 欢迎区
+   - MessageInput.vue <style> → 输入框
+   - AppLayout.vue <style> → 布局
+   =================================================================== */
+
+/* === variables.scss === */
+/* $primary-color: #6B5CE7; $primary-light: #8B7CF7; $primary-dark: #5A4BD1; */
+/* $success-color: #67C23A; $warning-color: #E6A23C; $danger-color: #F56C6C; $info-color: #909399; */
+/* $bg-color: #F5F7FA; $bg-white: #FFFFFF; $bg-sidebar: #1E1E2D; */
+/* $bg-chat: #F0F2F5; $text-primary: #303133; $text-regular: #606266; */
+/* $text-secondary: #909399; $text-placeholder: #C0C4CC; */
+/* $border-color: #E4E7ED; $border-light: #EBEEF5; */
+/* $sidebar-width: 240px; $sidebar-collapsed-width: 64px; */
+/* $font-size-sm: 13px; $font-size-base: 14px; $font-size-md: 16px; */
+/* $border-radius-sm: 4px; $border-radius-base: 8px; $border-radius-lg: 12px; */
+/* $spacing-xs: 4px; $spacing-sm: 8px; $spacing-base: 12px; $spacing-md: 16px; $spacing-lg: 20px; $spacing-xl: 24px; */
+
+/* === global.scss reset === */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  width: 100%; height: 100%;
+  font-family: 'Microsoft YaHei', 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  color: var(--text-primary-clr, #303133);
+  background-color: var(--main-bg-color, #f0f2f5);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+#app { width: 100%; height: 100%; }
+a { text-decoration: none; color: inherit; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
+.text-ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* === global.scss :root 主题变量 === */
+:root {
+  --sidebar-bg-color: #f5f7fa;
+  --sidebar-border-color: #e4e7ed;
+  --sidebar-hover-bg: #eef0f4;
+  --sidebar-menu-item-text-color: #595959;
+  --sidebar-menu-item-icon-color: #595959;
+  --sidebar-menu-item-active-text-color: #262626;
+  --sidebar-menu-item-active-icon-color: #262626;
+  --sidebar-menu-item-active-bg: linear-gradient(135deg, #d0e8ff 0%, #cdbfff 100%);
+  --sidebar-menu-item-hover-bg: #eef0f4;
+  --main-bg-color: #f0f2f5;
+  --panel-bg-color: #ffffff;
+  --panel-border-color: #e4e7ed;
+  --text-primary-clr: #303133;
+  --text-regular-clr: #606266;
+  --text-secondary-clr: #606266;
+  --text-placeholder-clr: #c0c4cc;
+  --input-bg-color: #ffffff;
+  --divider-color: #e4e7ed;
+  --shadow-color: rgba(0,0,0,0.06);
+  --collapse-hover-bg: #e4e7ed;
+  --user-hover-bg: #eef0f4;
+  --menu-active-bg: rgba(107,92,231,0.08);
+  --hover-active-bg: rgba(107,92,231,0.14);
+  --el-menu-active-color: #6B5CE7;
+  --tag-default-assistant-bg: #e8f5e9;
+  --tag-default-assistant-color: #333;
+}
+[data-theme="dark"] {
+  --sidebar-bg-color: #1e1e2d;
+  --sidebar-border-color: #3a3a4d;
+  --sidebar-hover-bg: #2a2a3d;
+  --sidebar-menu-item-text-color: #a8a8b3;
+  --sidebar-menu-item-icon-color: #a8a8b3;
+  --sidebar-menu-item-active-text-color: #e5e5e5;
+  --sidebar-menu-item-active-icon-color: #e5e5e5;
+  --sidebar-menu-item-active-bg: #1a3a5c;
+  --sidebar-menu-item-hover-bg: #2a2a3d;
+  --main-bg-color: #141414;
+  --panel-bg-color: #1e1e2d;
+  --panel-border-color: #3a3a4d;
+  --text-primary-clr: #e5e5e5;
+  --text-regular-clr: #b0b0b0;
+  --text-secondary-clr: #a8a8b3;
+  --text-placeholder-clr: #8a8a9a;
+  --input-bg-color: #2a2a3d;
+  --divider-color: #3a3a4d;
+  --shadow-color: rgba(0,0,0,0.4);
+  --collapse-hover-bg: #3a3a4d;
+  --user-hover-bg: #2a2a3d;
+  --menu-active-bg: rgba(107,92,231,0.15);
+  --hover-active-bg: rgba(107,92,231,0.2);
+  --el-menu-active-color: #8B7CF7;
+  --tag-default-assistant-bg: #1a3d2a;
+  --tag-default-assistant-color: #a0e5b0;
+}
+
+/* === AppLayout.vue .app-layout === */
+.app-layout {
+  display: flex; width: 100%; height: 100vh; overflow: hidden; position: relative;
+}
+
+/* === AppLayout.vue .layout-sidebar === */
+.layout-sidebar {
+  flex-shrink: 0; transition: width 0.3s ease;
+}
+
+/* === AppLayout.vue .layout-main === */
+.layout-main {
+  flex: 1; display: flex; flex-direction: column; min-width: 0;
+  background: var(--main-bg-color, #f0f2f5); position: relative;
+}
+
+/* === Sidebar.vue .sidebar === */
+.sidebar {
+  position: relative; width: 240px; height: 100vh;
+  background: var(--sidebar-bg-color);
+  display: flex; flex-direction: column;
+  transition: width 0.3s ease; overflow: hidden; flex-shrink: 0;
+  border-right: 1px solid var(--sidebar-border-color);
+}
+.sidebar.collapsed { width: 64px; }
+.sidebar.collapsed .sidebar-header { justify-content: center; padding: 8px 4px; gap: 4px; }
+.sidebar.collapsed .logo-area { padding: 0; }
+.sidebar.collapsed .logo-text { display: none; }
+.sidebar.collapsed .new-chat { justify-content: center; padding: 8px; margin: 0 4px; }
+.sidebar.collapsed .new-chat .menu-label { display: none; }
+.sidebar.collapsed .collapse-btn { padding: 4px; }
+.sidebar.collapsed .menu-item { display: flex; justify-content: center; align-items: center; padding: 0 !important; margin: 0 4px; }
+.sidebar.collapsed .menu-item .menu-icon { margin: 0; }
+.sidebar.collapsed .menu-item .menu-label { display: none; }
+.sidebar.collapsed .menu-item .menu-item-right { display: none; }
+.sidebar.collapsed .history-section { display: none; }
+.sidebar.collapsed .user-area { justify-content: center; padding: 8px; }
+.sidebar.collapsed .user-info { display: none; }
+
+/* === Sidebar.vue .sidebar-header === */
+.sidebar-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid var(--sidebar-border-color);
+}
+
+/* === Sidebar.vue .logo-area === */
+.logo-area {
+  display: flex; align-items: center; gap: 8px; padding: 0; cursor: pointer; user-select: none;
+}
+.logo-img { width: 28px; height: 28px; flex-shrink: 0; }
+.logo-text {
+  font-size: 16px; font-weight: 700; color: var(--text-primary-clr, #303133); white-space: nowrap;
+}
+.beta-tag {
+  font-size: 10px; font-weight: 600; color: #409EFF; margin-left: 2px; vertical-align: super;
+}
+
+/* === Sidebar.vue .collapse-btn === */
+.collapse-btn {
+  display: flex; align-items: center; justify-content: center;
+  padding: 8px; color: #909399; cursor: pointer; border-radius: 4px; transition: all 0.2s;
+}
+.collapse-btn:hover { background: var(--collapse-hover-bg); color: var(--text-primary-clr); }
+
+/* === Sidebar.vue .new-chat === */
+.new-chat{display:flex;align-items:center;gap:8px;padding:0 16px;height:56px;margin:8px 12px 0;border-radius:8px;background:rgba(107,92,231,.08);color:#409eff;font-size:14px;cursor:pointer;white-space:nowrap;transition:background .2s;flex-shrink:0}
+.new-chat:hover{background:rgba(107,92,231,.14)}
+.new-chat .el-icon{font-size:14px;display:flex;align-items:center}
+.new-chat .el-icon svg{width:14px;height:14px;fill:currentColor}
+
+/* === Sidebar.vue .sidebar-body === */
+.sidebar-body { flex: 1; overflow-y: auto; overflow-x: hidden; }
+
+/* === Sidebar.vue .sidebar-menu (隐藏所有菜单项) === */
+.sidebar-menu { display: none; }
+.menu-item {
+  display: flex; align-items: center; gap: 12px;
+  margin: 0 8px; padding: 0 12px; height: 40px;
+  border-radius: 6px; cursor: pointer; transition: all 0.2s;
+  color: var(--sidebar-menu-item-text-color, #595959); font-size: 14px;
+}
+.menu-item:hover { background-color: var(--sidebar-menu-item-hover-bg, #eef0f4); }
+.menu-item:hover .menu-icon { color: var(--sidebar-menu-item-active-icon-color, #262626); }
+.menu-item.is-active {
+  background: var(--sidebar-menu-item-active-bg, linear-gradient(135deg, #d0e8ff 0%, #cdbfff 100%));
+  color: var(--sidebar-menu-item-active-text-color, #262626); font-weight: 500;
+}
+.menu-item.is-active .menu-icon { color: var(--sidebar-menu-item-active-icon-color, #262626); }
+.menu-item.is-active:hover { background: var(--sidebar-menu-item-active-bg, linear-gradient(135deg, #d0e8ff 0%, #cdbfff 100%)); }
+.menu-icon {
+  color: var(--sidebar-menu-item-icon-color, #595959); font-size: 18px;
+  transition: color 0.2s; flex-shrink: 0; display: flex; align-items: center;
+}
+.menu-icon svg { width: 18px; height: 18px; }
+.menu-label { flex: 1; min-width: 0; }
+.menu-item-right { display: flex; align-items: center; margin-left: auto; }
+
+/* === Sidebar.vue .todo-badge === */
+.todo-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 18px; height: 18px; padding: 0 5px;
+  font-size: 11px; font-weight: 600; color: #fff;
+  background: #f56c6c; border-radius: 9px; line-height: 1; flex-shrink: 0;
+}
+
+/* === Sidebar.vue .history-section === */
+.history-section { border-top: none; padding: 8px 12px; }
+.history-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 8px; font-size: 13px; color: #909399; margin-bottom: 4px;
+}
+.history-header svg { width: 14px; height: 14px; }
+.history-group-label {
+  font-size: 13px; color: var(--text-placeholder-clr, #C0C4CC); padding: 4px 8px; margin-top: 4px;
+}
+.history-item {
+  display: flex; align-items: center; padding: 4px 8px;
+  border-radius: 4px; cursor: pointer; font-size: 13px;
+  color: var(--text-regular-clr, #606266); transition: background 0.2s;
+}
+.history-item:hover { background: var(--sidebar-menu-item-hover-bg, #eef0f4); }
+.history-item:hover .history-item-delete { opacity: 1; }
+.history-item-content {
+  flex: 1; min-width: 0; display: flex; align-items: center;
+  justify-content: space-between; gap: 4px;
+}
+.history-item-title-wrapper { display: flex; align-items: center; gap: 4px; flex: 1; min-width: 0; }
+.history-item-check { flex-shrink: 0; color: #67C23A; }
+.history-item-check.is-loading { color: #409EFF; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.history-item-title { flex: 1; min-width: 0; }
+.history-item-time { font-size: 11px; color: var(--text-placeholder-clr, #C0C4CC); line-height: 1; flex-shrink: 0; }
+.history-item-delete {
+  flex-shrink: 0; font-size: 14px; color: var(--text-placeholder-clr, #C0C4CC);
+  opacity: 0; transition: opacity 0.2s; cursor: pointer; display: flex; align-items: center;
+  margin-left: 4px;
+}
+.history-item-delete:hover { color: #F56C6C; }
+.history-item-delete svg { width: 14px; height: 14px; }
+
+/* === Sidebar.vue .user-area (隐藏) === */
+.user-area {
+  display: none;
+}
+.user-area:hover { background: var(--user-hover-bg); }
+.user-avatar {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  background: #6B5CE7; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 14px; font-weight: 600; overflow: hidden;
+}
+.user-info { flex: 1; min-width: 0; }
+.user-name {
+  font-size: 14px; color: var(--text-primary-clr, #303133);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block;
+}
+
+/* === Sidebar.vue .user-dropdown === */
+.user-dropdown {
+  position: absolute; bottom: 70px; left: 12px; right: 12px;
+  background: var(--panel-bg-color, #fff); border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2); z-index: 1000;
+  padding: 8px 0; min-width: 180px; display: none;
+}
+.user-dropdown.show { display: block; }
+.dropdown-header { display: flex; align-items: center; gap: 8px; padding: 8px 16px; }
+.dropdown-avatar {
+  width: 40px; height: 40px; border-radius: 50%; background: #6B5CE7;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 16px; font-weight: 600; flex-shrink: 0;
+}
+.dropdown-user-name { font-size: 14px; font-weight: 600; color: var(--text-primary-clr, #303133); }
+.dropdown-divider { height: 1px; background: var(--divider-color, #e4e7ed); margin: 4px 0; }
+.dropdown-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 16px; font-size: 14px; color: var(--text-regular-clr, #606266);
+  cursor: pointer; transition: background 0.2s;
+}
+.dropdown-item:hover { background: var(--main-bg-color, #f0f2f5); }
+.dropdown-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+.dropdown-item.logout-item { color: #F56C6C; }
+.dropdown-item.logout-item:hover { background: #fef0f0; }
+
+/* === ChatPanel.vue .chat-panel === */
+.chat-panel {
+  display: flex; flex-direction: column; height: 100%; overflow: hidden;
+  background: var(--panel-bg-color, #fff);
+}
+
+/* === ChatPanel.vue .messages-container === */
+.messages-container {
+  flex: 1; min-height: 0; overflow-y: auto; position: relative;
+  display: flex; flex-direction: column;
+}
+
+/* === WelcomeArea.vue .welcome-area === */
+.welcome-area {
+  flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.welcome-content { text-align: center; max-width: 680px; width: 100%; margin: 0 auto; }
+.welcome-logo { width: 64px; height: 64px; object-fit: contain; }
+.welcome-title {
+  margin-top: 16px; font-size: 24px; font-weight: 600; color: var(--text-primary-clr, #303133);
+}
+.welcome-subtitle {
+  margin-top: 8px; font-size: 14px; color: #909399; margin-bottom: 24px;
+}
+.faq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+.faq-item {
+  position: relative;
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 14px 16px 14px 20px;
+  background: #ffffff;
+  border: 1px solid #ececf1;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  line-height: 1.55;
+  min-width: 0; text-align: left;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  overflow: hidden;
+}
+.faq-item::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 12px; bottom: 12px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(180deg, #8B7CF7, #6B5CE7);
+  opacity: 0.45;
+  transition: opacity 0.22s ease;
+}
+.faq-item:hover {
+  background: #faf9ff;
+  border-color: rgba(107,92,231,0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(107,92,231,0.12);
+}
+.faq-item:hover::before { opacity: 1; }
+.faq-item:active { transform: translateY(0); box-shadow: 0 2px 6px rgba(107,92,231,0.1); }
+[data-theme="dark"] .faq-item { background: #2a2a3d; border-color: #3a3a4d; box-shadow: none; }
+[data-theme="dark"] .faq-item:hover { background: #322f49; border-color: rgba(139,124,247,0.4); box-shadow: 0 6px 16px rgba(0,0,0,0.3); }
+.faq-item-label { font-size: 11px; color: #999; white-space: nowrap; flex-shrink: 0; }
+.faq-item-text {
+  font-size: 13px; color: #5a5a66; word-break: break-word; white-space: normal; line-height: 1.6;
+  transition: color 0.22s ease;
+}
+.faq-item:hover .faq-item-text { color: #2c2c33; }
+[data-theme="dark"] .faq-item-text { color: #c8c8d0; }
+[data-theme="dark"] .faq-item:hover .faq-item-text { color: #ececf2; }
+
+/* === MessageInput.vue .message-input-area === */
+.message-input-area {
+  background: var(--panel-bg-color, #fff);
+  padding: 8px 20px 16px; width: 70%; max-width: 1600px; margin: 0 auto;
+}
+
+/* === MessageInput.vue .input-wrapper === */
+.input-wrapper {
+  background: var(--input-bg-color, #fff);
+  border: 1px solid var(--panel-border-color, #e4e7ed);
+  border-radius: 12px; padding: 8px 16px;
+  transition: border-color 0.2s; position: relative;
+}
+.input-wrapper:focus-within {
+  border-color: #6B5CE7; box-shadow: 0 0 0 2px rgba(107,92,231,0.1);
+}
+
+/* === MessageInput.vue .tags-bar === */
+.tags-bar { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px 0; margin-bottom: 4px; }
+.tag-badge {
+  display: inline-flex; align-items: center; gap: 2px;
+  border-radius: 4px; padding: 2px 8px; font-size: 13px; line-height: 1.6; cursor: default;
+}
+.tag-default-assistant {
+  background: var(--tag-default-assistant-bg, #e8f5e9);
+  color: var(--tag-default-assistant-color, #333);
+  border: 1px solid rgba(67,160,71,0.3);
+}
+.tag-icon { font-weight: 700; margin-right: 2px; font-size: 13px; }
+.tag-name { font-weight: 600; }
+
+/* === MessageInput.vue .chat-input === */
+.chat-textarea {
+  width: 100%; border: none; outline: none; resize: none;
+  background: transparent; font-size: 14px; color: var(--text-primary-clr, #303133);
+  font-family: inherit; line-height: 1.5; padding: 4px 0;
+  min-height: 42px; max-height: 120px;
+}
+.chat-textarea::placeholder { color: var(--text-placeholder-clr, #C0C4CC); }
+
+/* === MessageInput.vue .input-actions === */
+.input-actions {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 8px; margin-left: -16px; margin-right: -16px;
+  padding-left: 16px; padding-right: 16px;
+  border-top: 1px solid var(--divider-color, #EBEEF5); margin-top: 4px;
+}
+.actions-left { display: flex; align-items: center; gap: 8px; }
+
+/* === ChatToolbar.vue .toolbar-btn === */
+.toolbar-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border: none; background: transparent;
+  color: #909399; cursor: pointer; border-radius: 6px; transition: all 0.2s;
+}
+.toolbar-btn:hover { background: var(--sidebar-hover-bg, #eef0f4); color: #6B5CE7; }
+.toolbar-btn svg { width: 18px; height: 18px; }
+.mode-select-btn, .model-select-btn { width: auto; padding: 0 8px; gap: 4px; }
+.mode-name-text, .model-name-text {
+  font-size: 12px; color: #909399; max-width: 80px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.dropdown-arrow { opacity: 0.5; }
+
+/* === Model Selector Dropdown (模型切换下拉) === */
+.model-select-wrapper { position: relative; }
+.model-select-btn {
+  border: 1px solid #e0e0e6; border-radius: 7px;
+  background: #fafafa; color: #555; padding: 4px 8px; gap: 5px;
+}
+.model-select-btn:hover { background: #f0eef8; border-color: rgba(107,92,231,0.3); }
+.model-name-text { font-size: 12.5px; font-weight: 500; color: #444; max-width: 100px; }
+.model-dropdown {
+  display: none; position: absolute; left: 0; bottom: calc(100% + 6px);
+  width: 260px; background: #fff; border: 1px solid #e4e7ed;
+  border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.1), 0 2px 6px rgba(0,0,0,0.04);
+  z-index: 200; overflow: hidden; animation: modelFadeIn 0.15s ease-out;
+}
+@keyframes modelFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.model-dropdown.show { display: block; }
+.model-dropdown-header {
+  padding: 10px 14px 6px; font-size: 11.5px; color: #999; text-transform: uppercase;
+  letter-spacing: 0.5px; font-weight: 600; border-bottom: 1px solid #f2f3f5;
+}
+.model-option {
+  display: flex; align-items: center; gap: 8px; padding: 9px 14px;
+  cursor: pointer; transition: background 0.15s; position: relative;
+}
+.model-option:hover { background: #f7f6fc; }
+.model-option.active { background: #f0eeff; }
+.option-model { font-size: 13px; font-weight: 600; color: #333; flex: 1; min-width: 0; }
+.option-desc { font-size: 11.5px; color: #aaa; white-space: nowrap; }
+.option-check { width: 16px; height: 16px; color: transparent; flex-shrink: 0; transition: color 0.15s; }
+.model-option.active .option-check { color: #6B5CE7; }
+
+/* Dark theme for model dropdown */
+[data-theme="dark"] .model-select-btn { border-color: #444; background: #333; color: #bbb; }
+[data-theme="dark"] .model-select-btn:hover { background: #3a3550; border-color: rgba(139,124,247,0.35); }
+[data-theme="dark"] .model-name-text { color: #d0d0d8; }
+[data-theme="dark"] .model-dropdown { background: #28283a; border-color: #3a3a4d; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+[data-theme="dark"] .model-dropdown-header { color: #666; border-bottom-color: #333; }
+[data-theme="dark"] .model-option:hover { background: #332f45; }
+[data-theme="dark"] .model-option.active { background: #322f49; }
+[data-theme="dark"] .option-model { color: #ddd; }
+[data-theme="dark"] .option-desc { color: #777; }
+
+/* === MessageInput.vue .send-btn === */
+.send-btn {
+  position: absolute; bottom: 8px; right: 8px; z-index: 10;
+  width: 36px; height: 36px; border-radius: 50%; border: none;
+  background: #6B5CE7; color: #fff; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; box-shadow: 0 2px 8px rgba(107,92,231,0.3);
+}
+.send-btn:hover { background: #8B7CF7; transform: scale(1.05); }
+.send-btn:active { background: #5A4BD1; transform: scale(0.95); }
+.send-btn svg { width: 18px; height: 18px; }
+
+/* === MessageBubble.vue 用户消息气泡 === */
+.user-bubble {
+  max-width: 70%; background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff; padding: 12px 16px; border-radius: 12px 0 12px 12px;
+  font-size: 14px; line-height: 1.5;
+}
+
+/* === MessageBubble.vue AI消息气泡 === */
+.ai-bubble {
+  max-width: 70%; background: var(--panel-bg-color, #fff);
+  border: 1px solid var(--panel-border-color, #e4e7ed);
+  padding: 12px 16px; border-radius: 0 12px 12px 12px;
+  font-size: 14px; line-height: 1.5;
+  box-shadow: 0 2px 8px var(--shadow-color, rgba(0,0,0,0.06));
+}
+
+/* === 流式打点动画 === */
+@keyframes bounce { 0%,80%,100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+/* === Tooltip === */
+.tooltip-popup {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  z-index: 9999; background: #303133; color: #fff; font-size: 14px;
+  padding: 12px 20px; border-radius: 8px; pointer-events: none;
+  opacity: 0; transition: opacity 0.2s; white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.tooltip-popup.show { opacity: 1; }
+
+/* === Upload Tooltip (ChatToolbar.vue file-upload-tip) === */
+.upload-tip-wrapper { position: relative; display: inline-flex; }
+.upload-tip {
+  display: none; position: absolute; bottom: calc(100% + 8px); left: 50%;
+  transform: translateX(-50%); z-index: 100;
+  background: #303133; color: #fff; font-size: 12px; line-height: 1.8;
+  padding: 8px 12px; border-radius: 6px; white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.upload-tip::after {
+  content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  border: 5px solid transparent; border-top-color: #303133;
+}
+.upload-tip-wrapper:hover .upload-tip { display: block; }
+</style>
+</head>
+<body>
+
+<div class="app-layout" id="app">
+  <!-- ===== 侧边栏 (Sidebar.vue template 抽取) ===== -->
+  <aside class="layout-sidebar">
+    <div class="sidebar" id="sidebar">
+      <!-- sidebar-header -->
+      <div class="sidebar-header">
+        <div class="logo-area" onclick="goHome()">
+          <div class="logo-img" style="width:28px;height:28px;border-radius:6px;background:#6B5CE7;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700;flex-shrink:0;">黔</div>
+          <span class="logo-text">智能比数助手</span>
+        </div>
+       
+      </div>
+
+      <!-- new-chat -->
+      <div class="new-chat active" onclick="handleNewChat()">
+        <!-- Plus 图标 -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="18" height="18" fill="currentColor">
+          <path d="M480 480V128a32 32 0 0 1 64 0v352h352a32 32 0 1 1 0 64H544v352a32 32 0 1 1-64 0V544H128a32 32 0 0 1 0-64z"/>
+        </svg>
+        <span class="menu-label">新建对话</span>
+      </div>
+
+      <!-- sidebar-body -->
+      <div class="sidebar-body">
+        <!-- sidebar-menu -->
+        <div class="sidebar-menu">
+          <!-- 待办 EditPen -->
+          <div class="menu-item" onclick="setActiveMenu(this)">
+            <span class="menu-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="m199.04 672.64 193.984 112 224-387.968-193.92-112-224 388.032zm-23.872 60.16 32.896 148.288 144.896-45.696zM455.04 229.248l193.92 112 56.704-98.112-193.984-112zM104.32 708.8l384-665.024 304.768 175.936L409.152 884.8h.064l-248.448 78.336zm384 254.272v-64h448v64z"/></svg>
+            </span>
+            <span class="menu-label">待办</span>
+            <span class="menu-item-right"><span class="todo-badge">3</span></span>
+          </div>
+          <!-- 知识库 Collection -->
+          <div class="menu-item" onclick="setActiveMenu(this)">
+            <span class="menu-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="M192 736h640V128H256a64 64 0 0 0-64 64zm64-672h608a32 32 0 0 1 32 32v672a32 32 0 0 1-32 32H160l-32 57.536V192A128 128 0 0 1 256 64"/><path d="M240 800a48 48 0 1 0 0 96h592v-96zm0-64h656v160a64 64 0 0 1-64 64H240a112 112 0 0 1 0-224m144-608v250.88l96-76.8 96 76.8V128zm-64-64h320v381.44a32 32 0 0 1-51.968 24.96L480 384l-108.032 86.4A32 32 0 0 1 320 445.44z"/></svg>
+            </span>
+            <span class="menu-label">知识库</span>
+          </div>
+          <!-- 数字员工 UserFilled -->
+          <div class="menu-item" onclick="setActiveMenu(this)">
+            <span class="menu-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="M288 320a224 224 0 1 0 448 0 224 224 0 1 0-448 0m544 608H160a32 32 0 0 1-32-32v-96a160 160 0 0 1 160-160h448a160 160 0 0 1 160 160v96a32 32 0 0 1-32 32z"/></svg>
+            </span>
+            <span class="menu-label">数字员工</span>
+          </div>
+          <!-- 员工分身 User -->
+          <div class="menu-item" onclick="setActiveMenu(this)">
+            <span class="menu-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="M512 512a192 192 0 1 0 0-384 192 192 0 0 0 0 384m0 64a256 256 0 1 1 0-512 256 256 0 0 1 0 512m320 320v-96a96 96 0 0 0-96-96H288a96 96 0 0 0-96 96v96a32 32 0 1 1-64 0v-96a160 160 0 0 1 160-160h448a160 160 0 0 1 160 160v96a32 32 0 1 1-64 0"/></svg>
+            </span>
+            <span class="menu-label">员工分身</span>
+          </div>
+          <!-- 资源 MagicStick -->
+          <div class="menu-item" onclick="setActiveMenu(this)">
+            <span class="menu-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="M512 64h64v192h-64zm0 576h64v192h-64zM160 480v-64h192v64zm576 0v-64h192v64zM249.856 199.04l45.248-45.184L430.848 289.6 385.6 334.848 249.856 199.104zM657.152 606.4l45.248-45.248 135.744 135.744-45.248 45.248zM114.048 923.2 68.8 877.952l316.8-316.8 45.248 45.248zM702.4 334.848 657.152 289.6l135.744-135.744 45.248 45.248z"/></svg>
+            </span>
+            <span class="menu-label">资源</span>
+          </div>
+          <!-- 智能体 Cpu -->
+          <div class="menu-item" onclick="setActiveMenu(this)">
+            <span class="menu-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="M320 256a64 64 0 0 0-64 64v384a64 64 0 0 0 64 64h384a64 64 0 0 0 64-64V320a64 64 0 0 0-64-64zm0-64h384a128 128 0 0 1 128 128v384a128 128 0 0 1-128 128H320a128 128 0 0 1-128-128V320a128 128 0 0 1 128-128"/><path d="M512 64a32 32 0 0 1 32 32v128h-64V96a32 32 0 0 1 32-32m160 0a32 32 0 0 1 32 32v128h-64V96a32 32 0 0 1 32-32m-320 0a32 32 0 0 1 32 32v128h-64V96a32 32 0 0 1 32-32m160 896a32 32 0 0 1-32-32V800h64v128a32 32 0 0 1-32 32m160 0a32 32 0 0 1-32-32V800h64v128a32 32 0 0 1-32 32m-320 0a32 32 0 0 1-32-32V800h64v128a32 32 0 0 1-32 32M64 512a32 32 0 0 1 32-32h128v64H96a32 32 0 0 1-32-32m0-160a32 32 0 0 1 32-32h128v64H96a32 32 0 0 1-32-32m0 320a32 32 0 0 1 32-32h128v64H96a32 32 0 0 1-32-32m896-160a32 32 0 0 1-32 32H800v-64h128a32 32 0 0 1 32 32m0-160a32 32 0 0 1-32 32H800v-64h128a32 32 0 0 1 32 32m0 320a32 32 0 0 1-32 32H800v-64h128a32 32 0 0 1 32 32"/></svg>
+            </span>
+            <span class="menu-label">智能体</span>
+          </div>
+          <!-- 自动化 TrendCharts -->
+          <div class="menu-item" onclick="setActiveMenu(this)">
+            <span class="menu-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="M128 896V128h768v768zm291.712-327.296 128 102.4 180.16-201.792-47.744-42.624-139.84 156.608-128-102.4-180.16 201.792 47.744 42.624zM816 352a48 48 0 1 0-96 0 48 48 0 0 0 96 0"/></svg>
+            </span>
+            <span class="menu-label">自动化</span>
+          </div>
+          <!-- 观测和运营 Monitor -->
+          <div class="menu-item" onclick="setActiveMenu(this)">
+            <span class="menu-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="M544 768v128h192a32 32 0 1 1 0 64H288a32 32 0 1 1 0-64h192V768H192A128 128 0 0 1 64 640V256a128 128 0 0 1 128-128h640a128 128 0 0 1 128 128v384a128 128 0 0 1-128 128zM192 192a64 64 0 0 0-64 64v384a64 64 0 0 0 64 64h640a64 64 0 0 0 64-64V256a64 64 0 0 0-64-64z"/></svg>
+            </span>
+            <span class="menu-label">观测和运营</span>
+          </div>
+        </div>
+
+        <!-- history-section -->
+        <div class="history-section">
+          <div class="history-header">
+            <!-- Clock 图标 -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="M512 896a384 384 0 1 0 0-768 384 384 0 0 0 0 768m0 64a448 448 0 1 1 0-896 448 448 0 0 1 0 896"/><path d="M480 256a32 32 0 0 1 32 32v256a32 32 0 0 1-64 0V288a32 32 0 0 1 32-32"/><path d="M480 512h256q32 0 32 32t-32 32H480q-32 0-32-32t32-32"/></svg>
+            <span>历史对话</span>
+          </div>
+          <div class="history-group-label">今天</div>
+          <div class="history-item" onclick="loadConv(1)">
+            <div class="history-item-content">
+              <div class="history-item-title-wrapper">
+                <!-- Loading 图标 (running) -->
+                <svg class="history-item-check is-loading" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="12" height="12" fill="currentColor"><path d="M512 64a32 32 0 0 1 32 32v192a32 32 0 0 1-64 0V96a32 32 0 0 1 32-32m0 640a32 32 0 0 1 32 32v192a32 32 0 1 1-64 0V736a32 32 0 0 1 32-32m448-192a32 32 0 0 1-32 32H736a32 32 0 1 1 0-64h192a32 32 0 0 1 32 32m-640 0a32 32 0 0 1-32 32H96a32 32 0 0 1 0-64h192a32 32 0 0 1 32 32M195.2 195.2a32 32 0 0 1 45.248 0L376.32 331.008a32 32 0 0 1-45.248 45.248L195.2 240.448a32 32 0 0 1 0-45.248m452.544 452.544a32 32 0 0 1 45.248 0L828.8 783.552a32 32 0 0 1-45.248 45.248L647.744 692.992a32 32 0 0 1 0-45.248M828.8 195.264a32 32 0 0 1 0 45.184L692.992 376.32a32 32 0 0 1-45.248-45.248l135.808-135.808a32 32 0 0 1 45.248 0m-452.544 452.48a32 32 0 0 1 0 45.248L240.448 828.8a32 32 0 0 1-45.248-45.248l135.808-135.808a32 32 0 0 1 45.248 0"/></svg>
+                <span class="history-item-title text-ellipsis">分析Q2季度销售数据趋势</span>
+              </div>
+              <span class="history-item-time">3分钟前</span>
+            </div>
+            <span class="history-item-delete" onclick="deleteHistory(event)" title="删除">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="M160 256H96a32 32 0 0 1 0-64h256V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64h-64v672a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32zm448-64v-64H416v64zM224 896h576V256H224zm192-128a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32m192 0a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32"/></svg>
+            </span>
+          </div>
+          <div class="history-item" onclick="loadConv(2)">
+            <div class="history-item-content">
+              <div class="history-item-title-wrapper">
+                <!-- CircleCheck 图标 (completed) -->
+                <svg class="history-item-check" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="12" height="12" fill="currentColor"><path d="M512 896a384 384 0 1 0 0-768 384 384 0 0 0 0 768m0 64a448 448 0 1 1 0-896 448 448 0 0 1 0 896"/><path d="M745.344 361.344a32 32 0 0 1 45.312 45.312l-288 288a32 32 0 0 1-45.312 0l-160-160a32 32 0 1 1 45.312-45.312L480 626.752z"/></svg>
+                <span class="history-item-title text-ellipsis">编写产品需求文档PRD</span>
+              </div>
+              <span class="history-item-time">1小时前</span>
+            </div>
+            <span class="history-item-delete" onclick="deleteHistory(event)" title="删除">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="M160 256H96a32 32 0 0 1 0-64h256V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64h-64v672a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32zm448-64v-64H416v64zM224 896h576V256H224zm192-128a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32m192 0a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32"/></svg>
+            </span>
+          </div>
+          <div class="history-group-label">昨天</div>
+          <div class="history-item" onclick="loadConv(3)">
+            <div class="history-item-content">
+              <div class="history-item-title-wrapper">
+                <svg class="history-item-check" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="12" height="12" fill="currentColor"><path d="M512 896a384 384 0 1 0 0-768 384 384 0 0 0 0 768m0 64a448 448 0 1 1 0-896 448 448 0 0 1 0 896"/><path d="M745.344 361.344a32 32 0 0 1 45.312 45.312l-288 288a32 32 0 0 1-45.312 0l-160-160a32 32 0 1 1 45.312-45.312L480 626.752z"/></svg>
+                <span class="history-item-title text-ellipsis">竞品分析：AI智能体平台对比</span>
+              </div>
+              <span class="history-item-time">昨天</span>
+            </div>
+            <span class="history-item-delete" onclick="deleteHistory(event)" title="删除">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="M160 256H96a32 32 0 0 1 0-64h256V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64h-64v672a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32zm448-64v-64H416v64zM224 896h576V256H224zm192-128a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32m192 0a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32"/></svg>
+            </span>
+          </div>
+          <div class="history-group-label">本周</div>
+          <div class="history-item" onclick="loadConv(4)">
+            <div class="history-item-content">
+              <div class="history-item-title-wrapper">
+                <svg class="history-item-check" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="12" height="12" fill="currentColor"><path d="M512 896a384 384 0 1 0 0-768 384 384 0 0 0 0 768m0 64a448 448 0 1 1 0-896 448 448 0 0 1 0 896"/><path d="M745.344 361.344a32 32 0 0 1 45.312 45.312l-288 288a32 32 0 0 1-45.312 0l-160-160a32 32 0 1 1 45.312-45.312L480 626.752z"/></svg>
+                <span class="history-item-title text-ellipsis">用户增长策略方案撰写</span>
+              </div>
+              <span class="history-item-time">3天前</span>
+            </div>
+            <span class="history-item-delete" onclick="deleteHistory(event)" title="删除">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="M160 256H96a32 32 0 0 1 0-64h256V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64h-64v672a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32zm448-64v-64H416v64zM224 896h576V256H224zm192-128a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32m192 0a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32"/></svg>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- user-area -->
+      <div class="user-area" onclick="toggleUserDropdown(event)">
+        <div class="user-avatar">周</div>
+        <div class="user-info">
+          <span class="user-name">周雨萌</span>
+        </div>
+      </div>
+
+      <!-- user-dropdown -->
+      <div class="user-dropdown" id="userDropdown">
+        <div class="dropdown-header">
+          <div class="dropdown-avatar">周</div>
+          <span class="dropdown-user-name">周雨萌</span>
+        </div>
+        <div class="dropdown-divider"></div>
+        <!-- Brush 主题切换 -->
+        <div class="dropdown-item" onclick="toggleTheme()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="M896 448H128v192a64 64 0 0 0 64 64h192v192h256V704h192a64 64 0 0 0 64-64zm-770.752-64c0-47.552 5.248-90.24 15.552-128 14.72-54.016 42.496-107.392 83.2-160h417.28l-15.36 70.336L736 96h211.2c-24.832 42.88-41.92 96.256-51.2 160a664 664 0 0 0-6.144 128H960v256a128 128 0 0 1-128 128H704v160a32 32 0 0 1-32 32H352a32 32 0 0 1-32-32V768H192A128 128 0 0 1 64 640V384zm64 0h636.544c-2.048-45.824.256-91.584 6.848-137.216 4.48-30.848 10.688-59.776 18.688-86.784h-96.64l-221.12 141.248L561.92 160H256.512c-25.856 37.888-43.776 75.456-53.952 112.832-8.768 32.064-13.248 69.12-13.312 111.168"/></svg>
+          <span id="themeLabel">切换主题 (浅色)</span>
+        </div>
+        <!-- Iphone 语言 -->
+        <div class="dropdown-item" onclick="showTip('语言切换')">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="M224 768v96.064a64 64 0 0 0 64 64h448a64 64 0 0 0 64-64V768zm0-64h576V160a64 64 0 0 0-64-64H288a64 64 0 0 0-64 64zm32 288a96 96 0 0 1-96-96V128a96 96 0 0 1 96-96h512a96 96 0 0 1 96 96v768a96 96 0 0 1-96 96zm304-144a48 48 0 1 1-96 0 48 48 0 0 1 96 0"/></svg>
+          <span>中文 / English</span>
+        </div>
+        <!-- Document 开发者中心 -->
+        <div class="dropdown-item" onclick="showTip('开发者中心')">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="M832 384H576V128H192v768h640zm-26.496-64L640 154.496V320zM160 64h480l256 256v608a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V96a32 32 0 0 1 32-32m160 448h384v64H320zm0-192h160v64H320zm0 384h384v64H320z"/></svg>
+          <span>开发者中心</span>
+        </div>
+        <!-- Reading 使用指南 -->
+        <div class="dropdown-item" onclick="showTip('使用指南')">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="m512 863.36 384-54.848v-638.72L525.568 222.72a96 96 0 0 1-27.136 0L128 169.792v638.72zM137.024 106.432l370.432 52.928a32 32 0 0 0 9.088 0l370.432-52.928A64 64 0 0 1 960 169.792v638.72a64 64 0 0 1-54.976 63.36l-388.48 55.488a32 32 0 0 1-9.088 0l-388.48-55.488A64 64 0 0 1 64 808.512v-638.72a64 64 0 0 1 73.024-63.36"/><path d="M480 192h64v704h-64z"/></svg>
+          <span>使用指南</span>
+        </div>
+        <!-- Setting 设置 -->
+        <div class="dropdown-item" onclick="showTip('设置')">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="M600.704 64a32 32 0 0 1 30.464 22.208l35.2 109.376c14.784 7.232 28.928 15.36 42.432 24.512l112.384-24.192a32 32 0 0 1 34.432 15.36L944.32 364.8a32 32 0 0 1-4.032 37.504l-77.12 85.12a357 357 0 0 1 0 49.024l77.12 85.248a32 32 0 0 1 4.032 37.504l-88.704 153.6a32 32 0 0 1-34.432 15.296L708.8 803.904c-13.44 9.088-27.648 17.28-42.368 24.512l-35.264 109.376A32 32 0 0 1 600.704 960H423.296a32 32 0 0 1-30.464-22.208L357.696 828.48a352 352 0 0 1-42.56-24.64l-112.32 24.256a32 32 0 0 1-34.432-15.36L79.68 659.2a32 32 0 0 1 4.032-37.504l77.12-85.248a357 357 0 0 1 0-48.896l-77.12-85.248A32 32 0 0 1 79.68 364.8l88.704-153.6a32 32 0 0 1 34.432-15.296l112.32 24.256c13.568-9.152 27.776-17.408 42.56-24.64l35.2-109.312A32 32 0 0 1 423.232 64H600.64zm-23.424 64H446.72l-36.352 113.088-24.512 11.968a294 294 0 0 0-34.816 20.096l-22.656 15.36-116.224-25.088-65.28 113.152 79.68 88.192-1.92 27.136a293 293 0 0 0 0 40.192l1.92 27.136-79.808 88.192 65.344 113.152 116.224-25.024 22.656 15.296a294 294 0 0 0 34.816 20.096l24.512 11.968L446.72 896h130.688l36.48-113.152 24.448-11.904a288 288 0 0 0 34.752-20.096l22.592-15.296 116.288 25.024 65.28-113.152-79.744-88.192 1.92-27.136a293 293 0 0 0 0-40.256l-1.92-27.136 79.808-88.128-65.344-113.152-116.288 24.96-22.592-15.232a288 288 0 0 0-34.752-20.096l-24.448-11.904L577.344 128zM512 320a192 192 0 1 1 0 384 192 192 0 0 1 0-384m0 64a128 128 0 1 0 0 256 128 128 0 0 0 0-256"/></svg>
+          <span>设置</span>
+        </div>
+        <!-- OfficeBuilding HubAdmin -->
+        <div class="dropdown-item" onclick="showTip('HubAdmin')">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="M192 128v704h384V128zm-32-64h448a32 32 0 0 1 32 32v768a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V96a32 32 0 0 1 32-32"/><path d="M256 256h256v64H256zm0 192h256v64H256zm0 192h256v64H256zm384-128h128v64H640zm0 128h128v64H640zM64 832h896v64H64z"/><path d="M640 384v448h192V384zm-32-64h256a32 32 0 0 1 32 32v512a32 32 0 0 1-32 32H608a32 32 0 0 1-32-32V352a32 32 0 0 1 32-32"/></svg>
+          <span>HubAdmin</span>
+        </div>
+        <!-- InfoFilled 关于产品 -->
+        <div class="dropdown-item" onclick="showTip('关于产品')">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="M512 64a448 448 0 1 1 0 896.064A448 448 0 0 1 512 64m67.2 275.072c33.28 0 60.288-23.104 60.288-57.344s-27.072-57.344-60.288-57.344c-33.28 0-60.16 23.104-60.16 57.344s26.88 57.344 60.16 57.344M590.912 699.2c0-6.848 2.368-24.64 1.024-34.752l-52.608 60.544c-10.88 11.456-24.512 19.392-30.912 17.28a12.99 12.99 0 0 1-8.256-14.72l87.68-276.992c7.168-35.136-12.544-67.2-54.336-71.296-44.096 0-108.992 44.736-148.48 101.504 0 6.784-1.28 23.68.064 33.792l52.544-60.608c10.88-11.328 23.552-19.328 29.952-17.152a12.8 12.8 0 0 1 7.808 16.128L388.48 728.576c-10.048 32.256 8.96 63.872 55.04 71.04 67.84 0 107.904-43.648 147.456-100.416z"/></svg>
+          <span>关于小思Bot</span>
+        </div>
+        <div class="dropdown-divider"></div>
+        <!-- SwitchButton 退出登录 -->
+        <div class="dropdown-item logout-item" onclick="showTip('退出登录')">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="M352 159.872V230.4a352 352 0 1 0 320 0v-70.528A416.128 416.128 0 0 1 512 960a416 416 0 0 1-160-800.128"/><path d="M512 64q32 0 32 32v320q0 32-32 32t-32-32V96q0-32 32-32"/></svg>
+          <span>退出登录</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== 主内容区 (AppLayout.vue layout-main) ===== -->
+  <main class="layout-main">
+    <div class="chat-panel" id="chatPanel">
+      <!-- messages-container -->
+      <div class="messages-container" id="messagesContainer">
+        <!-- welcome-area (WelcomeArea.vue) -->
+        <div class="welcome-area" id="welcomeArea">
+          <div class="welcome-content">
+            <div class="welcome-logo" style="width:64px;height:64px;border-radius:14px;background:#6B5CE7;display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;font-weight:700;margin:0 auto;">黔</div>
+            <h2 class="welcome-title">智能比数助手</h2>
+            <p class="welcome-subtitle">根据用户上传的多个数据表格(Excel/CSV)和自然语言描述的需求，通过多轮对话调用SKILL读取并处理数据，最终输
+出合并、比对或统计分析的结果文件与统计摘要。</p>
+            <div class="faq-grid">
+              <div class="faq-item" onclick="handleFaq(this, '以《5月拟新增社会救助对象名单》、《应急比对受灾家庭人员救助信息》为基础进行对比，最终将比对信息汇总输出。')">
+                <span class="faq-item-text">以《5月拟新增社会救助对象名单》、《应急比对受灾家庭人员救助信息》为基础进行对比，最终将比对信息汇总输出。</span>
+              </div>
+              <div class="faq-item" onclick="handleFaq(this, '对《B-工商注册库》进行分析，将注册资本大于8000万元的企业输出给我')">
+                <span class="faq-item-text">对《B-工商注册库》进行分析，将注册资本大于8000万元的企业输出给我</span>
+              </div>
+              <div class="faq-item" onclick="handleFaq(this, '以《5月拟新增社会救助对象名单》、《司法比对社区矫正人员信息》为基础进行对比，最终只需要将匹配上的信息输出给我')">
+                <span class="faq-item-text">以《5月拟新增社会救助对象名单》、《司法比对社区矫正人员信息》为基础进行对比，最终只需要将匹配上的信息输出给我</span>
+              </div>
+              <div class="faq-item" onclick="handleFaq(this, '对《F-政府登记库》为基础，通过“企业全称”对比《B-工商注册库》中的信息，最终给我补充注册资本字段到《F-政府登记库》表中输出给我')">
+                <span class="faq-item-text">对《F-政府登记库》为基础，通过“企业全称”对比《B-工商注册库》中的信息，最终给我补充注册资本字段到《F-政府登记库》表中输出给我</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- message-input-area (MessageInput.vue) -->
+      <div class="message-input-area">
+        <div class="input-wrapper">
+          <!-- tags-bar -->
+          <div class="tags-bar">
+            <span class="tag-badge tag-default-assistant">
+              <span class="tag-icon">@</span>
+              <span class="tag-name">智能比数助手</span>
+            </span>
+          </div>
+          <!-- textarea -->
+          <textarea class="chat-textarea" rows="2" placeholder="上传数据表格，告诉我您想比对或统计什么…" id="chatInput"></textarea>
+          <!-- input-actions (只保留上传按钮) -->
+          <div class="input-actions">
+            <div class="actions-left">
+              <!-- ChatToolbar: Upload (with custom tooltip) -->
+              <div class="upload-tip-wrapper">
+                <button class="toolbar-btn" onclick="showTip('上传文件')">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="M160 832h704a32 32 0 1 1 0 64H160a32 32 0 1 1 0-64m384-578.304V704h-64V247.296L237.248 490.048 192 444.8 508.8 128l316.8 316.8-45.312 45.248z"/></svg>
+                </button>
+                <div class="upload-tip">
+                  <div><b>文档格式：</b>xlsx、csv</div>
+                  <div><b>大小限制：</b>xlsx不超过20MB，其他文件不超过50MB</div>
+                </div>
+              </div>
+              <!-- Model Selector (模型切换) -->
+              <div class="model-select-wrapper" id="modelSelectWrapper">
+                <button class="toolbar-btn model-select-btn" onclick="toggleModelDropdown()" title="切换模型">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
+                  <span class="model-name-text" id="currentModelName">minimax-m2.7</span>
+                  <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <!-- Dropdown Menu -->
+                <div class="model-dropdown" id="modelDropdown">
+                  <div class="model-dropdown-header">选择推理模型</div>
+                  <div class="model-option active" onclick="selectModel('minimax-m2.7', 'MiniMax M2.7')">
+                    <span class="option-model">minimax-m2.7</span>
+                    <span class="option-desc">通用对话 · 高性价比</span>
+                    <svg class="option-check" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <div class="model-option" onclick="selectModel('gpt-4o', 'GPT-4o')">
+                    <span class="option-model">gpt-4o</span>
+                    <span class="option-desc">复杂推理 · 多模态</span>
+                    <svg class="option-check" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <div class="model-option" onclick="selectModel('deepseek-v3', 'DeepSeek V3')">
+                    <span class="option-model">deepseek-v3</span>
+                    <span class="option-desc">长文本 · 数据分析</span>
+                    <svg class="option-check" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <div class="model-option" onclick="selectModel('qwen-max', 'Qwen Max')">
+                    <span class="option-model">qwen-max</span>
+                    <span class="option-desc">中文优化 · 指令遵循</span>
+                    <svg class="option-check" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- send-btn (Top 图标) -->
+          <button class="send-btn" onclick="handleSend()" title="发送">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor"><path d="M572.235 205.282v600.365a30.118 30.118 0 1 1-60.235 0V205.282L292.382 438.633a28.913 28.913 0 0 1-42.646 0 33.43 33.43 0 0 1 0-45.236l271.058-288.045a28.913 28.913 0 0 1 42.647 0L834.5 393.397a33.43 33.43 0 0 1 0 45.176 28.913 28.913 0 0 1-42.647 0l-219.618-233.23z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Tooltip -->
+<div class="tooltip-popup" id="tooltip"></div>
+
+<script>
+// ===== 交互逻辑 =====
+let sidebarCollapsed = false;
+let currentTheme = 'light';
+
+// 侧边栏折叠
+function toggleSidebar() {
+  sidebarCollapsed = !sidebarCollapsed;
+  document.getElementById('sidebar').classList.toggle('collapsed', sidebarCollapsed);
+  document.getElementById('iconFold').style.display = sidebarCollapsed ? 'none' : 'block';
+  document.getElementById('iconExpand').style.display = sidebarCollapsed ? 'block' : 'none';
+}
+
+// 菜单选中 (Sidebar.vue handleMenuSelect)
+function setActiveMenu(el) {
+  document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('is-active'));
+  el.classList.add('is-active');
+}
+
+// 新建对话 (Sidebar.vue handleNewChat)
+function handleNewChat() {
+  document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('is-active'));
+  document.getElementById('welcomeArea').style.display = 'flex';
+  // 清空消息区
+  const mc = document.getElementById('messagesContainer');
+  mc.querySelectorAll('.msg-row').forEach(r => r.remove());
+  document.getElementById('chatInput').focus();
+}
+
+// 回到首页
+function goHome() { handleNewChat(); }
+
+// 主题切换 (Sidebar.vue handleThemeSwitch → menuStore.cycleTheme)
+function toggleTheme() {
+  currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', currentTheme);
+  document.getElementById('themeLabel').textContent = currentTheme === 'light' ? '切换主题 (浅色)' : '切换主题 (深色)';
+  closeUserDropdown();
+}
+
+// 用户下拉 (Sidebar.vue toggleUserDropdown)
+function toggleUserDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('userDropdown').classList.toggle('show');
+}
+function closeUserDropdown() { document.getElementById('userDropdown').classList.remove('show'); }
+document.addEventListener('click', e => {
+  if (!e.target.closest('.user-area') && !e.target.closest('.user-dropdown')) closeUserDropdown();
+});
+
+// FAQ 点击 (WelcomeArea.vue handleFaqClick → emit('select', text))
+function handleFaq(el, text) {
+  document.getElementById('chatInput').value = text;
+  document.getElementById('chatInput').focus();
+}
+
+// 输入框自适应 (MessageInput.vue autosize)
+const chatInput = document.getElementById('chatInput');
+chatInput.addEventListener('input', function() { this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 120) + 'px'; });
+chatInput.addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
+
+// 发送消息 (ChatPanel.vue handleSendMessage)
+function handleSend() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  const mc = document.getElementById('messagesContainer');
+  document.getElementById('welcomeArea').style.display = 'none';
+
+  // 用户消息 (MessageBubble.vue user role: 右对齐, gradient purple-blue)
+  const userRow = document.createElement('div');
+  userRow.className = 'msg-row';
+  userRow.style.cssText = 'display:flex;justify-content:flex-end;gap:8px;padding:0 24px 16px;';
+  userRow.innerHTML = '<div class="user-bubble">' + escHtml(text) + '</div>' +
+    '<div style="width:36px;height:36px;border-radius:50%;background:#6B5CE7;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:600;flex-shrink:0;">周</div>';
+  mc.appendChild(userRow);
+
+  // AI 消息 (MessageBubble.vue assistant role: 左对齐, white bg, shadow)
+  const aiRow = document.createElement('div');
+  aiRow.className = 'msg-row';
+  aiRow.style.cssText = 'display:flex;gap:8px;padding:0 24px 16px;';
+  aiRow.innerHTML =
+    '<div style="width:36px;height:36px;border-radius:50%;background:#6B5CE7;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;flex-shrink:0;">黔</div>' +
+    '<div style="max-width:70%;">' +
+      '<div style="font-size:12px;color:#909399;margin-bottom:4px;">智能比数助手</div>' +
+      '<div class="ai-bubble"><span style="display:inline-flex;gap:4px;">' +
+        '<span style="width:6px;height:6px;border-radius:50%;background:#6B5CE7;animation:bounce 1.4s infinite ease-in-out;"></span>' +
+        '<span style="width:6px;height:6px;border-radius:50%;background:#6B5CE7;animation:bounce 1.4s infinite ease-in-out 0.2s;"></span>' +
+        '<span style="width:6px;height:6px;border-radius:50%;background:#6B5CE7;animation:bounce 1.4s infinite ease-in-out 0.4s;"></span>' +
+      '</span></div>' +
+    '</div>';
+  mc.appendChild(aiRow);
+  mc.scrollTop = mc.scrollHeight;
+  input.value = ''; input.style.height = 'auto';
+
+  // 模拟回复
+  setTimeout(() => {
+    const bubble = aiRow.querySelector('.ai-bubble');
+    if (bubble) bubble.innerHTML = '收到您的消息！这是一个基于源码抽取的高保真原型演示。';
+  }, 2000);
+}
+
+function escHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
+// 历史对话
+function loadConv(id) { showTip('加载对话 #' + id); }
+function deleteHistory(e) { e.stopPropagation(); if (confirm('确定删除这条历史对话吗？')) e.target.closest('.history-item').remove(); }
+
+// Tooltip
+let tipTimer;
+function showTip(text) {
+  const tip = document.getElementById('tooltip');
+  tip.textContent = text; tip.classList.add('show');
+  clearTimeout(tipTimer);
+  tipTimer = setTimeout(() => tip.classList.remove('show'), 2000);
+}
+
+// ===== Model Selector (模型切换) =====
+let modelDropdownOpen = false;
+function toggleModelDropdown() {
+  const dropdown = document.getElementById('modelDropdown');
+  modelDropdownOpen = !modelDropdownOpen;
+  dropdown.classList.toggle('show', modelDropdownOpen);
+}
+// 点击外部关闭
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#modelSelectWrapper')) {
+    modelDropdownOpen = false;
+    document.getElementById('modelDropdown').classList.remove('show');
+  }
+});
+function selectModel(modelId, modelLabel) {
+  document.getElementById('currentModelName').textContent = modelId;
+  // 更新选中态
+  document.querySelectorAll('.model-option').forEach(el => el.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  // 关闭下拉
+  modelDropdownOpen = false;
+  document.getElementById('modelDropdown').classList.remove('show');
+  // 提示切换成功（可选）
+  showTip(`已切换模型：${modelLabel}`);
+}
+</script>
+</body>
+</html>

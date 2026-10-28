@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>workorder-notes · 周一鸣作品集</title>
+<link rel="stylesheet" href="../../assets/doc.css">
+</head>
+<body>
+<header class="top">
+  <div class="top__in">
+    <a class="back" href="../../index.html#docs">← 返回作品集</a>
+    <span class="crumb">业务场景 Skill 包</span>
+    <a class="dl" href="../../index.html#contact">联系我</a>
+  </div>
+</header>
+<main>
+  <div class="doc__head">
+    <p class="doc__kicker">业务场景 Skill 包 · 文档</p>
+    <h1 class="doc__title">workorder-notes</h1>
+    <p class="doc__lede">七类工单查不到原因的原始场景笔记，含处置 SQL 与判断顺序</p>
+    <p class="doc__meta">源文件 <code>业务场景skills/网络域投诉工单处理skill/看不见工单，场景分析以及日常处理方法.md</code> · 约 798 字 · 2026-10</p>
+  </div>
+  <div class="doc__body">
+
+    <article class="doc__article">
+<p>看不到单子场景，结合日常运维出现的各种场景，比如工单在pon机房，工单被别人接收了，工单异常，工单在外勘待派单等等</p>
+<pre><code>场景1：工单营业报文解析异常导致工单未正常流转
+
+处理：tin_crm_info中修改营业报文状态，进行二次解析，工单正常
+
+场景2：工单被别人接受，问题提出人看不见工单
+
+处理：后台进行查询dresworkorder，工单状态为已领单，用DEAL_LOGIN查询lnrmdb_shandong.t_sys_user中对应工号，告知问题提出人工单被哪个工号领单
+
+场景3：工单在外勘，看不见工单
+
+处理：查询t_ps_order_qr工单所属局站对应营服不存在，营服查询gongke_yfperson_info营服不存在，后台进行手工转派工单，并告知地市人员在号线系统中更新对应关系
+
+场景4：工单已派单到装维人员，但所派工号人员已离职工号不存在
+
+处理：根据地市提供工号在t_ps_order_qr中更换派单工号进行转派，并告知地市按规范注销离职工号
+
+场景5：工单在营服外勘，待班长派单
+
+处理：后台查询t_ps_order_qr在哪个营服，通过gongke_yfperson_info查询营服下人员，告知地市人员联系营服班长进行派单
+
+场景6：装维人员操作不规范导致工单异常，看不见工单
+
+处理：根据异常提示，查询tin_message_log、tin_iomtorms、dresworkorder、t_ps_order_qr表格数据，处理对应异常问题，使工单正常流转
+
+场景7：工单受理异常，缺少关键参数，如局站信息，电视号码
+
+处理：缺少局站需查询tin_crm_info是否提示缺少局站信息，tin_crm_info无报错，查询tcbb_prod_attr中是否缺少电视账号，告知地市缺少信息并进行退单重新受理来完善信息，使工单正常</code></pre>
+    </article>
+  </div>
+  <div class="doc__foot">
+    <a href="../../index.html#docs">← 全部文档</a>
+  </div>
+</main>
+</body>
+</html>

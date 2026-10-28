@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>业务 Skill 包目录结构 · 周一鸣作品集</title>
+<meta name="description" content="四个业务 Skill 包的完整文件树与分层职责：SKILL.md 写路由，references 放规则，scripts 落执行。">
+<link rel="stylesheet" href="../assets/doc.css">
+<style>
+  .tree {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 12.6px;
+    line-height: 1.85;
+    color: #22303f;
+    white-space: pre;
+    margin: 0 0 18px;
+  }
+  .pkg { margin: 0 0 44px; }
+  .pkg > h2 {
+    font-size: 18px;
+    margin: 0 0 4px;
+    border: 0;
+    padding: 0;
+    font-family: var(--mono);
+    letter-spacing: -.01em;
+  }
+  .pkg__role { margin: 0 0 14px; font-size: 13.5px; color: var(--muted); }
+  .pkg__note {
+    margin: 0;
+    padding: 10px 14px;
+    background: #fdf6ec;
+    border: 1px solid #f2e2c9;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #7c4f12;
+    line-height: 1.65;
+  }
+  .pkg__note b { color: #6b4310; }
+  .legend { margin-bottom: 34px; }
+  .legend th { white-space: normal; }
+  .legend td:first-child { font-family: var(--mono); white-space: nowrap; }
+  .topnote { font-size: 13px; color: var(--muted); margin: -6px 0 26px; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top__in">
+    <a class="back" href="../index.html#works">← 返回作品集</a>
+    <span class="crumb">业务场景 Skill 包</span>
+    <a class="dl" href="../index.html#contact">联系我</a>
+  </div>
+</header>
+
+<main>
+  <div class="doc__head">
+    <p class="doc__kicker">Skill 包 · 目录结构</p>
+    <h1 class="doc__title">业务 Skill 包目录结构</h1>
+    <p class="doc__lede">
+      四个包，三个带可执行脚本，一个只到规则与数据说明。目录按职责划分：SKILL.md 决定走哪个分支，references 存每个分支的判断规则，scripts 放可以确定性执行的部分。改一个场景不动另一个场景，这是分层的目的。
+    </p>
+    <p class="doc__meta">文件体积为压缩包内实际大小 · 结构取自包内文件清单，未经改写</p>
+  </div>
+
+  <div class="doc__body">
+    <article class="doc__article">
+
+      <h2>三层职责</h2>
+      <div class="tw">
+        <table class="legend">
+          <thead>
+            <tr><th>目录</th><th>放什么</th><th>改动风险</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>SKILL.md</td>
+              <td>意图识别、分支条件、输出格式、什么情况转人工</td>
+              <td>改错会让请求落到错的分支，所有子场景同时受影响</td>
+            </tr>
+            <tr>
+              <td>references/</td>
+              <td>一个子场景一个文件：判定规则、字段口径、话术模板</td>
+              <td>只影响对应场景，业务方给新规则时改这里</td>
+            </tr>
+            <tr>
+              <td>scripts/</td>
+              <td>确定性计算、CLI 入口、selftest 自检</td>
+              <td>改完必须跑 selftest，否则没有回归保障</td>
+            </tr>
+            <tr>
+              <td>demo / mock 数据</td>
+              <td>演示样例与模拟库表，不参与生产判定</td>
+              <td>体积大，发布时要单独确认是否带上</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pkg">
+        <h2>01 · approval-review-advisor/</h2>
+        <p class="pkg__role">输入流转单，输出审核结论、风险定级与下一步建议。四类子场景：材料齐全性、金额与权限匹配、历史同类处理、异常模式。</p>
+<div class="tree">approval-review-advisor/
+├── SKILL.md                        13.0 KB   路由 + 输出约束 + 转人工条件
+├── references/
+│   ├── 01-流转单输入契约.md          6.2 KB   字段清单与必填校验
+│   ├── 02-审核结论与建议规范.md      4.7 KB   三档结论与建议措辞
+│   ├── 03-风险定级与核实要点.md      4.2 KB   四档风险与对应核实动作
+│   └── 04-演示脚本与话术.md         26.3 KB   六个完整演示案例
+└── scripts/
+    ├── approval_engine.py          26.8 KB   规则引擎，两包共用
+    ├── review_advisor.py           16.0 KB   结论生成
+    ├── review_cli.py               12.6 KB   命令行入口
+    ├── selftest.py                 10.9 KB   自检用例
+    └── demo_handoffs.json          25.7 KB   演示用流转单数据</div>
+      </div>
+
+      <div class="pkg">
+        <h2>02 · contract-intake-router/</h2>
+        <p class="pkg__role">先判业务条线，再定审批层级与角色，最后抽合同要素并给回执。和上一个包共用同一个规则引擎，区别在路由层。</p>
+<div class="tree">contract-intake-router/
+├── SKILL.md                        11.5 KB   条线识别与路由
+├── references/
+│   ├── 01-业务条线识别与路由.md      4.4 KB   条线判定条件
+│   ├── 02-审批层级与角色字典.md      6.0 KB   层级与角色映射
+│   ├── 03-合同要素抽取规范.md        4.7 KB   抽取字段与格式
+│   ├── 04-回执话术模板.md            5.9 KB   受理回执的固定话术
+│   ├── 05-流转单契约.md              4.4 KB   与审批包对接的数据结构
+│   └── 06-演示脚本与话术.md         16.1 KB   演示案例
+└── scripts/
+    ├── approval_engine.py          26.8 KB   与审批包同一份引擎
+    ├── intake_router.py            26.8 KB   条线路由
+    ├── intake_cli.py                7.9 KB   命令行入口
+    ├── selftest.py                  7.0 KB   自检用例
+    └── demo_contracts.json          8.0 KB   演示用合同数据</div>
+        <p class="pkg__note"><b>已知问题：</b>两个审批包的 references 文件名在压缩时用了 GBK 编码，在 Mac 或 Linux 上解压会显示乱码，需要按 UTF-8 重新打包。规则内容本身不受影响。</p>
+      </div>
+
+      <div class="pkg">
+        <h2>03 · data-table/</h2>
+        <p class="pkg__role">上传两张表，输出新增集、消失集、变更集，变更集再列字段级差异。计算逻辑在脚本里，不做自然语言推理。</p>
+<div class="tree">data-table/                              （压缩包内没有顶层目录）
+├── SKILL.md                        12.2 KB   何时触发、如何追问、输出格式
+├── references/
+│   └── operations.md               16.8 KB   比对口径与合并规则
+└── scripts/
+    ├── data_merge_compare.py       65.1 KB   比对与合并主逻辑
+    ├── _tool_bridge.py             18.6 KB   与工具层的适配
+    └── __pycache__/                          ← 编译缓存，发布前应剔除</div>
+        <p class="pkg__note"><b>已知问题：</b>包里带了 <code>__pycache__</code> 和 <code>.pyc</code>，属于打包时漏清理；另外这个包没有 selftest，比对逻辑改动后只能靠演示数据人工验证。</p>
+      </div>
+
+      <div class="pkg">
+        <h2>04 · sd-workorder-diagnosis/</h2>
+        <p class="pkg__role">七类工单查不到原因的判定顺序与处置动作。这一版只有规则和模拟数据，没有脚本，是四个包里纵深最深、完成度最低的一个。</p>
+<div class="tree">sd-workorder-diagnosis/
+├── SKILL.md                         8.7 KB   七类场景的判定顺序
+└── references/
+    ├── database_tables.md          10.7 KB   涉及的库表与字段含义
+    ├── demo_cases.md               10.2 KB   真实工单的脱敏案例
+    ├── mock_data.md                28.5 KB   模拟数据，供演示与自测
+    └── scenarios.md                 6.5 KB   场景清单与边界
+
+（无 scripts 目录：判定依赖查库与人工核实，暂时没有可自动执行的部分）</div>
+        <p class="pkg__note"><b>已知问题：</b>没有 <code>scripts/</code>，装进智能体后只能靠模型读 references 做推理，稳定性和可复现性都不如另外三个包。补齐方向是把判定顺序写成显式流程，把查库动作交给工具层。</p>
+      </div>
+
+      <h2>横向对比</h2>
+      <div class="tw">
+        <table>
+          <thead>
+            <tr><th>包</th><th>子场景数</th><th>脚本</th><th>自检</th><th>完成度</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>approval-review-advisor</td><td>4</td><td>有</td><td>有</td><td>高：引擎、CLI、演示数据齐全</td></tr>
+            <tr><td>contract-intake-router</td><td>6</td><td>有</td><td>有</td><td>较高：与审批包共用引擎</td></tr>
+            <tr><td>data-table</td><td>1</td><td>有</td><td>无</td><td>中：逻辑厚，缺回归用例</td></tr>
+            <tr><td>sd-workorder-diagnosis</td><td>7</td><td>无</td><td>无</td><td>低：只到规则层</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="doc__foot">
+        <a href="../index.html#works">← 返回作品集</a>
+      </div>
+    </article>
+  </div>
+</main>
+</body>
+</html>

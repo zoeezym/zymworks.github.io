@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>衡数 ChatBI Studio · PRD v0.2（权限与治理） · 周一鸣作品集</title>
+<link rel="stylesheet" href="../../assets/doc.css">
+</head>
+<body>
+<header class="top">
+  <div class="top__in">
+    <a class="back" href="../../index.html#docs">← 返回作品集</a>
+    <span class="crumb">衡数 ChatBI Studio</span>
+    <a class="dl" href="../../index.html#contact">联系我</a>
+  </div>
+</header>
+<main>
+  <div class="doc__head">
+    <p class="doc__kicker">衡数 ChatBI Studio · 文档</p>
+    <h1 class="doc__title">衡数 ChatBI Studio · PRD v0.2（权限与治理）</h1>
+    <p class="doc__lede">七个角色权限、行级隔离由执行层强制、指标生命周期、语义层版本化、成本控制</p>
+    <p class="doc__meta">源文件 <code>【原型】衡数ChatBI/01-PRD-v0.2-企业级补充版.md</code> · 约 9,173 字 · 2026-10</p>
+  </div>
+  <div class="doc__body">
+<nav class="toc"><p class="toc__t">本页目录</p><ol><li><a href="#1-与-v1-0-的差异说明">1. 与 v1.0 的差异说明</a></li><li><a href="#2-角色与权限">2. 角色与权限</a></li><li><a href="#3-租户与数据隔离">3. 租户与数据隔离</a></li><li><a href="#4-指标治理生命周期">4. 指标治理生命周期</a></li><li><a href="#5-功能模块清单-补齐后台">5. 功能模块清单（补齐后台）</a></li><li><a href="#6-状态机与异常分支">6. 状态机与异常分支</a></li><li><a href="#7-ai-能力边界与输出约束">7. AI 能力边界与输出约束</a></li><li><a href="#8-成本与容量控制">8. 成本与容量控制</a></li><li><a href="#9-非功能需求">9. 非功能需求</a></li><li><a href="#10-验收标准-v0-2-新增">10. 验收标准（v0.2 新增）</a></li><li><a href="#11-未决问题">11. 未决问题</a></li></ol></nav>
+    <article class="doc__article">
+<div class="tw"><table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody><tr><td>文档</td><td>01-PRD-v0.2-企业级补充版</td></tr><tr><td>对应文件</td><td><code>衡数ChatBI-PRD.md</code>（v1.0）、<code>衡数ChatBI-原型.html</code></td></tr><tr><td>与 v1.0 的关系</td><td>v1.0 定义了产品定位、五模块、验收标准、风险，本文件不改这些结论，只补 v1.0 缺失的企业级部分：角色权限、租户隔离、指标治理生命周期、后台模块、成本控制、非功能、状态机</td></tr><tr><td>日期</td><td>2026-10-27</td></tr><tr><td>事实边界</td><td>成本与容量数值为估算，标「待确认」；未声称已上线或已有真实用户</td></tr></tbody></table></div>
+<hr>
+<h2 id="1-与-v1-0-的差异说明">1. 与 v1.0 的差异说明</h2>
+<p>v1.0 已经把产品定位、五模块、四级评估、消融实验讲清楚了，这是这个项目最扎实的部分。缺的是&quot;能不能卖给企业&quot;这一层：企业采购第一轮问的永远是权限、数据隔离、审计、成本、变更管理，这四项 v1.0 一项没写。</p>
+<p>本文件补的就是这四项，以及被 v1.0 省略的角色分工与后台。</p>
+<hr>
+<h2 id="2-角色与权限">2. 角色与权限</h2>
+<h3 id="2-1-角色定义">2.1 角色定义</h3>
+<div class="tw"><table><thead><tr><th>角色</th><th>数据范围</th><th>核心动作</th><th>是否可改口径</th><th>是否可看原始 SQL</th></tr></thead><tbody><tr><td>业务用户</td><td>授权数据域</td><td>问数、下钻、导出报告</td><td>否</td><td>否（默认）</td></tr><tr><td>数据分析支撑</td><td>授权数据域</td><td>问数、校验、代业务提问</td><td>否</td><td>是</td></tr><tr><td>数据管理员</td><td>授权数据源</td><td>接入数据源、字段语义映射</td><td>否</td><td>是</td></tr><tr><td>指标管理员</td><td>授权业务域</td><td>维护指标定义、提交评审</td><td>是（草稿）</td><td>是</td></tr><tr><td>质量负责人</td><td>全租户只读</td><td>看板、评估集、badcase 处置</td><td>否</td><td>是</td></tr><tr><td>平台管理员</td><td>全租户</td><td>用户、角色、配额、租户配置</td><td>否</td><td>否</td></tr><tr><td>审计员</td><td>全租户只读</td><td>查查询日志与操作日志</td><td>否</td><td>是</td></tr></tbody></table></div>
+<h3 id="2-2-权限点矩阵">2.2 权限点矩阵</h3>
+<p>P0 = 无此权限无法工作；P1 = 高频依赖；P2 = 低频。</p>
+<div class="tw"><table><thead><tr><th>权限点</th><th>业务用户</th><th>分析支撑</th><th>数据管理员</th><th>指标管理员</th><th>质量负责人</th><th>平台管理员</th><th>审计员</th></tr></thead><tbody><tr><td>发起问数</td><td>P0</td><td>P0</td><td>P1</td><td>P1</td><td>P1</td><td>—</td><td>—</td></tr><tr><td>查看答案明细与图表</td><td>P0</td><td>P0</td><td>P1</td><td>P1</td><td>P1</td><td>—</td><td>—</td></tr><tr><td>展开原始 SQL</td><td>—</td><td>P1</td><td>P1</td><td>P1</td><td>P1</td><td>—</td><td>P1</td></tr><tr><td>导出报告</td><td>P1</td><td>P1</td><td>—</td><td>P1</td><td>P1</td><td>—</td><td>—</td></tr><tr><td>导出底层数据</td><td>—</td><td>P1</td><td>P1</td><td>—</td><td>P1</td><td>—</td><td>—</td></tr><tr><td>新增 / 编辑数据源</td><td>—</td><td>—</td><td>P0</td><td>—</td><td>—</td><td>P2</td><td>—</td></tr><tr><td>查看数据源凭据</td><td>—</td><td>—</td><td>P0</td><td>—</td><td>—</td><td>P2</td><td>—</td></tr><tr><td>字段语义映射</td><td>—</td><td>P1</td><td>P0</td><td>P1</td><td>—</td><td>—</td><td>—</td></tr><tr><td>新增 / 编辑指标（草稿）</td><td>—</td><td>P1</td><td>—</td><td>P0</td><td>—</td><td>—</td><td>—</td></tr><tr><td>提交指标评审</td><td>—</td><td>—</td><td>—</td><td>P0</td><td>—</td><td>—</td><td>—</td></tr><tr><td>批准指标发布</td><td>—</td><td>—</td><td>—</td><td>—</td><td>P0</td><td>P2</td><td>—</td></tr><tr><td>归档指标</td><td>—</td><td>—</td><td>—</td><td>P1</td><td>P0</td><td>P2</td><td>—</td></tr><tr><td>配置行级权限</td><td>—</td><td>—</td><td>P1</td><td>—</td><td>—</td><td>P0</td><td>—</td></tr><tr><td>查看可信度看板</td><td>P1</td><td>P1</td><td>P1</td><td>P1</td><td>P0</td><td>P1</td><td>P1</td></tr><tr><td>维护评估集</td><td>—</td><td>P1</td><td>—</td><td>—</td><td>P0</td><td>—</td><td>—</td></tr><tr><td>处置反馈与 badcase</td><td>—</td><td>P1</td><td>—</td><td>P1</td><td>P0</td><td>—</td><td>—</td></tr><tr><td>配置配额与告警</td><td>—</td><td>—</td><td>—</td><td>—</td><td>P1</td><td>P0</td><td>—</td></tr><tr><td>查询审计日志</td><td>—</td><td>—</td><td>—</td><td>—</td><td>P1</td><td>P2</td><td>P0</td></tr></tbody></table></div>
+<h3 id="2-3-三条硬规则">2.3 三条硬规则</h3>
+<ol><li><strong>业务用户默认看不到原始 SQL。</strong> SQL 是给分析支撑与管理员做校验用的，对业务用户暴露只会制造困惑。可在租户级配置放开。</li><li><strong>改口径与批口径不能是同一个人。</strong> 指标管理员提交评审，质量负责人批准。单人租户无法满足时，系统强制记录&quot;单人模式&quot;并在看板标注。</li><li><strong>权限变更即时生效，且必须留痕。</strong> 撤回权限后，该用户正在进行的会话立即失效。</li></ol>
+<hr>
+<h2 id="3-租户与数据隔离">3. 租户与数据隔离</h2>
+<h3 id="3-1-部署形态">3.1 部署形态</h3>
+<div class="tw"><table><thead><tr><th>形态</th><th>隔离方式</th><th>适用</th><th>差异点</th></tr></thead><tbody><tr><td>SaaS 多租户</td><td><code>tenant_id</code> 逻辑隔离，所有表带租户字段，查询层强制注入</td><td>中小企业</td><td>共享模型调用，配额按租户计</td></tr><tr><td>私有化单租户</td><td>独立部署，物理隔离</td><td>金融、运营商</td><td>可接本地 Ollama，数据不出内网</td></tr><tr><td>混合</td><td>元数据在 SaaS，数据源在内网，通过代理只回传查询结果</td><td>数据敏感但想用 SaaS 运维</td><td>需评估代理链路的合规性</td></tr></tbody></table></div>
+<p>待确认：目标客户以哪类为主。这决定 <code>tenant_id</code> 是否要贯穿到指标字典与评估集。</p>
+<h3 id="3-2-隔离层级">3.2 隔离层级</h3>
+<div class="tw"><table><thead><tr><th>层级</th><th>规则</th><th>越界表现</th></tr></thead><tbody><tr><td>租户</td><td>数据源、指标字典、评估集、日志全部按租户隔离</td><td>不可见、不可查、接口返回 404 而非 403（避免探测）</td></tr><tr><td>数据源</td><td>用户只能对自己被授权的数据源问数</td><td>问句涉及未授权表时，明确回答&quot;你没有该数据域的权限&quot;，不做部分回答</td></tr><tr><td>行级（RLS）</td><td>按用户属性自动注入过滤条件，如 <code>region in (&#x27;华东&#x27;)</code></td><td>注入失败则拒绝执行，不允许漏掉过滤条件</td></tr><tr><td>列级</td><td>敏感字段（手机号、证件号、精确地址）对业务用户掩码</td><td>掩码在结果集生成后做，SQL 层不返回明文</td></tr><tr><td>指标级</td><td>指标可设置可见业务域</td><td>无权限的指标不出现在澄清候选中</td></tr></tbody></table></div>
+<h3 id="3-3-行级权限的实现约束">3.3 行级权限的实现约束</h3>
+<p>行级权限不能靠提示词约束模型，必须由查询执行层强制注入。原因：模型可能生成不带过滤条件的 SQL，靠提示词约束不可靠。</p>
+<p>实现要求：</p>
+<ul><li>用户属性表（部门、区域、客户等级）与数据源的表字段有映射关系。</li><li>生成 SQL 后，执行前由中间层解析 SQL 的 FROM/WHERE，强制追加过滤条件；解析失败则拒绝执行。</li><li>每次强制注入都记录日志：注入的字段、值、原始 SQL、最终 SQL。</li></ul>
+<hr>
+<h2 id="4-指标治理生命周期">4. 指标治理生命周期</h2>
+<h3 id="4-1-状态机">4.1 状态机</h3>
+<pre><code>草稿 ──提交──&gt; 待评审 ──批准──&gt; 已发布 ──归档──&gt; 已归档
+  ↑              │                 │
+  └──驳回────────┘                 └──变更──&gt; 草稿（新版本）</code></pre>
+<div class="tw"><table><thead><tr><th>状态</th><th>可编辑</th><th>可被问答引用</th><th>操作人</th><th>准入条件</th></tr></thead><tbody><tr><td>草稿</td><td>是</td><td>否</td><td>指标管理员</td><td>名称、口径、公式、时间口径四项必填</td></tr><tr><td>待评审</td><td>否</td><td>否</td><td>—</td><td>需至少 1 名评审人</td></tr><tr><td>已发布</td><td>否（需走变更）</td><td>是</td><td>质量负责人</td><td>评审通过 + 至少 1 条验证用例</td></tr><tr><td>已归档</td><td>否</td><td>否</td><td>质量负责人</td><td>无活跃引用，或有替代指标</td></tr></tbody></table></div>
+<h3 id="4-2-变更管控">4.2 变更管控</h3>
+<div class="tw"><table><thead><tr><th>变更类型</th><th>例子</th><th>是否需要评审</th><th>是否影响历史答案</th></tr></thead><tbody><tr><td>描述修正</td><td>口径说明文字改清楚，公式不变</td><td>否（记录即可）</td><td>否</td></tr><tr><td>同义词扩充</td><td>新增&quot;营收额&quot;映射到实付收入</td><td>否</td><td>否</td></tr><tr><td>公式变更</td><td>实付收入改为含退款冲减</td><td>是</td><td>是，历史答案需标注&quot;口径已变更&quot;</td></tr><tr><td>时间口径变更</td><td>自然月改为账期月</td><td>是</td><td>是</td></tr><tr><td>维度变更</td><td>新增按渠道拆分</td><td>是</td><td>否</td></tr></tbody></table></div>
+<h3 id="4-3-变更影响分析">4.3 变更影响分析</h3>
+<p>公式或时间口径变更时，系统必须先输出影响面，才能提交评审：</p>
+<div class="tw"><table><thead><tr><th>输出项</th><th>内容</th></tr></thead><tbody><tr><td>受影响问句</td><td>近 90 天引用该指标的问答条数与 Top 10 问句</td></tr><tr><td>受影响报告</td><td>已导出或已保存的报告中引用该指标的清单</td></tr><tr><td>数值差异预估</td><td>用新旧两种口径对近 3 个月数据各算一次，给出差异幅度</td></tr><tr><td>通知对象</td><td>引用过该指标的用户清单，支持一键站内通知</td></tr></tbody></table></div>
+<p>没有影响分析的变更不允许提交评审。这条规则来自一个常见事故：口径改了，没人通知，业务拿着两套数字对不上，最后整个产品的可信度崩掉。</p>
+<h3 id="4-4-语义层版本化">4.4 语义层版本化</h3>
+<ul><li>每次发布生成一个语义层版本号（如 <code>sem-20261027-03</code>）。</li><li>版本支持并存：<code>v_prev</code> 与 <code>v_cur</code> 同时可用，切换按租户或按用户灰度。</li><li>任一答案的记录里带上生成时使用的语义层版本，事后可复现。</li><li>版本回滚：一键切回上一版，影响时间为下一次查询生效。</li></ul>
+<hr>
+<h2 id="5-功能模块清单-补齐后台">5. 功能模块清单（补齐后台）</h2>
+<p>标注：<code>已有</code> = 原型可演示；<code>待补</code> = 需开发；<code>后台</code> = 运营后台。</p>
+<h3 id="5-1-前台">5.1 前台</h3>
+<div class="tw"><table><thead><tr><th>L1</th><th>L2</th><th>状态</th><th>补充说明</th></tr></thead><tbody><tr><td>对话分析</td><td>问句输入与多轮</td><td>已有</td><td></td></tr><tr><td></td><td>口径歧义澄清</td><td>已有</td><td>需补&quot;用户跳过澄清&quot;的分支</td></tr><tr><td></td><td>答案卡片（结论 + 口径回显 + 图表 + SQL）</td><td>已有</td><td></td></tr><tr><td></td><td>下钻追问</td><td>已有</td><td></td></tr><tr><td></td><td>执行失败自修复</td><td>待补</td><td>原型无失败态</td></tr><tr><td></td><td>转人工提数</td><td>待补</td><td>缺出口</td></tr><tr><td>指标口径中心</td><td>指标列表与检索</td><td>已有</td><td>8 条硬编码，需接真实字典</td></tr><tr><td></td><td>指标详情</td><td>已有</td><td></td></tr><tr><td></td><td>同义词管理</td><td>待补</td><td></td></tr><tr><td></td><td>覆盖率统计</td><td>已有（数字）</td><td>无下钻</td></tr><tr><td>数据源工作台</td><td>数据源列表</td><td>已有</td><td></td></tr><tr><td></td><td>新增 / 编辑数据源</td><td>待补</td><td>原型只有两个静态卡片</td></tr><tr><td></td><td>表清单与字段映射</td><td>已有（表清单）</td><td>字段语义按钮为 toast</td></tr><tr><td></td><td>连接测试</td><td>待补</td><td></td></tr><tr><td>可信度看板</td><td>通过率、消融、失败模式、修复队列</td><td>已有</td><td>数据为示例</td></tr><tr><td></td><td>评估集管理入口</td><td>待补</td><td></td></tr><tr><td>分析报告</td><td>报告查看与导出</td><td>已有</td><td>导出为 toast</td></tr></tbody></table></div>
+<h3 id="5-2-后台-v0-2-新增">5.2 后台（v0.2 新增）</h3>
+<div class="tw"><table><thead><tr><th>L1</th><th>L2</th><th>关键配置项</th><th>谁用</th></tr></thead><tbody><tr><td>指标治理</td><td>评审队列</td><td>待评审指标列表、评审意见、通过/驳回</td><td>质量负责人</td></tr><tr><td></td><td>变更影响分析</td><td>受影响问句、报告、差异预估</td><td>指标管理员</td></tr><tr><td></td><td>版本管理</td><td>语义层版本列表、当前版本、回滚</td><td>质量负责人</td></tr><tr><td>数据源管理</td><td>连接配置</td><td>类型、地址、库名、只读账号（凭据加密存储）</td><td>数据管理员</td></tr><tr><td></td><td>凭据轮换</td><td>定期提醒、一键更新</td><td>数据管理员</td></tr><tr><td></td><td>表白名单</td><td>允许问数的表清单，未在清单内的表不可查</td><td>数据管理员</td></tr><tr><td>行级权限</td><td>用户属性维护</td><td>部门、区域、客户等级</td><td>平台管理员</td></tr><tr><td></td><td>过滤规则配置</td><td>字段、来源属性、注入方式</td><td>平台管理员</td></tr><tr><td>用户与配额</td><td>用户管理</td><td>角色分配、数据源授权</td><td>平台管理员</td></tr><tr><td></td><td>配额</td><td>每人每日查询次数、单次扫描行数上限、导出条数上限</td><td>平台管理员</td></tr><tr><td>评估管理</td><td>评估集维护</td><td>题目、预期 SQL、预期答案、难度标签</td><td>质量负责人</td></tr><tr><td></td><td>跑批</td><td>选版本跑全量、出报告、历史对比</td><td>质量负责人</td></tr><tr><td></td><td>标注任务</td><td>分配标注人、双标比对、Kappa 计算</td><td>质量负责人</td></tr><tr><td>告警</td><td>规则配置</td><td>指标、阈值、通知渠道</td><td>平台管理员</td></tr><tr><td></td><td>告警记录</td><td>触发历史、处置结果</td><td>平台管理员</td></tr><tr><td>审计</td><td>查询日志</td><td>用户、问句、生成的 SQL、耗时、返回行数</td><td>审计员</td></tr><tr><td></td><td>操作日志</td><td>配置变更前后值、操作人</td><td>审计员</td></tr></tbody></table></div>
+<hr>
+<h2 id="6-状态机与异常分支">6. 状态机与异常分支</h2>
+<h3 id="6-1-一次问数的状态流转">6.1 一次问数的状态流转</h3>
+<pre><code>接收问句
+  → 权限预检（数据域、指标可见性）
+    → 口径识别（命中字典？有歧义？）
+      → 澄清（最多 2 轮）
+        → SQL 生成（含语义层注入）
+          → 安全校验（只读、白名单表、扫描行数上限）
+            → 执行
+              → 双通道验证
+                → 结果渲染（图表 + 口径回显 + 置信度）
+                  → 用户动作（追问 / 导出 / 反馈 / 转人工）</code></pre>
+<p>每个节点的失败分支：</p>
+<div class="tw"><table><thead><tr><th>节点</th><th>失败</th><th>行为</th></tr></thead><tbody><tr><td>权限预检</td><td>无权限</td><td>拒绝并说明缺哪个数据域，不生成 SQL</td></tr><tr><td>口径识别</td><td>无匹配指标</td><td>用裸 schema 生成，但答案顶部标注&quot;未匹配到已定义口径&quot;</td></tr><tr><td>澄清</td><td>2 轮未收敛</td><td>按默认口径生成，并在答案顶部标注&quot;已按默认口径 X，可能与你的预期不同&quot;</td></tr><tr><td>澄清</td><td>用户主动跳过</td><td>同上，且记录跳过行为用于优化</td></tr><tr><td>SQL 生成</td><td>生成失败</td><td>重试 1 次，仍失败则返回&quot;无法生成&quot;，附缺失信息说明</td></tr><tr><td>安全校验</td><td>命中拦截</td><td>拒绝执行，返回拦截原因（见 03 文档 §3）</td></tr><tr><td>执行</td><td>超时</td><td>30s 中断，返回&quot;查询超时，建议缩小时间范围或加筛选条件&quot;</td></tr><tr><td>执行</td><td>空结果</td><td>区分三类：条件写错 / 真的没有数据 / 权限导致为空。前两类给出不同提示</td></tr><tr><td>双通道</td><td>不一致</td><td>降级为&quot;建议人工核对&quot;，并展示两条 SQL 与两组结果的差异点</td></tr><tr><td>渲染</td><td>结果超行数上限</td><td>只展示前 1000 行，提示&quot;已截断，导出可取全量（需导出权限）&quot;</td></tr></tbody></table></div>
+<h3 id="6-2-会话状态">6.2 会话状态</h3>
+<div class="tw"><table><thead><tr><th>状态</th><th>保持时间</th><th>说明</th></tr></thead><tbody><tr><td>活跃会话</td><td>30 分钟无操作转休眠</td><td>上下文（含已确认口径）保留</td></tr><tr><td>休眠会话</td><td>7 天</td><td>可恢复，恢复时提示&quot;口径可能已变更&quot;</td></tr><tr><td>归档</td><td>90 天</td><td>只读，可导出</td></tr><tr><td>删除</td><td>按租户配置</td><td>需用户主动，删除后审计日志仍保留元信息</td></tr></tbody></table></div>
+<hr>
+<h2 id="7-ai-能力边界与输出约束">7. AI 能力边界与输出约束</h2>
+<h3 id="7-1-可以做的">7.1 可以做的</h3>
+<ul><li>解析中文问句为结构化查询意图（指标、维度、时间、过滤、排序、对比方式）</li><li>从语义层检索相关口径、同义词、历史 SQL 样例，注入生成上下文</li><li>生成只读 SQL</li><li>生成结论文案（基于查询结果，不得引入结果外的信息）</li><li>解释口径与 SQL 逻辑</li><li>生成图表建议（柱/线/占比/表格）</li></ul>
+<h3 id="7-2-不可以做的">7.2 不可以做的</h3>
+<div class="tw"><table><thead><tr><th>禁止项</th><th>原因</th><th>拦截位置</th></tr></thead><tbody><tr><td>生成任何写操作 SQL</td><td>数据安全</td><td>语法解析层，关键词白名单</td></tr><tr><td>查询白名单外的表</td><td>数据边界</td><td>表名提取后比对白名单</td></tr><tr><td>跨租户查询</td><td>隔离</td><td>SQL 中强制带 <code>tenant_id</code>，模型无需也不被允许处理</td></tr><tr><td>绕过行级权限</td><td>合规</td><td>执行层强制注入，不依赖模型</td></tr><tr><td>编造数字</td><td>可信度</td><td>结论文案只能引用结果集中的数值，渲染层校验数字是否出现在结果里</td></tr><tr><td>引用未发布指标的口径</td><td>治理</td><td>检索只返回已发布指标</td></tr><tr><td>返回超过上限的行数</td><td>成本</td><td>执行层 <code>LIMIT</code>，超限截断并提示</td></tr><tr><td>输出原始 SQL 给无权限用户</td><td>信息泄露</td><td>渲染层按权限隐藏</td></tr><tr><td>对结果做因果判断（&quot;因为 X 所以 Y&quot;）</td><td>越界</td><td>提示词约束 + 输出层检测因果连词，改为&quot;数据显示 X 与 Y 同时变化&quot;</td></tr></tbody></table></div>
+<h3 id="7-3-结论生成的硬约束">7.3 结论生成的硬约束</h3>
+<p>结论文案必须满足三条，否则降级为纯数据展示：</p>
+<ol><li>每个数字都能在结果集中找到对应值（渲染时校验）。</li><li>环比/同比必须写明对比区间与口径。</li><li>不使用&quot;显著&quot;&quot;大幅&quot;这类无阈值的程度词，除非配置了阈值（如环比 &gt; 5% 才可说&quot;下降&quot;）。</li></ol>
+<hr>
+<h2 id="8-成本与容量控制">8. 成本与容量控制</h2>
+<div class="tw"><table><thead><tr><th>控制项</th><th>默认值</th><th>可配置范围</th><th>说明</th></tr></thead><tbody><tr><td>单次查询扫描行数上限</td><td>500 万行（待确认）</td><td>10 万–5000 万</td><td>超限拒绝执行并提示加筛选</td></tr><tr><td>单次返回行数上限</td><td>1000 行</td><td>100–10000</td><td>超限截断</td></tr><tr><td>单用户每日查询次数</td><td>200 次</td><td>20–2000</td><td>按角色分档</td></tr><tr><td>单租户每日查询次数</td><td>待确认</td><td>—</td><td>防单租户占满资源</td></tr><tr><td>查询超时</td><td>30s</td><td>10–120s</td><td>超时中断</td></tr><tr><td>双通道验证触发率</td><td>100%（关键问句）</td><td>可降为抽样 20%</td><td>关键问句定义见下</td></tr><tr><td>结果缓存</td><td>相同问句 + 相同语义层版本，24 小时</td><td>—</td><td>命中缓存不消耗模型调用</td></tr><tr><td>模型降级</td><td>小模型先行，失败升级大模型</td><td>—</td><td>简单问句用小模型</td></tr></tbody></table></div>
+<p><strong>关键问句定义</strong>（触发双通道验证）：涉及收入/成本类指标、涉及跨表 join、涉及时间边界计算、用户主动点击&quot;这个数准吗&quot;。</p>
+<p><strong>成本估算方法</strong>（面试可讲）：单次问数成本 = 语义层检索 token + 生成 token + 双通道二次生成 token。按每次约 3000 input + 800 output token 估算，日均 1000 次问数的租户，月成本量级在数百元（待确认具体模型单价）。这个数字要能算出来，否则无法回答&quot;这东西贵不贵&quot;。</p>
+<hr>
+<h2 id="9-非功能需求">9. 非功能需求</h2>
+<div class="tw"><table><thead><tr><th>类别</th><th>要求</th></tr></thead><tbody><tr><td>SQL 生成 P95</td><td>&lt; 5s（含检索注入）</td></tr><tr><td>查询执行 P95</td><td>&lt; 8s（中等规模数据集）</td></tr><tr><td>端到端响应 P95</td><td>&lt; 12s</td></tr><tr><td>首屏</td><td>&lt; 2s</td></tr><tr><td>可用性</td><td>99.5%（SaaS）/ 99.9%（私有化，按合同）</td></tr><tr><td>并发</td><td>单租户 100 并发问数（待确认）</td></tr><tr><td>数据时效</td><td>取决于数据源，产品侧展示&quot;数据截至时间&quot;</td></tr><tr><td>兼容</td><td>Chrome / Edge 现代版本，不承诺 IE</td></tr><tr><td>移动端</td><td>只读查看答案，不支持完整问数（v0.2 范围外）</td></tr></tbody></table></div>
+<hr>
+<h2 id="10-验收标准-v0-2-新增">10. 验收标准（v0.2 新增）</h2>
+<div class="tw"><table><thead><tr><th>#</th><th>场景</th><th>Given / When / Then</th></tr></thead><tbody><tr><td>1</td><td>行级权限</td><td>用户属性为&quot;华东&quot;，问&quot;全国收入&quot;，则 SQL 被强制注入华东过滤，答案标注&quot;已按你的数据范围过滤&quot;</td></tr><tr><td>2</td><td>权限拒绝</td><td>用户无财务域权限，问&quot;成本&quot;，则拒绝并说明缺哪个域，不生成 SQL</td></tr><tr><td>3</td><td>指标未发布</td><td>某指标处于待评审，问句命中其同义词，则不走该口径，答案标注&quot;未匹配到已发布口径&quot;</td></tr><tr><td>4</td><td>口径变更</td><td>修改实付收入公式并发布，则历史答案详情页显示&quot;该答案生成于口径 v1，当前为 v2&quot;</td></tr><tr><td>5</td><td>影响分析</td><td>提交公式变更评审时未填写影响分析，则系统拒绝提交</td></tr><tr><td>6</td><td>语义层回滚</td><td>发布 v2 后发现问题，回滚到 v1，则下一次查询使用 v1 并记录版本</td></tr><tr><td>7</td><td>空结果区分</td><td>查询区间内确无数据，则提示&quot;该区间无数据&quot;；条件写错（如时间格式），则提示&quot;条件可能有误&quot;并给出建议</td></tr><tr><td>8</td><td>超时</td><td>查询超 30s，则中断并提示缩小范围，不返回部分结果</td></tr><tr><td>9</td><td>截断</td><td>结果 5 万行，则只返回前 1000 行并提示已截断，导出需权限</td></tr><tr><td>10</td><td>双通道不一致</td><td>两条 SQL 结果差异 &gt; 1%，则答案降级为&quot;建议人工核对&quot;，展示差异点</td></tr><tr><td>11</td><td>数字校验</td><td>结论文案里的数字未出现在结果集中，则降级为纯数据展示并告警</td></tr><tr><td>12</td><td>SQL 隐藏</td><td>业务用户点击&quot;查看 SQL&quot;，则不展示内容，提示&quot;需要分析权限&quot;</td></tr><tr><td>13</td><td>配额</td><td>用户当日第 201 次查询，则拒绝并提示配额已用尽，可申请临时提升</td></tr><tr><td>14</td><td>缓存</td><td>同一用户 24 小时内问同一问句，则命中缓存，响应 &lt; 1s，且标注&quot;缓存结果&quot;</td></tr><tr><td>15</td><td>审计</td><td>审计员可按用户查出：问了什么、生成了什么 SQL、返回多少行、耗时多少</td></tr></tbody></table></div>
+<hr>
+<h2 id="11-未决问题">11. 未决问题</h2>
+<div class="tw"><table><thead><tr><th>#</th><th>问题</th><th>影响</th></tr></thead><tbody><tr><td>1</td><td>目标客户以 SaaS 还是私有化为主</td><td>决定隔离实现复杂度与成本模型</td></tr><tr><td>2</td><td>是否需要支持跨数据源 join（如 MySQL + CSV）</td><td>大幅增加生成与执行复杂度，v0.2 建议不支持</td></tr><tr><td>3</td><td>扫描行数上限的合理值</td><td>需按真实数据集规模压测</td></tr><tr><td>4</td><td>指标审批在单租户场景下如何满足&quot;双人&quot;</td><td>可能需降级为单人 + 强制记录</td></tr><tr><td>5</td><td>是否要求答案可复现（同一问句任何时候结果一致）</td><td>决定是否必须绑定语义层版本与数据快照</td></tr><tr><td>6</td><td>对话历史是否可用于模型优化</td><td>合规问题，需明确告知与同意</td></tr></tbody></table></div>
+    </article>
+  </div>
+  <div class="doc__foot">
+    <a href="../../index.html#docs">← 全部文档</a>
+  </div>
+</main>
+</body>
+</html>

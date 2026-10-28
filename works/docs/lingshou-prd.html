@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>智慧营业厅 AI 工作台 · PRD · 周一鸣作品集</title>
+<link rel="stylesheet" href="../../assets/doc.css">
+</head>
+<body>
+<header class="top">
+  <div class="top__in">
+    <a class="back" href="../../index.html#docs">← 返回作品集</a>
+    <span class="crumb">智慧营业厅 AI 工作台</span>
+    <a class="dl" href="../../index.html#contact">联系我</a>
+  </div>
+</header>
+<main>
+  <div class="doc__head">
+    <p class="doc__kicker">智慧营业厅 AI 工作台 · 文档</p>
+    <h1 class="doc__title">智慧营业厅 AI 工作台 · PRD</h1>
+    <p class="doc__lede">角色权限矩阵、状态机、客户端 30 分钟锁、AI 三段能力边界、15 条验收场景</p>
+    <p class="doc__meta">源文件 <code>【原型】智慧营业厅AI工作台/01-PRD-企业级补充版-v0.1.md</code> · 约 9,738 字 · 2026-10</p>
+  </div>
+  <div class="doc__body">
+<nav class="toc"><p class="toc__t">本页目录</p><ol><li><a href="#1-产品定位">1. 产品定位</a></li><li><a href="#2-组织与租户">2. 组织与租户</a></li><li><a href="#3-角色与权限">3. 角色与权限</a></li><li><a href="#4-数据可见性与脱敏">4. 数据可见性与脱敏</a></li><li><a href="#5-功能模块清单">5. 功能模块清单</a></li><li><a href="#6-主流程与状态机">6. 主流程与状态机</a></li><li><a href="#7-分支流程">7. 分支流程</a></li><li><a href="#8-ai-能力边界">8. AI 能力边界</a></li><li><a href="#9-非功能需求">9. 非功能需求</a></li><li><a href="#10-验收标准">10. 验收标准</a></li><li><a href="#11-未决问题">11. 未决问题</a></li></ol></nav>
+    <article class="doc__article">
+<div class="tw"><table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody><tr><td>文档</td><td>01-PRD-企业级补充版-v0.1</td></tr><tr><td>对应原型</td><td><code>AI原生营业工作台 (2).html</code></td></tr><tr><td>补齐对象</td><td>原型只有界面，本文补被界面省略的规则、权限、异常、验收</td></tr><tr><td>日期</td><td>2026-10-27</td></tr><tr><td>变更记录</td><td>v0.1 首版：定位、组织租户、权限矩阵、模块清单、状态机、AI 边界、非功能、验收</td></tr><tr><td>事实边界</td><td>业务规则按电信营业厅通用受理逻辑推演，未逐条对照某省现行制度；涉及具体资费与审批额度的数值标「待确认」</td></tr></tbody></table></div>
+<hr>
+<h2 id="1-产品定位">1. 产品定位</h2>
+<p><strong>一句话</strong>：营业厅前台坐席的受理副驾。客户到店后，把客户资料、可售商品、业务规则、AI 建议放在同一屏，坐席在这里完成需求识别到提交 CRM 的全过程。</p>
+<h3 id="1-1-替代了什么">1.1 替代了什么</h3>
+<div class="tw"><table><thead><tr><th>现状动作</th><th>现状耗时</th><th>现状问题</th><th>本产品做法</th></tr></thead><tbody><tr><td>翻 3–5 个系统查客户在用业务、合约、账单</td><td>2–4 分钟</td><td>窗口来回切，客户在等</td><td>签入客户即聚合，一屏展示</td></tr><tr><td>凭经验选套餐，翻纸质/电子资费表核对</td><td>3–8 分钟</td><td>新人记不住；漏报违规资费</td><td>商品池 + 规则引擎给出可售方案，AI 只做解释与筛选</td></tr><tr><td>手填受理单 12–20 个字段</td><td>2–3 分钟</td><td>错填导致退单</td><td>从对话与客户资料预填，坐席确认</td></tr><tr><td>客户问&quot;为什么贵了&quot;答不上来</td><td>—</td><td>投诉与二次来电</td><td>费用影响对比（办理前/后/差额）直接展示</td></tr></tbody></table></div>
+<h3 id="1-2-用户与优先级">1.2 用户与优先级</h3>
+<div class="tw"><table><thead><tr><th>用户</th><th>日均动作</th><th>痛点</th><th>对产品的要求</th></tr></thead><tbody><tr><td>营业员（P0）</td><td>受理 20–40 单</td><td>系统多、资费多、怕办错</td><td>一屏、少跳转、方案可信、错了能退</td></tr><tr><td>值班店长（P0）</td><td>授权 10–20 次、稽核</td><td>授权靠电话与口头，事后难追溯</td><td>授权请求带上下文，一键批，全程留痕</td></tr><tr><td>稽核 / 风控（P1）</td><td>抽检、处理异常</td><td>抽检靠翻单，异常发现滞后</td><td>异常单自动标记，可下钻到 AI 建议原文</td></tr><tr><td>区域运营（P1）</td><td>配商品、配话术、配活动</td><td>配置散落在多个后台</td><td>一个后台管商品池/话术/推荐策略</td></tr><tr><td>系统管理员（P2）</td><td>建门店、建工号、配权限</td><td>—</td><td>批量导入、权限模板</td></tr><tr><td>模型运营（P2）</td><td>看 badcase、调阈值</td><td>无数据</td><td>建议采纳率、改写率、失败样本回流</td></tr></tbody></table></div>
+<h3 id="1-3-v1-明确不做">1.3 v1 明确不做</h3>
+<ul><li>不做客户自助渠道（App / 小程序 / 公众号）</li><li>不做外呼与主动营销任务分派</li><li>不做线上商城订单</li><li>不替代 CRM 落单，工作台是 CRM 之前的受理层，最终订单仍由 CRM 生成</li><li>不做终端库存与物流管理（只读查询可售状态）</li><li>不做跨省异地业务</li></ul>
+<hr>
+<h2 id="2-组织与租户">2. 组织与租户</h2>
+<h3 id="2-1-层级">2.1 层级</h3>
+<pre><code>集团 → 省公司（租户边界） → 地市 → 区县 → 营业厅（门店） → 工号</code></pre>
+<h3 id="2-2-隔离规则">2.2 隔离规则</h3>
+<div class="tw"><table><thead><tr><th>对象</th><th>隔离边界</th><th>规则</th><th>越界处理</th></tr></thead><tbody><tr><td>客户资料</td><td>接待关系</td><td>仅当客户处于本人&quot;已签入&quot;状态时可见完整信息</td><td>未签入时只能按手机号后四位+证件后四位检索是否存在，不返回明细</td></tr><tr><td>客户资料（跨门店）</td><td>门店</td><td>其他门店的客户，只可见&quot;是否为本公司客户&quot;与归属门店</td><td>需店长发起跨门店查询授权，授权有效期 30 分钟，留痕</td></tr><tr><td>订单</td><td>门店</td><td>默认看本门店；地市角色看本地市</td><td>越界查询返回空并记录审计事件</td></tr><tr><td>商品池</td><td>省</td><td>按省配置，地市可做二次可售范围限制</td><td>不可售商品不出现在候选列表，且不告知客户存在该商品</td></tr><tr><td>系统配置</td><td>省</td><td>话术、推荐策略、阈值按省独立</td><td>集团模板下发只读，省可覆盖</td></tr><tr><td>日志</td><td>省</td><td>审计日志省内留存，集团只读聚合</td><td>—</td></tr></tbody></table></div>
+<p>待确认：省公司是否为唯一租户边界；集团级统采场景是否需要跨省共享商品池。</p>
+<h3 id="2-3-客户锁">2.3 客户锁</h3>
+<p>同一客户在同一时刻只允许一个工号签入，锁有效期 30 分钟，坐席无操作自动释放。另一坐席签入时提示&quot;该客户正在 XX 厅 XX 工号受理中&quot;，可选择申请接管（需对方确认或店长强制）。</p>
+<hr>
+<h2 id="3-角色与权限">3. 角色与权限</h2>
+<h3 id="3-1-角色定义">3.1 角色定义</h3>
+<div class="tw"><table><thead><tr><th>角色</th><th>数据范围</th><th>典型动作</th><th>是否可提交订单</th></tr></thead><tbody><tr><td>营业员</td><td>本门店 + 本人签入客户</td><td>受理、预填、提交</td><td>是（限权限内业务）</td></tr><tr><td>值班店长</td><td>本门店</td><td>授权、退单审批、稽核、代班受理</td><td>是</td></tr><tr><td>稽核 / 风控</td><td>本地市</td><td>抽检、异常处置、冻结工号受理权</td><td>否</td></tr><tr><td>区域运营</td><td>本省</td><td>商品池、话术、推荐策略、阈值配置</td><td>否</td></tr><tr><td>系统管理员</td><td>本省</td><td>门店、工号、角色、权限模板</td><td>否</td></tr><tr><td>模型运营</td><td>本省（脱敏后）</td><td>看板、badcase、评估集维护</td><td>否</td></tr></tbody></table></div>
+<h3 id="3-2-权限点矩阵">3.2 权限点矩阵</h3>
+<p>P0 = 无此权限业务无法开展；P1 = 高频依赖；P2 = 低频。</p>
+<div class="tw"><table><thead><tr><th>权限点</th><th>营业员</th><th>店长</th><th>稽核</th><th>运营</th><th>管理员</th><th>模型运营</th><th>授权路径</th></tr></thead><tbody><tr><td>客户资料查看（完整）</td><td>P0</td><td>P0</td><td>P1</td><td>—</td><td>—</td><td>—</td><td>签入即得；跨门店需店长授权</td></tr><tr><td>敏感字段查看（证件号全位、详细地址）</td><td>P1</td><td>P1</td><td>P1</td><td>—</td><td>—</td><td>—</td><td>二次确认 + 审计留痕，每人每日限 50 次</td></tr><tr><td>通话详单 / 位置轨迹</td><td>—</td><td>P2</td><td>P1</td><td>—</td><td>—</td><td>—</td><td>需客户书面授权或公安协查工单号</td></tr><tr><td>套餐升档</td><td>P0（≤199 元）</td><td>P0（≤599 元）</td><td>—</td><td>—</td><td>—</td><td>—</td><td>超上限转授权工单</td></tr><tr><td>套餐降档</td><td>P1（需客户确认）</td><td>P0</td><td>—</td><td>—</td><td>—</td><td>—</td><td>有合约时需违约金试算 + 客户确认</td></tr><tr><td>费用减免</td><td>P1（≤20 元/月）</td><td>P0（≤100 元/月）</td><td>—</td><td>—</td><td>—</td><td>—</td><td>超上限转地市审批</td></tr><tr><td>靓号 / 终端合约</td><td>P1（需店长授权）</td><td>P0</td><td>—</td><td>—</td><td>—</td><td>—</td><td>一律授权</td></tr><tr><td>补换卡</td><td>P0</td><td>P0</td><td>—</td><td>—</td><td>—</td><td>—</td><td>需实名核验通过</td></tr><tr><td>过户 / 销户</td><td>—</td><td>P0</td><td>—</td><td>—</td><td>—</td><td>—</td><td>一律店长在场</td></tr><tr><td>AI 方案直接提交</td><td>P1（需勾选&quot;已核对&quot;）</td><td>P0</td><td>—</td><td>—</td><td>—</td><td>—</td><td>见 §8.3</td></tr><tr><td>退单 / 撤单</td><td>P1（当日内）</td><td>P0</td><td>P1</td><td>—</td><td>—</td><td>—</td><td>跨日需稽核审批</td></tr><tr><td>商品池配置</td><td>—</td><td>—</td><td>—</td><td>P0</td><td>—</td><td>—</td><td>变更需双人复核</td></tr><tr><td>话术与阈值配置</td><td>—</td><td>—</td><td>—</td><td>P0</td><td>—</td><td>—</td><td>阈值调整需记录变更原因</td></tr><tr><td>工号与权限</td><td>—</td><td>P1（本门店申请）</td><td>—</td><td>—</td><td>P0</td><td>—</td><td>权限模板 + 审批</td></tr><tr><td>看板导出</td><td>—</td><td>P1</td><td>P1</td><td>P1</td><td>—</td><td>P1</td><td>带水印与工号</td></tr><tr><td>审计日志查询</td><td>—</td><td>P1（本门店）</td><td>P1（本地市）</td><td>—</td><td>P2</td><td>—</td><td>只读，查询本身也留痕</td></tr></tbody></table></div>
+<h3 id="3-3-授权工单规则">3.3 授权工单规则</h3>
+<ol><li>营业员在前台触发超权限动作，系统不阻断对话，弹出&quot;需要 XX 授权&quot;。</li><li>授权请求携带：客户标识（脱敏）、业务类型、AI 建议方案、涉及金额、超出项、发起工号、门店。</li><li>店长在移动端或工作台审批，可见完整上下文；支持一键批准 / 驳回并附原因。</li><li>批准后生成一次性令牌，有效期 5 分钟，仅该笔业务可用；超时需重新申请。</li><li>授权记录写入审计，字段包含 AI 建议内容与最终成交方案的差异。</li></ol>
+<hr>
+<h2 id="4-数据可见性与脱敏">4. 数据可见性与脱敏</h2>
+<div class="tw"><table><thead><tr><th>字段</th><th>默认展示</th><th>查看完整条件</th><th>日志</th></tr></thead><tbody><tr><td>手机号</td><td>138••••8321</td><td>本人签入客户直接可见全位</td><td>记录查看人与时间</td></tr><tr><td>证件号</td><td>3201**********1234</td><td>二次确认弹窗 + 事由选择</td><td>记录事由</td></tr><tr><td>证件影像</td><td>不展示，仅&quot;已核验&quot;标识</td><td>需办理过户/补卡类业务时展示 30 秒后自动遮挡</td><td>记录</td></tr><tr><td>家庭地址</td><td>精确到小区</td><td>办理宽带/移机时展示完整门牌</td><td>记录</td></tr><tr><td>通话详单</td><td>不展示</td><td>需客户授权书编号或协查单号</td><td>强留痕</td></tr><tr><td>位置轨迹</td><td>不展示</td><td>同上</td><td>强留痕</td></tr><tr><td>银行卡</td><td>后四位</td><td>不提供查看完整</td><td>—</td></tr><tr><td>账单明细</td><td>近 6 个月可看</td><td>超过 6 个月需申请</td><td>记录</td></tr></tbody></table></div>
+<p>导出与截图：所有导出文件带工号水印；页面禁止浏览器打印样式以外的全屏截图防抖（待确认：是否需要接入桌面水印）。</p>
+<hr>
+<h2 id="5-功能模块清单">5. 功能模块清单</h2>
+<p>标注：<code>已有</code> = 原型可演示；<code>待补</code> = 原型无、需开发；<code>后台</code> = 属运营后台。</p>
+<h3 id="5-1-前台-营业员">5.1 前台（营业员）</h3>
+<div class="tw"><table><thead><tr><th>L1</th><th>L2</th><th>状态</th><th>说明</th></tr></thead><tbody><tr><td>客户识别</td><td>手机号 / 证件 / 订单号检索</td><td>待补</td><td>原型顶部搜索框为静态</td></tr><tr><td></td><td>客户签入与客户锁</td><td>待补</td><td>§2.3</td></tr><tr><td></td><td>实名核验（证件 + 活体）</td><td>已有（仅标识）</td><td>原型只有&quot;已实名&quot;标签</td></tr><tr><td>客户 360</td><td>基础信息与标签</td><td>已有</td><td></td></tr><tr><td></td><td>在用业务与合约</td><td>已有</td><td>原型 2 条，实际应支持展开全量</td></tr><tr><td></td><td>近 3 月消费与流量</td><td>已有</td><td></td></tr><tr><td></td><td>AI 关注事项</td><td>已有</td><td>原型 2 条；规则见 §8.4</td></tr><tr><td></td><td>客户全景跳转</td><td>待补</td><td>按钮存在，无落地</td></tr><tr><td>需求识别</td><td>对话式需求采集</td><td>已有</td><td></td></tr><tr><td></td><td>需求结构与摘要</td><td>已有</td><td>原型&quot;客户诉求摘要&quot;3 项，实际应可编辑</td></tr><tr><td></td><td>多轮澄清</td><td>待补</td><td>缺歧义澄清交互</td></tr><tr><td>方案</td><td>可售商品匹配</td><td>待补</td><td>原型硬编码 2 个方案</td></tr><tr><td></td><td>费用影响对比</td><td>已有</td><td>办理前/后/差额</td></tr><tr><td></td><td>合约冲突校验</td><td>待补</td><td></td></tr><tr><td></td><td>方案对比（最多 3 个）</td><td>已有（2 个）</td><td></td></tr><tr><td>受理</td><td>字段预填与修改</td><td>待补</td><td></td></tr><tr><td></td><td>材料清单与齐全度</td><td>已有（4 项 check）</td><td></td></tr><tr><td></td><td>费用告知确认</td><td>待补</td><td>需客户口头确认记录</td></tr><tr><td></td><td>电子签名 / 双录</td><td>待补</td><td></td></tr><tr><td></td><td>提交 CRM 与幂等</td><td>待补</td><td></td></tr><tr><td>异常</td><td>异常提示与处理入口</td><td>待补</td><td>见 <code>02</code> 文档 §1</td></tr><tr><td></td><td>AI 降级与手工受理</td><td>待补</td><td></td></tr><tr><td>辅助</td><td>知识库搜索（政策/活动）</td><td>待补</td><td></td></tr><tr><td></td><td>待办与挂起</td><td>已有（&quot;保存待办&quot;按钮）</td><td>无落地</td></tr><tr><td></td><td>我的受理记录</td><td>待补</td><td></td></tr></tbody></table></div>
+<h3 id="5-2-后台-运营-管理">5.2 后台（运营 / 管理）</h3>
+<div class="tw"><table><thead><tr><th>L1</th><th>L2</th><th>状态</th><th>关键配置项</th></tr></thead><tbody><tr><td>商品池管理</td><td>商品上下架</td><td>后台</td><td>商品编码、名称、资费、生效期、可售区域、可售渠道</td></tr><tr><td></td><td>组合与互斥规则</td><td>后台</td><td>允许叠加、互斥对、必选附属品</td></tr><tr><td></td><td>库存与号卡池</td><td>后台</td><td>号段、靓号等级、终端 SKU 可用量</td></tr><tr><td>话术与知识</td><td>政策库</td><td>后台</td><td>条文、生效期、来源文号、适用范围</td></tr><tr><td></td><td>异议处理话术</td><td>后台</td><td>场景标签、话术正文、禁用词</td></tr><tr><td></td><td>竞品应对</td><td>后台</td><td>仅内部可见，不得直接对客输出</td></tr><tr><td>推荐策略</td><td>方案排序规则</td><td>后台</td><td>排序因子权重、预算约束、黑名单</td></tr><tr><td></td><td>场景开关</td><td>后台</td><td>按门店/时段灰度</td></tr><tr><td>AI 配置</td><td>置信度阈值</td><td>后台</td><td>阈值默认 0.75（待确认）</td></tr><tr><td></td><td>追问上限</td><td>后台</td><td>默认 2 轮</td></tr><tr><td></td><td>禁用输出词表</td><td>后台</td><td>承诺类、绝对化用语</td></tr><tr><td>授权</td><td>授权额度表</td><td>后台</td><td>角色 × 业务 × 金额上限</td></tr><tr><td></td><td>授权记录查询</td><td>后台</td><td>可按工号/门店/时段</td></tr><tr><td>稽核</td><td>抽检规则</td><td>后台</td><td>抽检比例、异常标记规则</td></tr><tr><td></td><td>异常单处置</td><td>后台</td><td>处置动作：核实无问题/退单/追责</td></tr><tr><td>看板</td><td>门店与坐席日报</td><td>后台</td><td>见 <code>03</code> 文档 §4</td></tr><tr><td></td><td>AI 效果看板</td><td>后台</td><td>采纳率、改写率、失败率</td></tr><tr><td>系统</td><td>门店与工号</td><td>后台</td><td>批量导入、离职停用</td></tr><tr><td></td><td>角色与权限模板</td><td>后台</td><td>权限点勾选、数据范围</td></tr><tr><td></td><td>审计日志</td><td>后台</td><td>只读、可导出</td></tr></tbody></table></div>
+<hr>
+<h2 id="6-主流程与状态机">6. 主流程与状态机</h2>
+<h3 id="6-1-状态定义">6.1 状态定义</h3>
+<div class="tw"><table><thead><tr><th>状态</th><th>进入条件</th><th>允许动作</th><th>超时规则</th></tr></thead><tbody><tr><td>S0 待签入</td><td>客户到店取号</td><td>签入、取消</td><td>取号后 60 分钟未签入自动作废</td></tr><tr><td>S1 已签入</td><td>签入成功，客户锁生效</td><td>核验、查看资料、退出</td><td>30 分钟无操作释放锁，回到 S0</td></tr><tr><td>S2 已核验</td><td>实名核验通过</td><td>需求识别</td><td>—</td></tr><tr><td>S3 需求识别中</td><td>首轮对话开始</td><td>追问、修改摘要、转人工</td><td>同一客户连续 2 轮未收敛提示转人工</td></tr><tr><td>S4 方案已生成</td><td>≥1 个可售方案</td><td>对比、切换、调预算重算、生成受理单</td><td>10 分钟未操作提示</td></tr><tr><td>S5 方案已确认</td><td>坐席点击确认，费用告知完成</td><td>进入受理、返回改方案</td><td>—</td></tr><tr><td>S6 订单草稿</td><td>字段预填完成</td><td>编辑、补材料、签署</td><td>24 小时未提交转待办</td></tr><tr><td>S7 已提交</td><td>CRM 返回成功</td><td>打印、交付</td><td>—</td></tr><tr><td>S8 已交付</td><td>交付动作完成（SIM/终端/装机预约）</td><td>评价、回访登记</td><td>—</td></tr><tr><td>S9 已取消</td><td>客户放弃或退单</td><td>重新发起</td><td>—</td></tr><tr><td>S10 已挂起</td><td>缺材料 / 待外勘 / 待授权</td><td>恢复、取消</td><td>挂起超 72 小时提醒店长</td></tr></tbody></table></div>
+<h3 id="6-2-关键准入条件">6.2 关键准入条件</h3>
+<ul><li>S2 → S3：实名核验必须通过，且客户不在黑名单、无欠费冻结。</li><li>S4 → S5：方案必须来自当前可售商品池；费用已计算完成；合约冲突已校验。</li><li>S6 → S7：材料齐全度 100%；费用告知已勾选；需签署的业务已完成电子签名或双录；无未处理的强风控标记。</li><li>S7 必须幂等：同一 <code>requestId</code> 重复提交返回首次结果，不产生第二张订单。</li></ul>
+<h3 id="6-3-回退规则">6.3 回退规则</h3>
+<ul><li>S5 可退回 S4（改方案），S6 可退回 S4（客户改主意），S7 之后只能退单，不能回退状态。</li><li>退单：当日由营业员发起、店长确认；跨日由稽核审批，需填写原因码。</li></ul>
+<hr>
+<h2 id="7-分支流程">7. 分支流程</h2>
+<div class="tw"><table><thead><tr><th>分支</th><th>与主流程的差异</th><th>额外校验</th></tr></thead><tbody><tr><td>单产品套餐升降档</td><td>无装机环节，方案确认后直接生成订单</td><td>合约期、违约金试算、降档需客户明确确认</td></tr><tr><td>补换卡</td><td>无方案环节，走 S1→S2→S6</td><td>实名核验、原卡状态、异地补卡限制</td></tr><tr><td>终端合约购机</td><td>增加终端选择与分期</td><td>库存锁定、征信/花呗额度、合约期捆绑</td></tr><tr><td>宽带新装</td><td>增加资源查询与装机预约</td><td>地址资源、端口占用、外勘判定</td></tr><tr><td>宽带移机</td><td>同上，另加原址拆机</td><td>新址资源、原址欠费</td></tr><tr><td>过户</td><td>双人核验、双方到场</td><td>双方实名、欠费结清、合约承接确认</td></tr><tr><td>销户</td><td>无方案环节，走退订与清算</td><td>合约违约金、余额退还方式、号码冷冻期</td></tr><tr><td>集团客户转个人</td><td>需集团客户经理确认</td><td>集团套餐解绑、成员关系</td></tr></tbody></table></div>
+<hr>
+<h2 id="8-ai-能力边界">8. AI 能力边界</h2>
+<h3 id="8-1-ai-可以做的">8.1 AI 可以做的</h3>
+<div class="tw"><table><thead><tr><th>能力</th><th>输入</th><th>输出</th><th>失败时</th></tr></thead><tbody><tr><td>需求抽取</td><td>对话文本 + 客户在用业务</td><td>结构化需求（业务类型、预算、人数、地址意图、时间要求）</td><td>输出&quot;未识别&quot;，请坐席补充，不猜</td></tr><tr><td>方案筛选与排序</td><td>可售商品池 + 需求 + 客户画像</td><td>最多 3 个候选，附推荐理由</td><td>候选为空时明确告知&quot;无匹配商品&quot;并给原因</td></tr><tr><td>字段预填</td><td>客户资料 + 需求</td><td>受理单字段值</td><td>低置信字段标黄，不下发</td></tr><tr><td>异议处理建议</td><td>客户原话</td><td>话术建议（引用政策库）</td><td>无匹配则给&quot;转店长&quot;</td></tr><tr><td>材料齐全度检查</td><td>业务类型 + 已采集材料</td><td>缺失项清单</td><td>—</td></tr><tr><td>关注事项生成</td><td>合约到期、权益变化、异常用量</td><td>提示卡片</td><td>无数据时不显示，不编造</td></tr></tbody></table></div>
+<h3 id="8-2-ai-不可以做的">8.2 AI 不可以做的</h3>
+<div class="tw"><table><thead><tr><th>禁止项</th><th>原因</th><th>拦截方式</th></tr></thead><tbody><tr><td>自行计算价格或折扣</td><td>价格必须由规则引擎出，AI 算错无法追溯</td><td>输出结构里价格字段只读，由引擎回填；AI 输出价格直接丢弃并告警</td></tr><tr><td>输出商品池外的商品</td><td>会造成违规销售</td><td>方案卡片只渲染引擎返回的 SKU，AI 文本不得直接渲染为卡片</td></tr><tr><td>承诺装机时限、承诺赠送</td><td>属对外承诺，责任在业务侧</td><td>禁用词表拦截；涉及时效必须引用 SLA 口径并标注&quot;以派单结果为准&quot;</td></tr><tr><td>引用未生效或已下线的政策</td><td>政策有生效期</td><td>知识库检索带生效期过滤，AI 输出必须带政策文号</td></tr><tr><td>越过风控与授权</td><td>合规红线</td><td>权限校验在前端与后端各做一次，AI 不参与</td></tr><tr><td>代替客户确认或签字</td><td>法律要求本人</td><td>签署环节强制人工</td></tr><tr><td>处理客户投诉定性</td><td>属业务判定</td><td>只提供信息，不定责</td></tr></tbody></table></div>
+<h3 id="8-3-提交前的三道确认">8.3 提交前的三道确认</h3>
+<p>即使坐席有提交权限，AI 生成的受理单也必须经过：</p>
+<ol><li><strong>坐席逐项核对</strong>：费用、生效时间、合约期、附属权益四项必勾选。</li><li><strong>客户确认</strong>：费用变化与合约期口头确认，界面记录确认时间与操作工号。</li><li><strong>规则复核</strong>：提交前引擎再跑一次可售性与合约校验，防止配置在会话期间变更。</li></ol>
+<h3 id="8-4-ai-关注事项生成规则">8.4 AI 关注事项生成规则</h3>
+<div class="tw"><table><thead><tr><th>事项</th><th>触发条件</th><th>优先级</th></tr></thead><tbody><tr><td>合约即将到期</td><td>剩余天数 ≤ 30</td><td>高</td></tr><tr><td>权益将失效</td><td>套餐变更会导致赠送权益终止</td><td>高</td></tr><tr><td>用量异常</td><td>当月流量 ≥ 套餐 90% 或同比增幅 ≥ 50%</td><td>中</td></tr><tr><td>欠费风险</td><td>近 3 月有 1 次以上逾期</td><td>中</td></tr><tr><td>升档机会</td><td>连续 2 月超套且超套费用 ≥ 20 元</td><td>低</td></tr><tr><td>携转风险</td><td>近 30 天有投诉工单或竞品咨询记录</td><td>高（仅内部可见）</td></tr></tbody></table></div>
+<p>规则均为确定性规则，不由模型生成。模型只负责把规则结果转成一句话表达。</p>
+<hr>
+<h2 id="9-非功能需求">9. 非功能需求</h2>
+<div class="tw"><table><thead><tr><th>类别</th><th>要求</th><th>说明</th></tr></thead><tbody><tr><td>首屏</td><td>&lt; 2s（P95）</td><td>门店网络环境按 20Mbps 估算</td></tr><tr><td>AI 首字</td><td>&lt; 1.5s（P95）</td><td>超过 3s 显示&quot;正在生成&quot;，超过 8s 降级</td></tr><tr><td>方案生成</td><td>&lt; 3s（P95）</td><td>含规则引擎计算</td></tr><tr><td>提交 CRM</td><td>&lt; 5s（P95）</td><td>超时进入补偿队列，不向坐席报错</td></tr><tr><td>可用性</td><td>营业时段 99.9%</td><td>营业时段定义为门店营业时间 ±1 小时</td></tr><tr><td>并发</td><td>单省 5000 坐席同时在线</td><td>待确认实际规模</td></tr><tr><td>降级</td><td>AI 全部不可用时，手工受理表单必须可用</td><td>核心链路不依赖 AI</td></tr><tr><td>兼容</td><td>Chrome 90+ / Edge 90+，分辨率 ≥1366×768</td><td>门店一体机常见 1366×768</td></tr><tr><td>数据时效</td><td>客户在用业务与账单 T+0 实时；看板 T+1</td><td>—</td></tr></tbody></table></div>
+<hr>
+<h2 id="10-验收标准">10. 验收标准</h2>
+<div class="tw"><table><thead><tr><th>#</th><th>模块</th><th>Given / When / Then</th></tr></thead><tbody><tr><td>1</td><td>客户签入</td><td>客户已被 A 厅工号签入，当 B 厅工号尝试签入，则提示占用人并可发起接管申请</td></tr><tr><td>2</td><td>客户锁超时</td><td>客户签入后 30 分钟无任何操作，则自动释放锁并回到待签入</td></tr><tr><td>3</td><td>脱敏</td><td>营业员查看证件号，则默认掩码；点击查看完整需选择事由且留痕</td></tr><tr><td>4</td><td>授权流</td><td>营业员发起 299 元套餐（上限 199），则弹授权申请；店长批准后 5 分钟内可提交，超时需重新申请</td></tr><tr><td>5</td><td>商品池约束</td><td>客户地址无宽带资源，则方案列表不出现宽带类商品，并提示&quot;该地址暂无资源，可转外勘&quot;</td></tr><tr><td>6</td><td>价格来源</td><td>任意方案卡片的价格，均来自规则引擎返回字段；篡改前端价格后提交，后端校验拦截</td></tr><tr><td>7</td><td>合约冲突</td><td>客户有未到期合约，选择降档，则展示违约金试算并要求客户确认后才可继续</td></tr><tr><td>8</td><td>AI 低置信</td><td>AI 需求抽取置信度 &lt; 0.75，则不生成方案，改为追问缺失要素</td></tr><tr><td>9</td><td>AI 不可用</td><td>模型服务超时 8s，则界面切到手工受理表单，坐席可继续办业务</td></tr><tr><td>10</td><td>双通道提交</td><td>同一受理单重复点击提交，则只生成一张订单，第二次返回首次结果</td></tr><tr><td>11</td><td>提交前复核</td><td>提交瞬间商品被下架，则提交被拦截并提示&quot;商品已停售&quot;，回到方案选择</td></tr><tr><td>12</td><td>费用告知</td><td>未勾选费用确认，提交按钮置灰</td></tr><tr><td>13</td><td>审计</td><td>任意一次受理，可按工号查出：查看过哪些敏感字段、AI 建议了什么、最终成交什么、谁授权的</td></tr><tr><td>14</td><td>降级开关</td><td>运营在后台关闭某门店 AI 面板，则该门店刷新后不显示 AI 栏，其余门店不受影响</td></tr><tr><td>15</td><td>看板口径</td><td>门店日报的&quot;一次受理成功率&quot;= 首次提交成功单量 ÷ 总单量，退单与重提分开统计</td></tr></tbody></table></div>
+<hr>
+<h2 id="11-未决问题">11. 未决问题</h2>
+<div class="tw"><table><thead><tr><th>#</th><th>问题</th><th>影响</th><th>建议</th></tr></thead><tbody><tr><td>1</td><td>各省授权额度实际是多少</td><td>权限矩阵数值</td><td>需业务方提供现行授权管理办法</td></tr><tr><td>2</td><td>双录是否强制，还是仅特定业务</td><td>合规与流程</td><td>需法务确认；当前按过户/销户/终端合约强制处理</td></tr><tr><td>3</td><td>客户锁 30 分钟是否合理</td><td>高峰时段体验</td><td>建议按厅配置，默认 30 分钟</td></tr><tr><td>4</td><td>是否要求 AI 输出全部留档</td><td>存储成本与审计</td><td>建议留档 6 个月，与录音同期</td></tr><tr><td>5</td><td>CRM 是否支持幂等提交</td><td>重复下单风险</td><td>若不支持，需在中台做去重表</td></tr><tr><td>6</td><td>外勘转派的对接系统与时限</td><td>异常流程能否走完</td><td>待确认对接方式是接口还是工单同步</td></tr></tbody></table></div>
+    </article>
+  </div>
+  <div class="doc__foot">
+    <a href="../../index.html#docs">← 全部文档</a>
+  </div>
+</main>
+</body>
+</html>

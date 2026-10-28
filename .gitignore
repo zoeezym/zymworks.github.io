@@ -1,0 +1,7 @@
+# 简历 PDF 含个人手机号与原公司名称，暂不随仓库公开
+assets/resume-*.pdf
+
+# 系统与编辑器
+.DS_Store
+Thumbs.db
+*.swp

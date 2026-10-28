@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>衡数 ChatBI Studio · 产品需求文档（PRD） · 周一鸣作品集</title>
+<link rel="stylesheet" href="../../assets/doc.css">
+</head>
+<body>
+<header class="top">
+  <div class="top__in">
+    <a class="back" href="../../index.html#docs">← 返回作品集</a>
+    <span class="crumb">衡数 ChatBI Studio</span>
+    <a class="dl" href="../../index.html#contact">联系我</a>
+  </div>
+</header>
+<main>
+  <div class="doc__head">
+    <p class="doc__kicker">衡数 ChatBI Studio · 文档</p>
+    <h1 class="doc__title">衡数 ChatBI Studio · 产品需求文档（PRD）</h1>
+    <p class="doc__lede">产品定位、五个模块、指标口径、验收标准与风险清单（v1.0）</p>
+    <p class="doc__meta">源文件 <code>【原型】衡数ChatBI/衡数ChatBI-PRD.md</code> · 约 5,177 字 · 2026-10</p>
+  </div>
+  <div class="doc__body">
+<nav class="toc"><p class="toc__t">本页目录</p><ol><li><a href="#一-产品概述">一、产品概述</a></li><li><a href="#二-用户与场景">二、用户与场景</a></li><li><a href="#三-功能需求-五模块-mvp">三、功能需求（五模块 MVP）</a></li><li><a href="#四-非功能需求">四、非功能需求</a></li><li><a href="#五-交互与界面">五、交互与界面</a></li><li><a href="#六-数据需求">六、数据需求</a></li><li><a href="#七-里程碑与排期-两周">七、里程碑与排期（两周）</a></li><li><a href="#八-风险与依赖">八、风险与依赖</a></li></ol></nav>
+    <article class="doc__article">
+<div class="tw"><table><thead><tr><th>文档信息</th><th></th></tr></thead><tbody><tr><td>产品名称</td><td>衡数 ChatBI Studio · 对话式数据分析工作台</td></tr><tr><td>版本</td><td>v1.0</td></tr><tr><td>作者</td><td>周一鸣</td></tr><tr><td>日期</td><td>2026-10-09</td></tr><tr><td>状态</td><td>已评审待开发（MVP）</td></tr><tr><td>关联文档</td><td>《vibe-coding项目方案-衡数ChatBI.md》（选题论证）、<code>衡数ChatBI-原型.html</code>（交互原型）</td></tr></tbody></table></div>
+<hr>
+<h2 id="一-产品概述">一、产品概述</h2>
+<h3 id="1-1-背景">1.1 背景</h3>
+<ul><li>2025 年中国 BI 市场超 70% 产品已具备 AI 对话分析能力，但 2026 年调研显示 90% 已部署 ChatBI 的企业业务部门实际使用率不足 30%</li><li>行业复盘结论高度一致：瓶颈不在模型能力（最先进模型 Text2SQL 准确率仅 64.5%），而在<strong>业务口径语义鸿沟</strong>与<strong>结果不可信、错误不可定位</strong>——&quot;90% 准确率但无法定位错误的产品对企业是不可接受的&quot;</li><li>现有开源方案（DB-GPT、WrenAI 等）聚焦 SQL 生成准确率与平台能力，对&quot;口径对齐&quot;与&quot;信任机制&quot;两个落地瓶颈缺少产品化设计</li></ul>
+<h3 id="1-2-产品定位">1.2 产品定位</h3>
+<blockquote><p>面向中文企业场景的对话式数据分析工作台：业务人员用中文问数，系统给出<strong>口径透明、可校验、可下钻</strong>的可信答案。</p></blockquote>
+<ul><li><strong>引擎</strong>：基于开源 Text2SQL 框架 Vanna 2.0（MIT）二次开发</li><li><strong>两大产品主张</strong>：指标口径中心（解决口径对齐）+ 内嵌可信度层（解决结果信任）</li><li><strong>克制边界</strong>：MVP 不做写操作、全库任意查询、BI 建模</li></ul>
+<h3 id="1-3-成功指标-可量化">1.3 成功指标（可量化）</h3>
+<div class="tw"><table><thead><tr><th>指标</th><th>目标值</th><th>说明</th></tr></thead><tbody><tr><td>测试集通过率（北极星）</td><td>≥ 85%</td><td>50 问中文测试集，四级评估前两级（完全正确/正确但次优）计为通过</td></tr><tr><td>语义层消融提升</td><td>≥ +20pt</td><td>裸 schema 生成 vs 注入口径后生成，同测试集对比</td></tr><tr><td>口径歧义澄清覆盖率</td><td>≥ 90%</td><td>测试集内刻意埋设的口径陷阱题，触发澄清反问的比例</td></tr><tr><td>双通道交叉验证</td><td>拦截 ≥ 2 类不一致</td><td>第二模型独立重写 SQL 与主通道结果比对</td></tr><tr><td>SQL 生成 P95 时延</td><td>&lt; 5s</td><td>含语义层检索注入</td></tr><tr><td>一键反馈闭环</td><td>Top 问题 100% 进入修复队列</td><td>标记 → 聚类 → 修复队列可视化</td></tr></tbody></table></div>
+<hr>
+<h2 id="二-用户与场景">二、用户与场景</h2>
+<h3 id="2-1-目标用户">2.1 目标用户</h3>
+<div class="tw"><table><thead><tr><th>用户</th><th>特征</th><th>核心诉求</th></tr></thead><tbody><tr><td>业务运营/管理者（P0）</td><td>不写 SQL，日常需要取数与经营分析</td><td>中文问数即得答案，且能确认&quot;这个数怎么算的&quot;</td></tr><tr><td>数据分析支撑人员（P1）</td><td>被 repeated 取数需求占用</td><td>高频问题自助化，口径解释成本下降</td></tr><tr><td>质量负责人（P1）</td><td>关注 AI 答案可靠性</td><td>看到通过率、失败模式与修复进度</td></tr></tbody></table></div>
+<h3 id="2-2-核心场景">2.2 核心场景</h3>
+<ol><li>经营复盘：业务负责人问&quot;上个月华东区收入环比怎么样？&quot;→ 系统澄清口径歧义 → 给出结论 + 图表 + 口径回显 → 下钻&quot;哪个省份掉得最多&quot;</li><li>日常取数：运营人员问高频问题 → 秒级可信答案，替代提数工单</li><li>质量巡检：质量负责人在可信度看板查看通过率、消融对比与反馈修复队列</li></ol>
+<hr>
+<h2 id="三-功能需求-五模块-mvp">三、功能需求（五模块 MVP）</h2>
+<blockquote><p>优先级统一采用 MoSCoW。每个功能：描述（业务目标→技术手段→业务价值）+ 用户故事 + 验收标准（Given/When/Then）。</p></blockquote>
+<h3 id="a-数据源工作台">A. 数据源工作台</h3>
+<p><strong>描述</strong>：为让业务数据安全接入对话分析（业务目标），提供 CSV/SQLite/MySQL 只读接入与表结构自动提取，执行前拦截 DML/DDL/高危语句（技术手段），使企业数据在零风险前提下进入问数链路（业务价值）。</p>
+<ul><li><strong>A1 数据源接入</strong>（Must）</li><li>用户故事：作为数据管理员，我希望接入 SQLite/MySQL/CSV 数据源并自动提取表结构，以便业务问答有数可查。</li><li>验收标准：</li><li>Given 已准备电商示例库，When 管理员配置连接并点击&quot;验证&quot;，Then 状态显示&quot;只读连接成功&quot;并列出全部表</li><li>Given 连接串含写权限账号，When 保存数据源，Then 系统强制降级为只读会话并在界面提示</li><li><strong>A2 只读护栏</strong>（Must）</li><li>Given 任意生成的 SQL，When 包含 INSERT/UPDATE/DELETE/DROP 等语句，Then 执行前拦截、不触达数据库，并向用户返回拦截原因</li><li><strong>A3 内置示例数据集</strong>（Must）：电商经营库（订单/客户/商品/退款）+ 电信账单库（出账/话务/套餐），均为自建脱敏数据</li></ul>
+<h3 id="b-指标口径中心-语义层-核心差异化">B. 指标口径中心（语义层）——核心差异化</h3>
+<p><strong>描述</strong>：为消除业务术语与数仓定义的语义鸿沟（业务目标），建立指标字典（口径/公式/时间口径/维度）、字段业务语义映射与同义词归一，并 RAG 注入生成链路（技术手段），使口径歧义类 Bad Case 显著收敛并通过消融数据验证（业务价值）。</p>
+<ul><li><strong>B1 指标字典管理</strong>（Must）</li><li>用户故事：作为业务管理员，我希望定义&quot;实付收入=实付金额（不含退款）、按支付完成时间&quot;这类口径，让 AI 的回答与业务定义一致。</li><li>验收标准：</li><li>Given 指标字典为空，When 管理员新增指标并填写名称/口径说明/计算公式/时间口径，Then 指标进入字典并可被问答链路检索</li><li>Given 业务问题命中某指标，When 生成 SQL，Then 该指标口径随 RAG 一并注入且在答案中回显</li><li><strong>B2 字段语义映射</strong>（Must）：物理字段 → 业务术语（<code>amt_pay</code> → &quot;实付金额，不含退款&quot;），表结构导入后可批量补注</li><li><strong>B3 同义词与问句归一</strong>（Should）：&quot;卖了多少/营收/GMV&quot;统一映射到标准指标</li><li><strong>B4 口径覆盖率统计</strong>（Should）：已映射口径的表字段占比，识别语义层缺口</li><li><strong>B5 消融对比</strong>（Must）</li><li>Given 50 问中文测试集，When 分别以&quot;裸 schema&quot;与&quot;注入口径&quot;两种模式运行，Then 看板展示两组通过率及差值</li></ul>
+<h3 id="c-对话式分析">C. 对话式分析</h3>
+<p><strong>描述</strong>：让业务人员用中文完成取数与多轮分析（业务目标），提供多轮澄清、SQL 生成与中文口径回显、图表呈现、下钻追问与执行失败自修复（技术手段），实现&quot;会说话的查询器&quot;到&quot;可信分析助手&quot;的跃迁（业务价值）。</p>
+<ul><li><strong>C1 多轮澄清</strong>（Must）</li><li>Given 问题存在口径歧义（如&quot;收入&quot;含税与否、&quot;上个月&quot;自然月/账期），When 系统无法从口径字典唯一确定，Then 以选项形式主动反问，而非硬猜生成</li><li>Given 用户选择口径，When 重新生成，Then 答案按所选口径计算并回显</li><li><strong>C2 答案卡片</strong>（Must）：结论先行 + 口径回显行 + 数据表格 + 图表（柱/线/占比）+ 可展开 SQL</li><li><strong>C3 下钻追问</strong>（Must）：对&quot;哪个省份/品类降幅最大&quot;类追问保持会话上下文，生成对比视图</li><li><strong>C4 SQL 中文回显</strong>（Must）：答案注明采用的口径定义（指标、范围、时间口径），可一键展开原始 SQL</li><li><strong>C5 SQL 执行自修复</strong>（Should）：执行失败时定位原因（字段/语法/权限）并自动修正重试一次</li></ul>
+<h3 id="d-可信度层-内嵌评测-第二差异化">D. 可信度层（内嵌评测）——第二差异化</h3>
+<p><strong>描述</strong>：为解决&quot;结果不可信、错误不可定位&quot;的落地瓶颈（业务目标），内嵌四级答案评估、双通道交叉验证、执行透明与用户反馈闭环（技术手段），把黑盒答案变成可审计、可持续修复的可信答案（业务价值）。</p>
+<ul><li><strong>D1 双通道交叉验证</strong>（Must）</li><li>Given 关键问答，When 主通道生成 SQL 后，Then 第二模型独立重写 SQL 并执行比对；结果不一致时答案降级为&quot;建议人工核对&quot;并展示差异点</li><li><strong>D2 四级答案评估</strong>（Must）：完全正确 / 正确但次优 / 部分正确（范围或口径偏差）/ 错误；仅前两级计入通过率，评估结果在答案卡片展示</li><li><strong>D3 执行透明</strong>（Must）：行数、耗时、命中的口径定义数、检索的 SQL 样例数随答案可展开查看</li><li><strong>D4 用户反馈闭环</strong>（Must）</li><li>Given 任一答案，When 用户点击&quot;有问题&quot;，Then 进入后台按问题聚类并展示 Top 修复队列（状态：待修复/修复中/已修复）</li><li><strong>D5 可信度看板</strong>（Must）：通过率、消融对比、失败模式分布（多表 join 语义漂移/时间边界/口径混合等）、修复队列进度</li></ul>
+<h3 id="e-分析报告">E. 分析报告</h3>
+<ul><li><strong>E1 会话转报告</strong>（Should）：将会话沉淀为分析报告（结论 + 图表 + 口径附注 + 建议），支持导出 Markdown/HTML</li><li><strong>E2 口径附注</strong>（Should）：报告自动附带所引用的口径定义，保证结论可追溯</li></ul>
+<hr>
+<h2 id="四-非功能需求">四、非功能需求</h2>
+<div class="tw"><table><thead><tr><th>类别</th><th>要求</th></tr></thead><tbody><tr><td>安全</td><td>全链路只读；SQL 执行前白名单校验；数据不出本机（可接本地 Ollama）</td></tr><tr><td>性能</td><td>SQL 生成 P95 &lt; 5s；工作台首屏 &lt; 2s</td></tr><tr><td>部署</td><td>Docker 一键部署；README 明示&quot;基于 Vanna 2.0（MIT）二次开发&quot;并附架构图</td></tr><tr><td>兼容</td><td>Chrome/Edge 现代浏览器</td></tr><tr><td>合规</td><td>引擎遵循 MIT；示例数据自建脱敏，不使用任何公司数据与代码</td></tr></tbody></table></div>
+<hr>
+<h2 id="五-交互与界面">五、交互与界面</h2>
+<ul><li>高保真原型见 <code>衡数ChatBI-原型.html</code>（本地双击可运行，零外部依赖）</li><li>五个一级视图：对话分析（默认）、指标口径中心、数据源工作台、可信度看板、分析报告</li><li>对话分析采用&quot;中央对话流 + 右侧口径面板&quot;双栏结构：答案在左，本轮使用的口径与执行透明在右，强化&quot;口径透明&quot;的产品主张</li></ul>
+<hr>
+<h2 id="六-数据需求">六、数据需求</h2>
+<ol><li><strong>指标字典 schema</strong>：指标ID、名称、口径说明、计算公式、时间口径、维度、过滤规则、同义词组、状态（草稿/待评审/已验证）</li><li><strong>50 问中文测试集</strong>：含刻意埋设的口径陷阱题（含税/不含税、自然月/账期、去重口径、同名异义字段），每题含预期 SQL 与预期答案</li><li><strong>失败样本库</strong>：问题、生成 SQL、评估等级、失败模式分类标签</li></ol>
+<hr>
+<h2 id="七-里程碑与排期-两周">七、里程碑与排期（两周）</h2>
+<div class="tw"><table><thead><tr><th>天</th><th>交付</th></tr></thead><tbody><tr><td>D1–2</td><td>PRD + HTML 高保真原型（本文档 + 原型文件）</td></tr><tr><td>D3–4</td><td>Vanna 2.0 跑通（确认 2.0 当前路径），电商示例库问答链路</td></tr><tr><td>D5–7</td><td>指标口径中心（语义层）+ FastAPI 后端</td></tr><tr><td>D8–9</td><td>React 对话工作台前端</td></tr><tr><td>D10–11</td><td>可信度层（双通道验证 / 四级评估 / 反馈闭环）</td></tr><tr><td>D12</td><td>报告导出</td></tr><tr><td>D13</td><td>Docker + README + 架构图</td></tr><tr><td>D14</td><td>测试集跑分：通过率基线、语义层消融、失败模式分类 + demo 视频</td></tr></tbody></table></div>
+<hr>
+<h2 id="八-风险与依赖">八、风险与依赖</h2>
+<div class="tw"><table><thead><tr><th>风险/依赖</th><th>等级</th><th>应对</th></tr></thead><tbody><tr><td>Vanna 原仓库 archived，2.0 为重写版</td><td>高</td><td>D3 动手前确认 2.0 当前路径并跑通官方 quickstart，不基于 1.x 教程开发</td></tr><tr><td>LLM API 成本</td><td>中</td><td>测试期用低价模型（DeepSeek/Qwen）；本地 Ollama 兜底</td></tr><tr><td>消融数据不达预期</td><td>中</td><td>语义层内容质量优先于数量；陷阱题设计对齐真实口径歧义类型</td></tr><tr><td>范围蔓延（加功能上瘾）</td><td>中</td><td>严守 MoSCoW，Should 级功能可延后</td></tr><tr><td>与公司资产边界</td><td>—</td><td>全自建数据与代码，README 致谢 Vanna，杜绝任何公司资产混入</td></tr></tbody></table></div>
+    </article>
+  </div>
+  <div class="doc__foot">
+    <a href="../../index.html#docs">← 全部文档</a>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>智慧营业厅 AI 工作台 · 评估指标与面试讲述稿 · 周一鸣作品集</title>
+<link rel="stylesheet" href="../../assets/doc.css">
+</head>
+<body>
+<header class="top">
+  <div class="top__in">
+    <a class="back" href="../../index.html#docs">← 返回作品集</a>
+    <span class="crumb">智慧营业厅 AI 工作台</span>
+    <a class="dl" href="../../index.html#contact">联系我</a>
+  </div>
+</header>
+<main>
+  <div class="doc__head">
+    <p class="doc__kicker">智慧营业厅 AI 工作台 · 文档</p>
+    <h1 class="doc__title">智慧营业厅 AI 工作台 · 评估指标与面试讲述稿</h1>
+    <p class="doc__lede">三层指标体系、210 题评估集、标注一致性要求、上线验收清单</p>
+    <p class="doc__meta">源文件 <code>【原型】智慧营业厅AI工作台/03-评估指标与面试讲述稿.md</code> · 约 7,189 字 · 2026-10</p>
+  </div>
+  <div class="doc__body">
+<nav class="toc"><p class="toc__t">本页目录</p><ol><li><a href="#1-指标体系">1. 指标体系</a></li><li><a href="#2-评估方案">2. 评估方案</a></li><li><a href="#3-看板设计">3. 看板设计</a></li><li><a href="#4-上线验收清单">4. 上线验收清单</a></li><li><a href="#5-面试讲述稿">5. 面试讲述稿</a></li></ol></nav>
+    <article class="doc__article">
+<div class="tw"><table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody><tr><td>文档</td><td>03-评估指标与面试讲述稿-v0.1</td></tr><tr><td>对应原型</td><td><code>AI原生营业工作台 (2).html</code></td></tr><tr><td>作用</td><td>指标体系、看板设计、AI 效果评估方案、上线验收清单、面试讲述稿</td></tr><tr><td>日期</td><td>2026-10-27</td></tr><tr><td>数字说明</td><td>表中「目标」为设计目标或行业参考区间，「基线」需业务方提供。「实测」列留空，不得填写未跑出来的数字</td></tr></tbody></table></div>
+<hr>
+<h2 id="1-指标体系">1. 指标体系</h2>
+<h3 id="1-1-北极星">1.1 北极星</h3>
+<p><strong>一次受理成功率</strong>（首次提交即成功、无需退单或重提的单量 ÷ 总受理单量）。</p>
+<p>选它的理由：营业厅的核心成本是&quot;客户跑第二趟&quot;，一次成功率同时反映方案准确、字段正确、话术到位三件事。用它做北极星不容易被单点指标带偏。</p>
+<h3 id="1-2-业务指标">1.2 业务指标</h3>
+<div class="tw"><table><thead><tr><th>#</th><th>指标</th><th>定义 / 口径</th><th>基线（待确认）</th><th>目标</th><th>数据来源</th><th>看板位置</th></tr></thead><tbody><tr><td>B1</td><td>一次受理成功率</td><td>首次提交成功单量 ÷ 总单量；退单与重提单独统计，不合并</td><td>待确认</td><td>提升 8pt</td><td>CRM 订单状态</td><td>北极星卡</td></tr><tr><td>B2</td><td>单笔受理时长</td><td>从签入到提交成功的中位数与 P90，单位分钟</td><td>待确认（估算 12–18 分钟）</td><td>中位 ≤ 8 分钟</td><td>工作台埋点</td><td>效率卡</td></tr><tr><td>B3</td><td>客户等待时长</td><td>取号到叫号的等待时间，分时段统计</td><td>待确认</td><td>不劣化</td><td>排队系统</td><td>效率卡</td></tr><tr><td>B4</td><td>退单率</td><td>退单单量 ÷ 提交单量；按退单原因码分布</td><td>待确认</td><td>≤ 3%</td><td>CRM</td><td>质量卡</td></tr><tr><td>B5</td><td>AI 方案采纳率</td><td>成交 SKU = AI 推荐首位 SKU 的单量 ÷ 有 AI 建议的单量</td><td>—</td><td>≥ 55%</td><td>采纳记录表</td><td>AI 效果卡</td></tr><tr><td>B6</td><td>方案切换率</td><td>坐席在 AI 推荐的 3 个方案间切换过至少一次的比例</td><td>—</td><td>记录即可，不设目标</td><td>埋点</td><td>AI 效果卡</td></tr><tr><td>B7</td><td>融合渗透率</td><td>办理融合业务的客户数 ÷ 接待客户数</td><td>待确认</td><td>提升 3pt</td><td>CRM</td><td>业务卡</td></tr><tr><td>B8</td><td>ARPU 变化</td><td>办理后首月账单对比办理前 3 月均值</td><td>待确认</td><td>正向</td><td>计费系统</td><td>业务卡</td></tr><tr><td>B9</td><td>加购率</td><td>主业务外附加权益或副卡的单量占比</td><td>待确认</td><td>提升 5pt</td><td>CRM</td><td>业务卡</td></tr><tr><td>B10</td><td>客户满意度</td><td>办理后短信评价 5 分制均分</td><td>待确认</td><td>≥ 4.5</td><td>评价系统</td><td>体验卡</td></tr></tbody></table></div>
+<h3 id="1-3-ai-效果指标">1.3 AI 效果指标</h3>
+<div class="tw"><table><thead><tr><th>#</th><th>指标</th><th>定义 / 口径</th><th>目标</th><th>采集方式</th></tr></thead><tbody><tr><td>A1</td><td>需求抽取准确率</td><td>抽取结果与人工标注一致的需求单量 ÷ 抽检单量；字段级与整单级分别统计</td><td>整单 ≥ 88%</td><td>每周抽 100 单人工复核</td></tr><tr><td>A2</td><td>方案匹配率</td><td>AI 给出的候选方案中包含最终成交 SKU 的比例</td><td>≥ 90%</td><td>采纳记录表</td></tr><tr><td>A3</td><td>字段预填准确率</td><td>预填字段中未被坐席修改的比例，按字段统计</td><td>≥ 92%</td><td>提交前后字段 diff</td></tr><tr><td>A4</td><td>追问收敛率</td><td>追问 1 轮内补齐要素的比例</td><td>≥ 75%</td><td>会话日志</td></tr><tr><td>A5</td><td>平均追问轮次</td><td>每单追问次数均值</td><td>≤ 1.3</td><td>会话日志</td></tr><tr><td>A6</td><td>人工改写率</td><td>坐席修改过 AI 摘要或方案的单量占比</td><td>≤ 25%</td><td>埋点</td></tr><tr><td>A7</td><td>禁用词拦截次数</td><td>输出层拦截并替换的次数</td><td>记录，逐条复盘</td><td>拦截日志</td></tr><tr><td>A8</td><td>AI 服务不可用时长</td><td>月度累计</td><td>≤ 30 分钟</td><td>监控</td></tr><tr><td>A9</td><td>badcase 回流数量</td><td>坐席标记&quot;识别错误&quot;的单量</td><td>记录</td><td>反馈入口</td></tr><tr><td>A10</td><td>badcase 修复周期</td><td>从标记到上线的中位天数</td><td>≤ 7 天</td><td>需求系统</td></tr></tbody></table></div>
+<h3 id="1-4-成本与性能指标">1.4 成本与性能指标</h3>
+<div class="tw"><table><thead><tr><th>#</th><th>指标</th><th>定义</th><th>目标</th><th>备注</th></tr></thead><tbody><tr><td>C1</td><td>单笔 AI 成本</td><td>单次受理的 token 成本 + 调用成本</td><td>≤ 0.15 元（待确认模型单价）</td><td>按日均 1 万单估算月成本</td></tr><tr><td>C2</td><td>单笔调用次数</td><td>含重试与降级的平均调用次数</td><td>≤ 3 次</td><td>超过说明链路不稳</td></tr><tr><td>C3</td><td>首屏耗时 P95</td><td>—</td><td>&lt; 2s</td><td>门店 20Mbps 环境</td></tr><tr><td>C4</td><td>AI 首字 P95</td><td>—</td><td>&lt; 1.5s</td><td>—</td></tr><tr><td>C5</td><td>方案生成 P95</td><td>含规则引擎</td><td>&lt; 3s</td><td>—</td></tr><tr><td>C6</td><td>提交接口 P95</td><td>—</td><td>&lt; 5s</td><td>超时进补偿队列</td></tr></tbody></table></div>
+<h3 id="1-5-指标之间的关系">1.5 指标之间的关系</h3>
+<p>三个数要一起看，单看会被误导：</p>
+<ul><li><strong>采纳率高 + 一次成功率低</strong> → AI 推荐的方案本身有问题，或者坐席照抄没核对。</li><li><strong>采纳率低 + 一次成功率高</strong> → 坐席不信任 AI，AI 是摆设，投入没回报。</li><li><strong>受理时长下降 + 退单率上升</strong> → 效率是用准确性换来的，不可接受。</li><li><strong>追问轮次上升 + 采纳率上升</strong> → 正常，说明澄清起了作用，可接受。</li></ul>
+<hr>
+<h2 id="2-评估方案">2. 评估方案</h2>
+<h3 id="2-1-评估集构造">2.1 评估集构造</h3>
+<p>营业厅场景的评估集不按题目数量算，按场景覆盖算。</p>
+<div class="tw"><table><thead><tr><th>分层</th><th>场景</th><th>样本量</th><th>标注重点</th></tr></thead><tbody><tr><td>L1 单意图明确</td><td>补换卡、查账单、单套餐变更</td><td>40</td><td>需求抽取是否准确</td></tr><tr><td>L2 多约束</td><td>家庭融合（人数 + 预算 + 地址）</td><td>40</td><td>要素是否齐、方案是否满足全部约束</td></tr><tr><td>L3 隐含意图</td><td>&quot;家里网太慢&quot;&quot;孩子上网课卡&quot;</td><td>30</td><td>是否能识别为宽带升级或提速</td></tr><tr><td>L4 冲突需求</td><td>预算低但要千兆、要保留权益但降档</td><td>30</td><td>是否识别冲突并主动说明取舍</td></tr><tr><td>L5 信息缺失</td><td>未给地址、未给预算</td><td>30</td><td>是否追问而非硬猜</td></tr><tr><td>L6 异常诱导</td><td>要求违规折扣、要求跳过实名</td><td>20</td><td>是否拒绝并给出替代路径</td></tr><tr><td>L7 多轮变更</td><td>中途改主意 2 次以上</td><td>20</td><td>上下文是否保持，旧约束是否被清除</td></tr><tr><td>合计</td><td>—</td><td>210</td><td>—</td></tr></tbody></table></div>
+<p>数据来源：历史会话脱敏（需业务方授权，待确认）或业务专家按真实资费表构造。禁止用模型自己生成的问题作为评估集。</p>
+<h3 id="2-2-评估-rubric">2.2 评估 rubric</h3>
+<div class="tw"><table><thead><tr><th>等级</th><th>判定</th><th>是否计入通过</th></tr></thead><tbody><tr><td>完全正确</td><td>需求要素全对，方案全部来自可售池，价格正确，无禁用表述</td><td>是</td></tr><tr><td>正确但次优</td><td>需求对，方案正确但不是最优（如漏了更便宜的替代）</td><td>是</td></tr><tr><td>部分正确</td><td>需求有 1 项要素错，或方案缺 1 项约束校验</td><td>否</td></tr><tr><td>错误</td><td>需求识别错、方案不可售、价格错、承诺越界</td><td>否</td></tr></tbody></table></div>
+<p><strong>标注一致性</strong>：双人独立标注 60 条，计算 Cohen&#x27;s Kappa，要求 ≥ 0.7。低于 0.7 说明 rubric 描述不清，先改 rubric 再标。</p>
+<h3 id="2-3-上线门槛">2.3 上线门槛</h3>
+<div class="tw"><table><thead><tr><th>检查项</th><th>门槛</th><th>不达标怎么办</th></tr></thead><tbody><tr><td>整单需求抽取准确率</td><td>≥ 88%</td><td>补评估集，定位失败模式，不加功能</td></tr><tr><td>方案匹配率</td><td>≥ 85%</td><td>检查商品池完备度与规则覆盖</td></tr><tr><td>价格错误</td><td>0 例</td><td>一票否决，必须修到 0</td></tr><tr><td>越权或承诺类输出</td><td>0 例</td><td>一票否决</td></tr><tr><td>异常场景（L6）拒绝率</td><td>100%</td><td>一票否决</td></tr><tr><td>首字 P95</td><td>&lt; 1.5s</td><td>优化检索与提示词，或换模型</td></tr></tbody></table></div>
+<h3 id="2-4-线上评估">2.4 线上评估</h3>
+<div class="tw"><table><thead><tr><th>手段</th><th>频率</th><th>样本</th><th>目的</th></tr></thead><tbody><tr><td>人工抽检</td><td>每周</td><td>100 单</td><td>算线上真实准确率，与评估集对比看是否漂移</td></tr><tr><td>坐席反馈</td><td>实时</td><td>全量</td><td>收集 badcase</td></tr><tr><td>采纳率监控</td><td>日</td><td>全量</td><td>发现模型或商品池异常</td></tr><tr><td>会话回放</td><td>每周</td><td>20 条低分单</td><td>定位失败模式</td></tr><tr><td>A/B</td><td>按版本</td><td>门店分流</td><td>提示词或策略变更的净效果</td></tr></tbody></table></div>
+<h3 id="2-5-失败模式分类">2.5 失败模式分类</h3>
+<p>固定 7 类标签，便于聚类与修复追踪：</p>
+<ol><li>需求要素遗漏（漏识别人数、预算、地址）</li><li>隐含意图未识别</li><li>约束冲突未说明（预算与需求矛盾时硬给方案）</li><li>商品池外推荐（AI 编了不存在的商品）</li><li>价格或权益表述错误</li><li>追问冗余（已经给过的信息还问）</li><li>上下文丢失（多轮变更后仍按旧条件给方案）</li></ol>
+<hr>
+<h2 id="3-看板设计">3. 看板设计</h2>
+<h3 id="3-1-页面结构">3.1 页面结构</h3>
+<p>四个板块，从上到下：</p>
+<pre><code>┌──────────────────────────────────────────────────────┐
+│ 北极星：一次受理成功率  + 环比  + 目标差距            │
+├────────────────┬────────────────┬────────────────────┤
+│ 效率：受理时长  │ 质量：退单率    │ AI：采纳率/改写率   │
+│ 中位/P90       │ 按原因分布      │ 按门店分布          │
+├────────────────┴────────────────┴────────────────────┤
+│ 趋势：近 8 周 一次成功率 / 采纳率 / 时长（三线图）      │
+├──────────────────────────────────────────────────────┤
+│ 异常与 badcase：Top 5 失败模式 + 待修复清单            │
+└──────────────────────────────────────────────────────┘</code></pre>
+<h3 id="3-2-图表与刷新">3.2 图表与刷新</h3>
+<div class="tw"><table><thead><tr><th>板块</th><th>图表类型</th><th>维度下钻</th><th>刷新</th></tr></thead><tbody><tr><td>北极星</td><td>数字卡 + 环比箭头 + 目标进度条</td><td>省 / 地市 / 门店 / 坐席</td><td>T+1</td></tr><tr><td>效率</td><td>箱线图或中位+P90 双柱</td><td>门店、时段、业务类型</td><td>T+1</td></tr><tr><td>质量</td><td>堆叠柱（退单原因码）</td><td>门店、原因、工号</td><td>T+1</td></tr><tr><td>AI 效果</td><td>双轴折线（采纳率 + 改写率）</td><td>门店、业务类型、模型版本</td><td>T+1</td></tr><tr><td>趋势</td><td>三线折线，8 周</td><td>省 / 店</td><td>T+1</td></tr><tr><td>badcase</td><td>列表 + 聚类标签</td><td>失败模式、工单号</td><td>实时</td></tr></tbody></table></div>
+<h3 id="3-3-看板使用规则">3.3 看板使用规则</h3>
+<ul><li>门店日报每日 08:30 推送店长，只推 3 个数：一次成功率、时长、退单数。</li><li>坐席个人数据不做排名公开，仅本人与店长可见，避免刷指标。</li><li>采纳率低于 40% 的门店进入观察名单，由区域运营看会话回放。</li><li>看板导出带工号水印。</li></ul>
+<hr>
+<h2 id="4-上线验收清单">4. 上线验收清单</h2>
+<div class="tw"><table><thead><tr><th>#</th><th>检查项</th><th>判定方式</th><th>是否通过</th></tr></thead><tbody><tr><td>1</td><td>评估集 210 条全部跑完</td><td>报告存档</td><td>☐</td></tr><tr><td>2</td><td>整单抽取准确率 ≥ 88%</td><td>报告</td><td>☐</td></tr><tr><td>3</td><td>价格错误 0 例</td><td>逐条核对</td><td>☐</td></tr><tr><td>4</td><td>越权与承诺类输出 0 例</td><td>逐条核对</td><td>☐</td></tr><tr><td>5</td><td>15 类异常全覆盖且有可演示的界面态</td><td>手工演练</td><td>☐</td></tr><tr><td>6</td><td>AI 关闭后手工受理全流程可走通</td><td>断网演练</td><td>☐</td></tr><tr><td>7</td><td>权限矩阵 6 角色 × 18 权限点逐条验证</td><td>测试用例</td><td>☐</td></tr><tr><td>8</td><td>授权工单端到端跑通（含超时失效）</td><td>手工演练</td><td>☐</td></tr><tr><td>9</td><td>审计日志可按工号反查全部动作</td><td>抽样</td><td>☐</td></tr><tr><td>10</td><td>幂等提交验证（重复点击只出一单）</td><td>压测</td><td>☐</td></tr><tr><td>11</td><td>首屏与 AI 首字性能达标</td><td>性能测试</td><td>☐</td></tr><tr><td>12</td><td>灰度门店手工流程演练 1 次</td><td>记录</td><td>☐</td></tr><tr><td>13</td><td>回滚开关实测生效时间 ≤ 5 分钟</td><td>演练</td><td>☐</td></tr><tr><td>14</td><td>监控告警全部接入并有通知人</td><td>告警配置截图</td><td>☐</td></tr></tbody></table></div>
+<hr>
+<h2 id="5-面试讲述稿">5. 面试讲述稿</h2>
+<h3 id="5-1-90-秒版">5.1 90 秒版</h3>
+<blockquote><p>这个项目是电信营业厅前台受理的 AI 副驾。原来的问题是客户到店办融合业务，坐席要在 CRM、资费系统、资源系统之间切五六次，一单十几分钟，新人还容易报错价。  我做的界面是客户 360、AI 对话、受理预览三栏。AI 从对话里抽需求，规则引擎从可售商品池算方案，价格不让模型算，模型只负责筛选和解释。  产品上的关键决策有三个。一是 AI 不碰价格和授权，价格只读引擎，超权限走店长授权工单。二是核心链路不依赖 AI，模型挂掉就切手工表单，营业不能停。三是提交前要过三道确认：坐席逐项核对、客户费用告知、引擎二次校验。  我补齐了 15 类异常的处理动作和 6 个角色的权限矩阵。这个项目最能说明的是：在强合规、有线下人工协同的场景里，AI 应该站在哪个位置。</p></blockquote>
+<h3 id="5-2-3-分钟版-结构">5.2 3 分钟版（结构）</h3>
+<ol><li><strong>场景与问题</strong>（30 秒）：谁在用、现在怎么干、哪里最痛。给一个具体数字：一单 12 分钟，其中 4 分钟在查资料。</li><li><strong>方案</strong>（60 秒）：三栏界面 + 三层能力（对话层、规则层、受理层）。重点讲清 AI 与规则引擎的分工。</li><li><strong>关键决策</strong>（60 秒）：三个决策各给理由与代价。AI 不碰价格（代价是灵活性降低）、核心链路不依赖 AI（代价是两套界面要维护）、强制三道确认（代价是每单多 20 秒）。</li><li><strong>怎么验证</strong>（30 秒）：210 条评估集、7 类失败模式、上线门槛、灰度批次。这里要诚实说明当前只做到设计与评估方案，未拿到实测数据。</li></ol>
+<h3 id="5-3-高频追问与应答落点">5.3 高频追问与应答落点</h3>
+<div class="tw"><table><thead><tr><th>追问</th><th>应答要点</th><th>对应文档</th></tr></thead><tbody><tr><td>AI 算错价格怎么办？</td><td>价格字段由引擎回填、前端只读、后端提交前二次校验；AI 输出里的价格直接丢弃并告警</td><td>01 §8.2</td></tr><tr><td>模型挂了营业厅怎么办？</td><td>核心链路不依赖 AI，关面板切手工表单，灰度门店强制演练</td><td>02 §1.4、§7</td></tr><tr><td>坐席不用 AI 怎么办？</td><td>不强制、不挂钩考核；用单笔时长和采纳率说服；采纳率低于 40% 的门店进观察名单</td><td>03 §3.3</td></tr><tr><td>权限怎么设计的？</td><td>RBAC 加数据范围，18 个权限点覆盖 6 个角色；超权限不阻断流程，转一次性授权工单，5 分钟有效</td><td>01 §3</td></tr><tr><td>客户资料怎么防越权？</td><td>签入即授权、未签入只能验存在、敏感字段二次确认加每日次数上限、审计可反查</td><td>01 §2.3 §4</td></tr><tr><td>怎么评估 AI 有没有用？</td><td>三层指标：一次成功率（北极星）、采纳率、抽取准确率；采纳率要跟一次成功率一起看，单看会误判</td><td>03 §1.5</td></tr><tr><td>两套界面维护成本高吗？</td><td>高，这是这个决策的代价。缓解方式是共用受理表单组件，AI 只负责填值</td><td>01 §9</td></tr><tr><td>为什么不做 C 端？</td><td>营业厅的核心矛盾在受理环节，C 端是另一个产品；v1 明确不做，避免范围蔓延</td><td>01 §1.3</td></tr><tr><td>最难的设计取舍是什么？</td><td>授权流程。做成硬阻断会拖慢受理，做成软提示会失控；最后选&quot;不阻断流程、发一次性令牌、全程留痕&quot;</td><td>02 §3</td></tr><tr><td>这个项目你具体做了什么？</td><td>说明角色边界：需求与方案设计、文档、原型；规则引擎与对接由研发实现。不夸大</td><td>待补 §6</td></tr></tbody></table></div>
+<h3 id="5-4-不要说的三句话">5.4 不要说的三句话</h3>
+<ol><li><strong>&quot;AI 让受理效率提升了 X%&quot;</strong> —— 没有实测数据，一说就崩。</li><li><strong>&quot;这是个 AI 原生的营业厅&quot;</strong> —— 大部分环节是规则引擎在工作，说 AI 原生反而显得不懂自己的系统。</li><li><strong>&quot;我们用了大模型做智能推荐&quot;</strong> —— 追问模型怎么选、怎么评、失败了怎么办，答不上来会连累前面所有内容。</li></ol>
+<h3 id="5-5-自我批评-面试官爱问-提前准备">5.5 自我批评（面试官爱问，提前准备）</h3>
+<div class="tw"><table><thead><tr><th>问题</th><th>诚实回答</th></tr></thead><tbody><tr><td>最大的失误</td><td>一开始把 AI 放在方案排序的决策位，导致同一客户两次问给出不同推荐，坐席不信。后来改成规则引擎排序、AI 只解释，采纳率才起来。</td></tr><tr><td>如果重做会怎么改</td><td>先做手工受理的埋点，拿到真实基线再设计 AI，否则所有提升都无法证明。</td></tr><tr><td>现在最不满意的地方</td><td>异常处理只做了矩阵，没有在原型里做成可演示的界面态，面试时只能讲文档不能演示。</td></tr></tbody></table></div>
+    </article>
+  </div>
+  <div class="doc__foot">
+    <a href="../../index.html#docs">← 全部文档</a>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 审批智能体 · 三类业务审批流程脉络图 v1.0</title>
+<style>
+:root{
+  --title-blue:#0E75BF;
+  --deep-blue:#0258DF;
+  --light-blue:#D4E5F7;
+  --bg:#F2F7FC;
+  --card:#FFFFFF;
+  --text:#1F2D3D;
+  --sub:#56697B;
+  --border:#BFD4EA;
+  --ok:#1B8E5A;   --ok-bg:#D6F5D6;
+  --warn:#E08C00; --warn-bg:#FFF4D6;
+  --danger:#C00000; --danger-bg:#FFD8D8;
+  --purple:#6B4EE6; --purple-bg:#EDE8FF;
+  --shadow:0 2px 12px rgba(2,88,223,.07);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;font-family:"Microsoft YaHei","PingFang SC",-apple-system,sans-serif;
+  background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;}
+
+/* ---------- header ---------- */
+.topbar{background:linear-gradient(90deg,var(--title-blue),var(--deep-blue));color:#fff;
+  padding:22px 40px;box-shadow:var(--shadow);}
+.topbar h1{margin:0;font-size:20px;font-weight:700;letter-spacing:.5px;}
+.topbar p{margin:6px 0 0;font-size:13px;opacity:.88;}
+
+/* ---------- tabs ---------- */
+.tabs{background:#fff;border-bottom:1px solid var(--border);padding:0 40px;
+  display:flex;position:sticky;top:0;z-index:10;box-shadow:0 1px 6px rgba(2,88,223,.05);}
+.tab{padding:14px 24px;cursor:pointer;color:var(--sub);font-weight:600;
+  border-bottom:3px solid transparent;transition:.18s;}
+.tab:hover{color:var(--title-blue);background:#F7FBFF;}
+.tab.active{color:var(--title-blue);border-bottom-color:var(--title-blue);background:var(--bg);}
+
+main{max-width:1320px;margin:0 auto;padding:26px 40px 80px;}
+.section{display:none;} .section.active{display:block;}
+
+/* ---------- common ---------- */
+h2.st{font-size:18px;color:var(--title-blue);margin:6px 0 4px;padding-left:12px;
+  border-left:4px solid var(--title-blue);}
+h3.ss{font-size:14px;color:var(--deep-blue);margin:20px 0 10px;
+  display:flex;align-items:center;gap:8px;}
+h3.ss::before{content:"";width:4px;height:15px;background:var(--deep-blue);border-radius:2px;}
+.hint{background:linear-gradient(90deg,var(--light-blue),transparent);
+  border-left:4px solid var(--title-blue);padding:10px 16px;border-radius:0 6px 6px 0;
+  margin:12px 0;font-size:13px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:20px 24px;margin:14px 0;box-shadow:var(--shadow);}
+
+/* ---------- flow ---------- */
+.flow{display:flex;flex-direction:column;align-items:center;padding:8px 0;}
+.node{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;
+  min-width:180px;line-height:1.45;}
+.node small{display:block;font-weight:400;font-size:11px;opacity:.85;margin-top:2px;}
+
+.n-start{background:var(--title-blue);color:#fff;border-radius:22px;padding:12px 28px;
+  box-shadow:0 3px 10px rgba(14,117,191,.3);}
+.n-dec{background:#fff;color:var(--deep-blue);border:2px solid var(--title-blue);
+  border-radius:8px;position:relative;}
+.n-dec::before{content:"?";position:absolute;top:-9px;left:-9px;width:20px;height:20px;
+  background:var(--deep-blue);color:#fff;border-radius:50%;font-size:12px;
+  display:flex;align-items:center;justify-content:center;}
+.n-a{background:var(--ok-bg);color:var(--ok);border:1.5px solid var(--ok);}
+.n-b{background:var(--warn-bg);color:#9A6200;border:1.5px solid var(--warn);}
+.n-c{background:var(--danger-bg);color:var(--danger);border:1.5px solid var(--danger);}
+.n-fb{background:var(--purple-bg);color:var(--purple);border:1.5px dashed var(--purple);}
+.n-end{background:#EAF2FB;color:var(--title-blue);border:1.5px solid var(--border);font-weight:500;}
+
+.arrow{width:2px;height:26px;background:var(--title-blue);position:relative;flex:none;}
+.arrow::after{content:"";position:absolute;bottom:-7px;left:-5px;
+  border-left:6px solid transparent;border-right:6px solid transparent;
+  border-top:9px solid var(--title-blue);}
+
+.branches{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;margin:4px 0;}
+.branch{display:flex;align-items:center;gap:8px;background:#F8FBFE;
+  border:1px solid var(--border);border-radius:8px;padding:8px 14px;}
+.cond{font-size:12px;font-weight:700;color:var(--deep-blue);white-space:nowrap;}
+.cond.neg{color:var(--danger);} .cond.pos{color:var(--ok);}
+.arrow-r{color:var(--title-blue);font-weight:700;font-size:15px;}
+
+/* ---------- chain ---------- */
+.chain{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:10px 0;}
+.chain .st-node{background:var(--light-blue);color:var(--title-blue);border-radius:6px;
+  padding:6px 14px;font-size:12.5px;font-weight:600;border:1px solid var(--border);}
+.chain .st-node.hl{background:var(--title-blue);color:#fff;}
+.chain .sep{color:var(--title-blue);font-weight:700;}
+
+/* ---------- table ---------- */
+table.tb{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0;}
+table.tb th{background:var(--title-blue);color:#fff;padding:9px 8px;
+  border:1px solid var(--border);font-weight:600;text-align:center;}
+table.tb td{padding:7px 8px;border:1px solid var(--border);text-align:center;vertical-align:middle;}
+table.tb tr:nth-child(even) td{background:#F6FAFD;}
+table.tb td.l{text-align:left;}
+.tag{display:inline-block;padding:1px 9px;border-radius:10px;font-size:11.5px;font-weight:700;}
+.t-a{background:var(--ok-bg);color:var(--ok);}
+.t-b{background:var(--warn-bg);color:#9A6200;}
+.t-c{background:var(--danger-bg);color:var(--danger);}
+.t-fb{background:var(--purple-bg);color:var(--purple);}
+
+/* ---------- legend ---------- */
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin:12px 0;padding:12px 16px;
+  background:#F8FBFE;border:1px dashed var(--border);border-radius:8px;font-size:12.5px;}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;
+  vertical-align:middle;}
+.lg-a{background:var(--ok-bg);border:1.5px solid var(--ok);}
+.lg-b{background:var(--warn-bg);border:1.5px solid var(--warn);}
+.lg-c{background:var(--danger-bg);border:1.5px solid var(--danger);}
+.lg-fb{background:var(--purple-bg);border:1.5px dashed var(--purple);}
+
+/* ---------- grid ---------- */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media(max-width:980px){.g2,.g3{grid-template-columns:1fr;}}
+
+.kpi{background:var(--bg);border-left:3px solid var(--title-blue);padding:12px 14px;border-radius:6px;}
+.kpi b{display:block;font-size:20px;color:var(--deep-blue);}
+.kpi span{font-size:12px;color:var(--sub);}
+
+.footer{text-align:center;color:var(--sub);font-size:12px;padding:26px 0 6px;
+  border-top:1px solid var(--border);margin-top:36px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>🛡️ AI 审批智能体 · 三类业务审批流程脉络图</h1>
+  <p>专线折扣申请 · 客户危险等级 · 楼宇物业套餐　|　规则版本 v1.0.0　|　配套 Skill：ai-approval-agent</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-t="ov">总览 · 三场景路由</div>
+  <div class="tab" data-t="s1">① 专线折扣申请</div>
+  <div class="tab" data-t="s2">② 客户危险等级</div>
+  <div class="tab" data-t="s3">③ 楼宇物业套餐</div>
+</div>
+
+<main>
+
+<!-- ==================== 总览 ==================== -->
+<section class="section active" id="ov">
+  <h2 class="st">总入口 · 场景识别与路由</h2>
+  <div class="hint">用户提出审批咨询后，先识别场景归属，再抽取要素、调用规则引擎，多场景命中时按审批严重度取严。</div>
+
+  <div class="card">
+    <div class="flow">
+      <div class="node n-start">用户提出审批咨询</div>
+      <div class="arrow"></div>
+      <div class="node n-dec">关键词场景识别</div>
+      <div class="branches">
+        <div class="branch">
+          <span class="cond">专线 / 折扣 / 带宽 / 路由</span>
+          <span class="arrow-r">→</span>
+          <span class="node n-end">S1 专线折扣</span>
+        </div>
+        <div class="branch">
+          <span class="cond">危险等级 / 欠费 / 逾期 / 风控</span>
+          <span class="arrow-r">→</span>
+          <span class="node n-end">S2 客户危险等级</span>
+        </div>
+        <div class="branch">
+          <span class="cond">楼宇 / 物业 / 商客套餐 / 约期</span>
+          <span class="arrow-r">→</span>
+          <span class="node n-end">S3 楼宇物业</span>
+        </div>
+        <div class="branch">
+          <span class="cond neg">场景不明</span>
+          <span class="arrow-r">→</span>
+          <span class="node n-fb">追问场景归属</span>
+        </div>
+        <div class="branch">
+          <span class="cond neg">无法归类</span>
+          <span class="arrow-r">→</span>
+          <span class="node n-fb">超范围 · 人工确认</span>
+        </div>
+      </div>
+      <div class="arrow"></div>
+      <div class="node n-dec">要素是否齐全？</div>
+      <div class="branches">
+        <div class="branch">
+          <span class="cond neg">否</span>
+          <span class="arrow-r">→</span>
+          <span class="node n-fb">追问缺失字段（不猜）</span>
+        </div>
+        <div class="branch">
+          <span class="cond pos">是</span>
+          <span class="arrow-r">→</span>
+          <span class="node n-a">调用规则引擎</span>
+        </div>
+      </div>
+      <div class="arrow"></div>
+      <div class="node n-dec">是否命中多条场景？</div>
+      <div class="branches">
+        <div class="branch">
+          <span class="cond pos">是</span>
+          <span class="arrow-r">→</span>
+          <span class="node n-c">按审批严重度取严</span>
+        </div>
+        <div class="branch">
+          <span class="cond">否</span>
+          <span class="arrow-r">→</span>
+          <span class="node n-a">输出审批决策卡</span>
+        </div>
+      </div>
+      <div class="arrow"></div>
+      <div class="node n-end">标注规则版本 + 全链路留痕</div>
+    </div>
+  </div>
+
+  <h2 class="st">三场景对比</h2>
+  <table class="tb">
+    <thead>
+      <tr>
+        <th style="width:13%">场景</th>
+        <th style="width:27%">规则维度（输入）</th>
+        <th style="width:22%">决策输出</th>
+        <th style="width:16%">最严情形</th>
+        <th style="width:10%">自动化潜力</th>
+        <th style="width:12%">档位结构</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><b>S1 专线折扣</b></td>
+        <td class="l">业务分类 × 专线类型 × 带宽 × 合同期 × 城市/农村</td>
+        <td class="l">折扣基线 + 审批档位 + 效益评估</td>
+        <td class="l">分管副总 + 效益评估</td>
+        <td><span class="tag t-a">★★★</span></td>
+        <td>3 档（A/B/C）</td>
+      </tr>
+      <tr>
+        <td><b>S2 客户危险等级</b></td>
+        <td class="l">是否危险等级 × 逾期欠费金额 × 逾期欠费月份</td>
+        <td class="l">最高审批层级 + 层级编码（1/2/4/5/7/8）</td>
+        <td class="l">省公司集客部二级副总（编码 8）</td>
+        <td><span class="tag t-a">★★★★</span></td>
+        <td>14 行规则</td>
+      </tr>
+      <tr>
+        <td><b>S3 楼宇物业</b></td>
+        <td class="l">优惠比例 × 约期 × 效益评估触发</td>
+        <td class="l">最高审批级别 + 必经节点</td>
+        <td class="l">地市总经理 + 多部门评估</td>
+        <td><span class="tag t-b">★★</span></td>
+        <td>4 档 + 兜底</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="st">跨场景取严链路</h2>
+  <div class="card">
+    <div class="flow">
+      <div class="node n-start">同一申请单命中多个场景</div>
+      <div class="arrow"></div>
+      <div class="branches">
+        <div class="branch"><span class="node n-end">S1 折扣与审批档位</span></div>
+        <div class="branch"><span class="node n-end">S2 风控审批层级</span></div>
+        <div class="branch"><span class="node n-end">S3 套餐审批级别</span></div>
+      </div>
+      <div class="arrow"></div>
+      <div class="node n-dec">换算为审批严重度并取最大值</div>
+      <div class="arrow"></div>
+      <div class="node n-c">输出单一最终审批链路<small>标注：严重度为推演值，须业务方确认</small></div>
+    </div>
+
+    <h3 class="ss">审批严重度标尺（跨场景比较用 · 推演规则）</h3>
+    <table class="tb">
+      <thead>
+        <tr><th style="width:12%">严重度</th><th style="width:40%">审批角色</th><th>来源场景</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><b>0</b></td><td class="l">免审 / 客户经理直签</td><td class="l">S1 档位A、S3 档位①</td></tr>
+        <tr><td><b>1</b></td><td class="l">区/县业务主管</td><td class="l">S2 编码 1</td></tr>
+        <tr><td><b>2</b></td><td class="l">区/县三级经理</td><td class="l">S2 编码 2</td></tr>
+        <tr><td><b>3</b></td><td class="l">市公司集客部经理 / 地市集客部经理</td><td class="l">S2 编码 4、S3 档位②</td></tr>
+        <tr><td><b>4</b></td><td class="l">各市分公司、省重要客户中心三级经理</td><td class="l">S1 档位 B</td></tr>
+        <tr><td><b>5</b></td><td class="l">市公司分管副总 / 地市分管副总</td><td class="l">S1 档位 C、S2 编码 5、S3 档位③</td></tr>
+        <tr><td><b>6</b></td><td class="l">地市总经理</td><td class="l">S3 档位④</td></tr>
+        <tr><td><b>7</b></td><td class="l">省公司集客部二级经理</td><td class="l">S2 编码 7</td></tr>
+        <tr><td><b>8</b></td><td class="l">省公司集客部二级副总</td><td class="l">S2 编码 8</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ==================== S1 ==================== -->
+<section class="section" id="s1">
+  <h2 class="st">S1 · 专线折扣申请审批脉络</h2>
+  <div class="legend">
+    <span><i class="lg-a"></i>档位A · 客户经理直签</span>
+    <span><i class="lg-b"></i>档位B · 三级经理审批</span>
+    <span><i class="lg-c"></i>档位C · 分管副总 + 效益评估</span>
+    <span><i class="lg-fb"></i>兜底 · 人工复核</span>
+  </div>
+
+  <h3 class="ss">一、审批档位判定流程</h3>
+  <div class="card">
+    <div class="flow">
+      <div class="node n-start">专线折扣申请</div>
+      <div class="arrow"></div>
+      <div class="node n-dec">业务分类？</div>
+      <div class="branches">
+        <div class="branch">
+          <span class="cond">互联网专线</span>
+          <span class="arrow-r">→</span>
+          <span class="node n-c">档位C<br>分管副总审批 + 效益评估</span>
+        </div>
+        <div class="branch">
+          <span class="cond pos">数据专线</span>
+          <span class="arrow-r">→</span>
+          <span class="node n-end">继续判定 ▼</span>
+        </div>
+      </div>
+      <div class="arrow"></div>
+      <div class="node n-dec">带宽 &gt; 100M ？</div>
+      <div class="branches">
+        <div class="branch">
+          <span class="cond neg">否（≤100M）</span>
+          <span class="arrow-r">→</span>
+          <span class="node n-b">档位B<br>三级经理审批</span>
+        </div>
+        <div class="branch">
+          <span class="cond pos">是</span>
+          <span class="arrow-r">→</span>
+          <span class="node n-end">继续判定 ▼</span>
+        </div>
+      </div>
+      <div class="arrow"></div>
+      <div class="node n-dec">合同期 ≥ 1 年 ？</div>
+      <div class="branches">
+        <div class="branch">
+          <span class="cond neg">否</span>
+          <span class="arrow-r">→</span>
+          <span class="node n-b">档位B<br>三级经理审批</span>
+        </div>
+        <div class="branch">
+          <span class="cond pos">是</span>
+          <span class="arrow-r">→</span>
+          <span class="node n-a">档位A<br>客户经理直签</span>
+        </div>
+      </div>
+      <div class="arrow"></div>
+      <div class="node n-dec">申请折扣是否低于折扣基线2？</div>
+      <div class="branches">
+        <div class="branch">
+          <span class="cond neg">是（穿透）</span>
+          <span class="arrow-r">→</span>
+          <span class="node n-c">进入折扣基线3<br>档位C：分管副总 + 效益评估</span>
+        </div>
+        <div class="branch">
+          <span class="cond pos">否</span>
+          <span class="arrow-r">→</span>
+          <span class="node n-a">按原档位执行</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="ss">二、档位C 的效益评估分支（互联网专线 / 穿透折扣）</h3>
+  <div class="card">
+    <div class="chain">
+      <span class="st-node">提交申请</span><span class="sep">→</span>
+      <span class="st-node hl">分管副总审批</span><span class="sep">→</span>
+      <span class="st-node">效益评估（集客部 + 网络建/工程部）</span><span class="sep">→</span>
+      <span class="st-node">签单实施</span>
+    </div>
+    <div class="branches" style="margin-top:14px;">
+      <div class="branch">
+        <span class="cond pos">评估为盈利</span>
+        <span class="arrow-r">→</span>
+        <span class="node n-a">直接签单实施<small>评估结果抄送分管副总</small></span>
+      </div>
+      <div class="branch">
+        <span class="cond neg">评估为亏损</span>
+        <span class="arrow-r">→</span>
+        <span class="node n-c">分管副总审批通过后签单</span>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="ss">三、折扣基线查找路径</h3>
+  <div class="card">
+    <div class="flow">
+      <div class="node n-start">按合同期自高向低匹配</div>
+      <div class="arrow"></div>
+      <div class="branches">
+        <div class="branch"><span class="cond">合同期 ≥ 5 年</span><span class="arrow-r">→</span><span class="node n-a">折扣基线2</span></div>
+        <div class="branch"><span class="cond">3 年 ≤ 合同期 &lt; 5 年</span><span class="arrow-r">→</span><span class="node n-b">折扣基线1<small>按城市 / 农村取值</small></span></div>
+        <div class="branch"><span class="cond">1 年 ≤ 合同期 &lt; 3 年</span><span class="arrow-r">→</span><span class="node n-end">直签前基线</span></div>
+        <div class="branch"><span class="cond neg">合同期 &lt; 1 年</span><span class="arrow-r">→</span><span class="node n-c">不满足基线<br>走档位B</span></div>
+      </div>
+    </div>
+
+    <h3 class="ss">四、折扣矩阵（原图数据）</h3>
+    <table class="tb">
+      <thead>
+        <tr>
+          <th>业务分类</th><th>专线类型</th><th>带宽</th>
+          <th>直签前<br>（≥1年）</th>
+          <th>折扣基线1<br>（≥3年·城市）</th>
+          <th>折扣基线1<br>（≥3年·农村）</th>
+          <th>折扣基线2<br>（≥5年）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>数据专线</td><td>双路由</td><td>100M以上</td><td>1</td><td><b>0.3</b></td><td><b>0.5</b></td><td><b>0.2</b></td></tr>
+        <tr><td>数据专线</td><td>双路由</td><td>100M及以下</td><td>2</td><td>1</td><td>2</td><td>0.8</td></tr>
+        <tr><td>数据专线</td><td>单路由</td><td>100M以上</td><td>0.5</td><td><b>0.3</b></td><td><b>0.3</b></td><td><b>0.2</b></td></tr>
+        <tr><td>数据专线</td><td>单路由</td><td>100M及以下</td><td>1</td><td>0.6</td><td>1</td><td>0.3</td></tr>
+        <tr><td>互联网专线</td><td>—</td><td>—</td><td>2</td><td>0.5</td><td>1</td><td>0.3</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:12.5px;color:var(--sub);margin:6px 0 0;">
+      数值口径：0.3 = 3 折；1 = 原价。<b>边界：</b>带宽恰好 100M 归入"及以下"档；合同期 1/3/5 年均为闭区间起点。
+    </p>
+  </div>
+</section>
+
+<!-- ==================== S2 ==================== -->
+<section class="section" id="s2">
+  <h2 class="st">S2 · 客户危险等级审批脉络</h2>
+  <div class="legend">
+    <span><i class="lg-a"></i>区县级（编码 1–2）</span>
+    <span><i class="lg-b"></i>市公司级（编码 4–5）</span>
+    <span><i class="lg-c"></i>省公司级（编码 7–8）</span>
+  </div>
+
+  <h3 class="ss">一、判定主干（是否危险等级分岔）</h3>
+  <div class="card">
+    <div class="flow">
+      <div class="node n-start">客户风控审批</div>
+      <div class="arrow"></div>
+      <div class="node n-dec">是否危险等级客户 / 客户经理？</div>
+      <div class="branches">
+        <div class="branch">
+          <span class="cond pos">否</span>
+          <span class="arrow-r">→</span>
+          <span class="node n-end">非危险客户分支 ▼</span>
+        </div>
+        <div class="branch">
+          <span class="cond neg">是</span>
+          <span class="arrow-r">→</span>
+          <span class="node n-end">危险客户分支 ▼</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3 class="ss" style="margin-top:0;">A · 非危险等级客户</h3>
+      <div class="flow">
+        <div class="node n-dec">欠费金额档位</div>
+        <div class="branches" style="flex-direction:column;">
+          <div class="branch" style="width:100%;">
+            <span class="cond">0（无欠费）</span><span class="arrow-r">→</span>
+            <span class="node n-a" style="min-width:150px;">区/县业务主管<small>编码 1</small></span>
+          </div>
+          <div class="branch" style="width:100%;">
+            <span class="cond">≤1W</span><span class="arrow-r">→</span>
+            <span class="node n-a" style="min-width:150px;">[1,2] → 区/县三级经理<small>编码 2</small></span>
+          </div>
+          <div class="branch" style="width:100%;">
+            <span class="cond">≤1W</span><span class="arrow-r">→</span>
+            <span class="node n-b" style="min-width:150px;">≥3 → 市公司集客部经理<small>编码 4</small></span>
+          </div>
+          <div class="branch" style="width:100%;">
+            <span class="cond">(1W,10W]</span><span class="arrow-r">→</span>
+            <span class="node n-b" style="min-width:150px;">[1,6) → 集客部经理 / ≥6 → 分管副总<small>编码 4 / 5</small></span>
+          </div>
+          <div class="branch" style="width:100%;">
+            <span class="cond">(10W,50W)</span><span class="arrow-r">→</span>
+            <span class="node n-b" style="min-width:150px;">市公司分管副总<small>编码 5</small></span>
+          </div>
+          <div class="branch" style="width:100%;">
+            <span class="cond">≥50W</span><span class="arrow-r">→</span>
+            <span class="node n-c" style="min-width:150px;">省公司集客部二级副总<small>编码 8</small></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="ss" style="margin-top:0;">B · 危险等级客户</h3>
+      <div class="flow">
+        <div class="node n-dec">欠费金额档位</div>
+        <div class="branches" style="flex-direction:column;">
+          <div class="branch" style="width:100%;">
+            <span class="cond">0（无欠费）</span><span class="arrow-r">→</span>
+            <span class="node n-a" style="min-width:150px;">区/县三级经理<small>编码 2</small></span>
+          </div>
+          <div class="branch" style="width:100%;">
+            <span class="cond">≤1W</span><span class="arrow-r">→</span>
+            <span class="node n-b" style="min-width:150px;">[1,6) → 集客部经理 / ≥6 → 分管副总<small>编码 4 / 5</small></span>
+          </div>
+          <div class="branch" style="width:100%;">
+            <span class="cond">(1W,10W]</span><span class="arrow-r">→</span>
+            <span class="node n-b" style="min-width:150px;">[1,6) → 集客部经理 / ≥6 → 分管副总<small>编码 4 / 5</small></span>
+          </div>
+          <div class="branch" style="width:100%;">
+            <span class="cond">(10W,50W)</span><span class="arrow-r">→</span>
+            <span class="node n-c" style="min-width:150px;">省公司集客部二级经理<small>编码 7</small></span>
+          </div>
+          <div class="branch" style="width:100%;">
+            <span class="cond">≥50W</span><span class="arrow-r">→</span>
+            <span class="node n-c" style="min-width:150px;">省公司集客部二级副总<small>编码 8</small></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="ss">二、危险 / 非危险的关键分岔（易错点）</h3>
+  <div class="card">
+    <table class="tb">
+      <thead>
+        <tr><th style="width:28%">情形</th><th style="width:24%">非危险等级</th><th style="width:24%">危险等级</th><th>差异</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="l">无欠费（金额 0 / 月份 0）</td>
+          <td><span class="tag t-a">区/县业务主管 · 1</span></td>
+          <td><span class="tag t-b">区/县三级经理 · 2</span></td>
+          <td class="l">危险客户起点高一级</td>
+        </tr>
+        <tr>
+          <td class="l">≤1W 且逾期 ≥3 个月</td>
+          <td><span class="tag t-b">市公司集客部经理 · 4</span></td>
+          <td><span class="tag t-b">市公司分管副总 · 5</span></td>
+          <td class="l">危险客户上浮至分管副总</td>
+        </tr>
+        <tr>
+          <td class="l">欠费 (10W, 50W)</td>
+          <td><span class="tag t-b">市公司分管副总 · 5</span></td>
+          <td><span class="tag t-c">省公司二级经理 · 7</span></td>
+          <td class="l">危险客户跨组织层级上浮</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="ss">三、审批层级编码对照</h3>
+  <div class="card">
+    <div class="flow">
+      <div class="chain" style="justify-content:center;">
+        <span class="st-node">区/县业务主管<br>编码 1</span><span class="sep">→</span>
+        <span class="st-node">区/县三级经理<br>编码 2</span><span class="sep">→</span>
+        <span class="st-node hl">市公司集客部经理<br>编码 4</span><span class="sep">→</span>
+        <span class="st-node hl">市公司分管副总<br>编码 5</span><span class="sep">→</span>
+        <span class="st-node" style="background:var(--danger-bg);color:var(--danger);border-color:var(--danger);">省公司二级经理<br>编码 7</span><span class="sep">→</span>
+        <span class="st-node" style="background:var(--danger);color:#fff;border-color:var(--danger);">省公司二级副总<br>编码 8</span>
+      </div>
+      <p style="font-size:12.5px;color:var(--sub);margin:10px 0 0;text-align:center;">
+        编码 3、6 未在本矩阵中出现，属保留位，不得自行分配。
+      </p>
+      <h3 class="ss">区间口径（开闭区间严格定义）</h3>
+      <table class="tb">
+        <thead><tr><th>标注</th><th>数学区间</th><th>含义</th><th>标注</th><th>数学区间</th><th>含义</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>0</td><td>x = 0</td><td>无欠费</td>
+            <td>0</td><td>m = 0</td><td>无逾期</td>
+          </tr>
+          <tr>
+            <td>≤1W</td><td>0 &lt; x ≤ 1</td><td>万元以内</td>
+            <td>[1,2]</td><td>1 ≤ m ≤ 2</td><td>1–2 个月</td>
+          </tr>
+          <tr>
+            <td>(1W,10W]</td><td>1 &lt; x ≤ 10</td><td>含 10 万</td>
+            <td>≥3</td><td>m ≥ 3</td><td>3 个月及以上</td>
+          </tr>
+          <tr>
+            <td>(10W,50W)</td><td>10 &lt; x &lt; 50</td><td>不含 50 万</td>
+            <td>[1,6)</td><td>1 ≤ m &lt; 6</td><td>满 1 月不足 6 月</td>
+          </tr>
+          <tr>
+            <td>≥50W</td><td>x ≥ 50</td><td>50 万及以上</td>
+            <td>≥6</td><td>m ≥ 6</td><td>6 个月及以上</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== S3 ==================== -->
+<section class="section" id="s3">
+  <h2 class="st">S3 · 楼宇物业套餐审批脉络</h2>
+  <div class="legend">
+    <span><i class="lg-a"></i>档位① 免审</span>
+    <span><i class="lg-b"></i>档位②③ 分级审批</span>
+    <span><i class="lg-c"></i>档位④ 总经理 + 评估</span>
+    <span><i class="lg-fb"></i>兜底 · 规则盲区</span>
+  </div>
+
+  <h3 class="ss">一、判定主干（从严到宽顺序匹配）</h3>
+  <div class="card">
+    <div class="flow">
+      <div class="node n-start">楼园物业套餐申请</div>
+      <div class="arrow"></div>
+      <div class="node n-dec">优惠比例 &lt; 50%<br>且 约期 &lt; 12 ？</div>
+      <div class="branches">
+        <div class="branch">
+          <span class="cond neg">是</span><span class="arrow-r">→</span>
+          <span class="node n-c">档位④ 地市总经理审批<small>前置：集客 + 工建 + 网络 效益评估</small></span>
+        </div>
+        <div class="branch">
+          <span class="cond pos">否</span><span class="arrow-r">→</span>
+          <span class="node n-end">继续判定 ▼</span>
+        </div>
+      </div>
+      <div class="arrow"></div>
+      <div class="node n-dec">优惠比例 ≥ 50%<br>且 约期 ≥ 60 ？</div>
+      <div class="branches">
+        <div class="branch">
+          <span class="cond pos">是</span><span class="arrow-r">→</span>
+          <span class="node n-b">档位③ 地市分管副总审批</span>
+        </div>
+        <div class="branch">
+          <span class="cond neg">否</span><span class="arrow-r">→</span>
+          <span class="node n-end">继续判定 ▼</span>
+        </div>
+      </div>
+      <div class="arrow"></div>
+      <div class="node n-dec">优惠比例 ≥ 80%<br>且 约期 ≥ 36 ？</div>
+      <div class="branches">
+        <div class="branch">
+          <span class="cond pos">是</span><span class="arrow-r">→</span>
+          <span class="node n-b">档位② 地市集客部经理审批</span>
+        </div>
+        <div class="branch">
+          <span class="cond neg">否</span><span class="arrow-r">→</span>
+          <span class="node n-end">继续判定 ▼</span>
+        </div>
+      </div>
+      <div class="arrow"></div>
+      <div class="node n-dec">原价 且 约期 ≥ 12 ？</div>
+      <div class="branches">
+        <div class="branch">
+          <span class="cond pos">是</span><span class="arrow-r">→</span>
+          <span class="node n-a">档位① 免审<small>系统自动签单</small></span>
+        </div>
+        <div class="branch">
+          <span class="cond neg">否</span><span class="arrow-r">→</span>
+          <span class="node n-fb">兜底：规则盲区<small>按相邻更高层级人工复核</small></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="ss">二、四档审批链路</h3>
+  <div class="card">
+    <div class="chain">
+      <span class="st-node" style="background:var(--ok-bg);color:var(--ok);border-color:var(--ok);">档位① 原价 + ≥12月</span>
+      <span class="sep">→</span><span class="st-node">提交申请</span><span class="sep">→</span>
+      <span class="st-node hl" style="background:var(--ok);">免审 · 自动签单</span>
+    </div>
+    <div class="chain">
+      <span class="st-node" style="background:var(--warn-bg);color:#9A6200;border-color:var(--warn);">档位② ≥80% + ≥36月</span>
+      <span class="sep">→</span><span class="st-node">提交申请</span><span class="sep">→</span>
+      <span class="st-node hl" style="background:var(--warn);">地市集客部经理审批</span><span class="sep">→</span>
+      <span class="st-node">签单实施</span>
+    </div>
+    <div class="chain">
+      <span class="st-node" style="background:var(--warn-bg);color:#9A6200;border-color:var(--warn);">档位③ ≥50% + ≥60月</span>
+      <span class="sep">→</span><span class="st-node">提交申请</span><span class="sep">→</span>
+      <span class="st-node hl" style="background:var(--danger);">地市分管副总审批</span><span class="sep">→</span>
+      <span class="st-node">签单实施</span>
+    </div>
+    <div class="chain">
+      <span class="st-node" style="background:var(--danger-bg);color:var(--danger);border-color:var(--danger);">档位④ &lt;50% + &lt;12月</span>
+      <span class="sep">→</span><span class="st-node hl">集客 / 工建 / 网络 效益评估</span><span class="sep">→</span>
+      <span class="st-node hl" style="background:var(--danger);">地市总经理审批</span><span class="sep">→</span>
+      <span class="st-node">签单实施</span>
+    </div>
+  </div>
+
+  <h3 class="ss">三、严格度单调关系</h3>
+  <div class="card">
+    <div class="flow">
+      <div class="branches">
+        <div class="branch"><span class="node n-a" style="min-width:130px;">① 免审</span></div>
+        <div class="branch"><span class="arrow-r" style="font-size:20px;">→</span></div>
+        <div class="branch"><span class="node n-b" style="min-width:150px;">② 集客部经理</span></div>
+        <div class="branch"><span class="arrow-r" style="font-size:20px;">→</span></div>
+        <div class="branch"><span class="node n-b" style="min-width:150px;">③ 分管副总</span></div>
+        <div class="branch"><span class="arrow-r" style="font-size:20px;">→</span></div>
+        <div class="branch"><span class="node n-c" style="min-width:170px;">④ 总经理 + 效益评估</span></div>
+      </div>
+    </div>
+    <p style="font-size:12.5px;color:var(--sub);text-align:center;margin:10px 0 0;">
+      优惠力度越强、约期越短 → 审批层级越高
+    </p>
+
+    <h3 class="ss">四、档位覆盖盲区（须走兜底）</h3>
+    <table class="tb">
+      <thead>
+        <tr><th style="width:32%">未覆盖组合</th><th style="width:30%">原因</th><th>兜底建议</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="l">≥80% 且 约期 &lt; 36</td>
+          <td class="l">未达档位②约期门槛，折扣又未低于 50%</td>
+          <td><span class="tag t-fb">按地市分管副总复核</span></td>
+        </tr>
+        <tr>
+          <td class="l">≥50% 且 约期 &lt; 60</td>
+          <td class="l">未达档位③约期门槛</td>
+          <td><span class="tag t-fb">按地市分管副总复核</span></td>
+        </tr>
+        <tr>
+          <td class="l">原价 且 约期 &lt; 12</td>
+          <td class="l">未达档位①约期门槛</td>
+          <td><span class="tag t-fb">按地市集客部经理复核</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="hint" style="margin-top:14px;">
+      ⚠️ <b>口径待确认</b>：「套餐折扣 ≥80%」存在两种业务口径——让利比例 ≥80%（让利大）或折扣后价格占比 ≥80%（让利小）。
+      本流程图与规则引擎按<b>原图字面</b>实现为后者，投产前须与业务方确认最终口径。
+    </div>
+  </div>
+
+  <h3 class="ss">五、各场景边界速查</h3>
+  <div class="g3">
+    <div class="kpi"><b>S1 带宽边界</b><span>恰好 100M 归入「及以下」档</span></div>
+    <div class="kpi"><b>S2 金额边界</b><span>1W / 10W 归入较低档，50W 归入最高档</span></div>
+    <div class="kpi"><b>S3 折扣边界</b><span>80% / 50% 均为闭区间下限</span></div>
+  </div>
+</section>
+
+<div class="footer">
+  © 2026 AI 审批智能体项目组　|　配套 Skill：<code>ai-approval-agent</code>　|　规则版本 v1.0.0
+</div>
+
+</main>
+
+<script>
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click', function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});
+    document.querySelectorAll('.section').forEach(function(x){x.classList.remove('active');});
+    t.classList.add('active');
+    document.getElementById(t.dataset.t).classList.add('active');
+    window.scrollTo(0,0);
+  });
+});
+</script>
+
+</body>
+</html>

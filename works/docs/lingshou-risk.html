@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>智慧营业厅 AI 工作台 · 异常兜底 / 合规 / 发布运维 · 周一鸣作品集</title>
+<link rel="stylesheet" href="../../assets/doc.css">
+</head>
+<body>
+<header class="top">
+  <div class="top__in">
+    <a class="back" href="../../index.html#docs">← 返回作品集</a>
+    <span class="crumb">智慧营业厅 AI 工作台</span>
+    <a class="dl" href="../../index.html#contact">联系我</a>
+  </div>
+</header>
+<main>
+  <div class="doc__head">
+    <p class="doc__kicker">智慧营业厅 AI 工作台 · 文档</p>
+    <h1 class="doc__title">智慧营业厅 AI 工作台 · 异常兜底 / 合规 / 发布运维</h1>
+    <p class="doc__lede">21 类异常矩阵、五级降级链、个人信息处理映射、审计字段、告警与灰度回滚</p>
+    <p class="doc__meta">源文件 <code>【原型】智慧营业厅AI工作台/02-异常兜底-合规-发布运维.md</code> · 约 8,520 字 · 2026-10</p>
+  </div>
+  <div class="doc__body">
+<nav class="toc"><p class="toc__t">本页目录</p><ol><li><a href="#1-异常场景矩阵">1. 异常场景矩阵</a></li><li><a href="#2-ai-失败兜底链">2. AI 失败兜底链</a></li><li><a href="#3-人机协同与授权">3. 人机协同与授权</a></li><li><a href="#4-合规与隐私">4. 合规与隐私</a></li><li><a href="#5-审计日志设计">5. 审计日志设计</a></li><li><a href="#6-监控与告警">6. 监控与告警</a></li><li><a href="#7-灰度发布与回滚">7. 灰度发布与回滚</a></li><li><a href="#8-sla">8. SLA</a></li><li><a href="#9-运营后台说明">9. 运营后台说明</a></li></ol></nav>
+    <article class="doc__article">
+<div class="tw"><table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody><tr><td>文档</td><td>02-异常兜底-合规-发布运维-v0.1</td></tr><tr><td>对应原型</td><td><code>AI原生营业工作台 (2).html</code></td></tr><tr><td>作用</td><td>补齐原型完全缺失的异常处理、合规、运维三块。面试被追问&quot;出错了怎么办&quot;&quot;数据合规怎么保证&quot;时，答案都在本文</td></tr><tr><td>日期</td><td>2026-10-27</td></tr><tr><td>事实边界</td><td>合规条款按《个人信息保护法》《数据安全法》与实名制要求推演，未逐条对照企业内控文件；留存期限等标「待确认」</td></tr></tbody></table></div>
+<hr>
+<h2 id="1-异常场景矩阵">1. 异常场景矩阵</h2>
+<p>格式说明：<strong>触发条件 → 系统行为 → 坐席可见提示 → 责任方 → 处理时限</strong>。时限为建议值，需与业务侧确认。</p>
+<h3 id="1-1-客户与身份">1.1 客户与身份</h3>
+<div class="tw"><table><thead><tr><th>#</th><th>异常</th><th>触发条件</th><th>系统行为</th><th>坐席可见提示</th><th>责任方</th><th>时限</th></tr></thead><tbody><tr><td>E01</td><td>实名核验失败</td><td>证件过期 / 人证不符 / 活体未通过</td><td>阻断进入 S2，不得办理任何实名类业务；记录核验失败原因码</td><td>「实名核验未通过：证件已过期。请客户更换有效证件」</td><td>营业员</td><td>现场处理</td></tr><tr><td>E02</td><td>黑名单 / 涉诈标记</td><td>命中反诈名单或一证多卡超限</td><td>阻断开卡与补卡；允许查询与缴费</td><td>「该客户存在风险标记，暂不能办理开卡类业务。可转店长核实」</td><td>店长 + 风控</td><td>2 小时</td></tr><tr><td>E03</td><td>欠费或信用冻结</td><td>欠费金额 &gt; 0 或信用等级低于阈值</td><td>允许查询与缴费；方案环节拦截需后付费的业务</td><td>「客户欠费 86.40 元，需先结清或申请信用授权」</td><td>营业员 / 店长</td><td>现场处理</td></tr><tr><td>E04</td><td>客户被他人签入</td><td>客户锁被占用</td><td>不进入受理，弹出接管申请</td><td>「该客户正在 XX 厅 08 号工号受理中，可申请接管」</td><td>营业员 / 店长</td><td>5 分钟</td></tr></tbody></table></div>
+<h3 id="1-2-方案与商品">1.2 方案与商品</h3>
+<div class="tw"><table><thead><tr><th>#</th><th>异常</th><th>触发条件</th><th>系统行为</th><th>坐席可见提示</th><th>责任方</th><th>时限</th></tr></thead><tbody><tr><td>E05</td><td>无可用商品</td><td>商品池无满足预算与地址条件的商品</td><td>不生成方案，展示已排除商品及排除原因</td><td>「当前条件下无匹配商品。已排除 3 个：2 个超预算、1 个该地址无资源」</td><td>营业员</td><td>现场处理</td></tr><tr><td>E06</td><td>商品会话期间下架</td><td>提交前复核发现商品已停售</td><td>拦截提交，回到方案选择，自动重算替代方案</td><td>「商品已停售，已为你重新匹配 2 个可售方案」</td><td>营业员</td><td>现场处理</td></tr><tr><td>E07</td><td>合约未到期</td><td>客户有未到期合约，方案涉及降档或解绑</td><td>展示违约金试算与剩余合约期；客户确认后可继续，或推荐保留原合约的方案</td><td>「原合约剩余 18 天，提前解约需支付 60 元。是否继续？」</td><td>营业员</td><td>现场处理</td></tr><tr><td>E08</td><td>地址无资源</td><td>资源系统返回端口满或无覆盖</td><td>方案中排除宽带类；提供外勘转派入口</td><td>「该地址暂无端口，可转外勘，预计 3 个工作日内回复」</td><td>营业员 → 网络侧</td><td>3 工作日</td></tr><tr><td>E09</td><td>号码或终端库存锁定失败</td><td>并发抢占，锁定返回失败</td><td>自动换一个可用号码/终端；无可用则提示</td><td>「该号码已被占用，已为你更换 3 个可选号码」</td><td>营业员</td><td>现场处理</td></tr><tr><td>E10</td><td>权限不足</td><td>超出套餐档位、减免额度、靓号权限</td><td>不阻断流程，转授权工单</td><td>「超出你的权限范围，已发起店长授权，请稍候」</td><td>店长</td><td>5 分钟</td></tr></tbody></table></div>
+<h3 id="1-3-提交与交付">1.3 提交与交付</h3>
+<div class="tw"><table><thead><tr><th>#</th><th>异常</th><th>触发条件</th><th>系统行为</th><th>坐席可见提示</th><th>责任方</th><th>时限</th></tr></thead><tbody><tr><td>E11</td><td>CRM 提交超时</td><td>接口 5s 未返回</td><td>本地落草稿，进入补偿队列，后台每 30 秒重试 3 次；幂等键保证不重复下单</td><td>「订单已暂存，系统正在提交中，可在待办查看结果」</td><td>系统</td><td>自动重试 3 次，失败转人工</td></tr><tr><td>E12</td><td>CRM 返回业务错误</td><td>校验失败（如号码状态异常）</td><td>回滚到 S6，定位到具体字段并高亮</td><td>「提交失败：号码状态异常（错误码 CRM-1024），请更换号码」</td><td>营业员</td><td>现场处理</td></tr><tr><td>E13</td><td>号卡写卡失败</td><td>制卡设备或 SIM 异常</td><td>保持 S7，允许换卡重试；连续 2 次失败转店长</td><td>「写卡失败，请更换空白卡重试或转店长处理」</td><td>营业员 / 店长</td><td>10 分钟</td></tr><tr><td>E14</td><td>电子签名 / 双录失败</td><td>设备故障或客户拒绝</td><td>阻断提交，保存已采集部分</td><td>「签名未完成，无法提交。可改用纸质单据并上传影像」</td><td>营业员</td><td>现场处理</td></tr><tr><td>E15</td><td>支付失败</td><td>终端刷卡、分期额度不足</td><td>订单保留 30 分钟，可重试或更换支付方式</td><td>「支付未成功：额度不足。可更换支付方式或稍后重试」</td><td>营业员</td><td>30 分钟</td></tr><tr><td>E16</td><td>客户中途离开</td><td>挂起超过 15 分钟</td><td>转 S10 挂起，生成待办，释放客户锁</td><td>「已挂起，客户回来可在待办恢复」</td><td>营业员</td><td>72 小时提醒</td></tr></tbody></table></div>
+<h3 id="1-4-ai-侧异常">1.4 AI 侧异常</h3>
+<div class="tw"><table><thead><tr><th>#</th><th>异常</th><th>触发条件</th><th>系统行为</th><th>坐席可见提示</th><th>责任方</th><th>时限</th></tr></thead><tbody><tr><td>E17</td><td>模型超时</td><td>首字 &gt; 8s</td><td>中断生成，切手工受理表单，AI 面板置灰可重试</td><td>「AI 响应超时，已切到手工受理，可继续办业务」</td><td>系统</td><td>自动</td></tr><tr><td>E18</td><td>模型服务不可用</td><td>连续 5 次调用失败</td><td>全省/单店降级，AI 面板显示&quot;维护中&quot;，核心链路不受影响</td><td>「AI 助手暂时不可用，手工受理不受影响」</td><td>模型运营</td><td>15 分钟响应</td></tr><tr><td>E19</td><td>需求抽取错误</td><td>坐席发现摘要与客户诉求不符</td><td>坐席可编辑摘要，编辑内容回流为 badcase</td><td>「摘要已修改，已记录用于优化」</td><td>营业员</td><td>现场处理</td></tr><tr><td>E20</td><td>连续未收敛</td><td>同一客户连续 2 轮追问仍缺关键要素</td><td>停止追问，列出缺失项，建议转人工</td><td>「还缺 2 项信息：装机地址、预算。可转店长协助」</td><td>营业员</td><td>现场处理</td></tr><tr><td>E21</td><td>输出含禁用词</td><td>命中承诺类或绝对化词表</td><td>拦截该段文本，替换为标准表述，记录事件</td><td>坐席侧不提示，静默替换；模型运营可见</td><td>系统</td><td>自动</td></tr></tbody></table></div>
+<h3 id="1-5-异常处理原则">1.5 异常处理原则</h3>
+<ol><li><strong>核心链路不依赖 AI。</strong> AI 挂掉，受理业务必须能用。这一条在设计阶段定死，不靠上线后补应急预案。</li><li><strong>能自动修复的不打扰坐席。</strong> 重试、换号、重算都在后台做，只有需要人决策时才弹窗。</li><li><strong>阻断要给出口。</strong> 每个阻断提示都必须有一句&quot;你可以怎么做&quot;，不允许只报错。</li><li><strong>所有异常落库。</strong> 异常码、发生时间、门店、工号、客户标识（脱敏）、处理动作，进入异常看板。</li></ol>
+<hr>
+<h2 id="2-ai-失败兜底链">2. AI 失败兜底链</h2>
+<pre><code>输入
+ ├─ 置信度 ≥ 0.75 且要素齐全 → 生成方案（最多 3 个）+ 推荐理由
+ ├─ 置信度 0.5–0.75 或要素缺失 1 项 → 追问（最多 2 轮）
+ ├─ 追问 2 轮仍不齐 → 输出缺失项清单 + 建议转人工，不生成方案
+ ├─ 命中禁用输出规则 → 拦截并替换标准表述
+ └─ 服务异常 / 超时 → 降级到手工受理表单</code></pre>
+<div class="tw"><table><thead><tr><th>兜底层级</th><th>触发</th><th>行为</th><th>用户可感知</th></tr></thead><tbody><tr><td>L1 重试</td><td>单次调用失败</td><td>换备用通道重试 1 次</td><td>无感</td></tr><tr><td>L2 降级模型</td><td>主模型连续 2 次超时</td><td>切小模型，能力降级但可用</td><td>角落提示&quot;简化模式&quot;</td></tr><tr><td>L3 追问</td><td>要素不全</td><td>结构化追问，给选项不让客户自由描述</td><td>看到选项卡片</td></tr><tr><td>L4 转人工</td><td>追问 2 轮未收敛 / 客户投诉</td><td>保留上下文，转店长或专家坐席</td><td>看到&quot;已转人工&quot;</td></tr><tr><td>L5 关面板</td><td>服务不可用</td><td>AI 面板置灰，手工表单可用</td><td>看到维护提示</td></tr></tbody></table></div>
+<p><strong>置信度阈值设定依据</strong>：0.75 是起点，按上线后前 4 周的实际采纳率调整。阈值过高会导致 AI 频繁追问、坐席嫌麻烦直接绕过；过低会给出错误方案。建议按业务类型分别设阈值（融合类 0.8，补换卡 0.9）。</p>
+<hr>
+<h2 id="3-人机协同与授权">3. 人机协同与授权</h2>
+<h3 id="3-1-强制人工的节点">3.1 强制人工的节点</h3>
+<div class="tw"><table><thead><tr><th>节点</th><th>为什么必须人工</th><th>系统做什么</th></tr></thead><tbody><tr><td>费用告知</td><td>需客户知情，属监管要求</td><td>生成对比表，要求勾选并记录时间</td></tr><tr><td>协议签署</td><td>法律要求本人签署</td><td>电子签名 / 双录采集</td></tr><tr><td>超权限动作</td><td>授权在业务侧，不在模型</td><td>授权工单流转，模型不参与判定</td></tr><tr><td>客户投诉定性</td><td>涉及责任认定</td><td>只提供信息，不给结论</td></tr><tr><td>退单审批</td><td>涉及业绩与责任</td><td>审批流，需原因码</td></tr></tbody></table></div>
+<h3 id="3-2-ai-建议的采纳记录">3.2 AI 建议的采纳记录</h3>
+<p>每条受理单关联一条 AI 会话记录，字段：</p>
+<div class="tw"><table><thead><tr><th>字段</th><th>说明</th></tr></thead><tbody><tr><td>session_id</td><td>会话标识</td></tr><tr><td>建议方案数</td><td>AI 当时给出的候选数量与 SKU</td></tr><tr><td>推荐方案</td><td>AI 排序第一的 SKU</td></tr><tr><td>实际成交方案</td><td>最终提交的 SKU</td></tr><tr><td>是否采纳</td><td>成交 SKU 是否等于推荐 SKU</td></tr><tr><td>改写了哪些字段</td><td>坐席手工修改过的字段清单</td></tr><tr><td>坐席反馈</td><td>有用 / 无用 / 错误（可选）</td></tr><tr><td>耗时</td><td>需求识别耗时、方案生成耗时、总受理时长</td></tr></tbody></table></div>
+<p>这张表是 AI 效果评估的唯一数据来源，没有它就无法回答&quot;AI 到底有没有用&quot;。</p>
+<hr>
+<h2 id="4-合规与隐私">4. 合规与隐私</h2>
+<h3 id="4-1-合规要求映射">4.1 合规要求映射</h3>
+<div class="tw"><table><thead><tr><th>要求</th><th>来源</th><th>落到产品的动作</th><th>验证方式</th></tr></thead><tbody><tr><td>最小必要</td><td>个保法第 6 条</td><td>只采集办理必需字段；通话详单、位置轨迹默认不可见</td><td>字段清单评审；页面默认态检查</td></tr><tr><td>告知同意</td><td>个保法第 14 条</td><td>首次签入弹告知，双录时再次告知；同意记录留档</td><td>抽检同意记录完整率</td></tr><tr><td>敏感个人信息单独同意</td><td>个保法第 29 条</td><td>证件影像、生物识别（活体）单独弹窗</td><td>交互检查</td></tr><tr><td>实名制</td><td>电话用户真实身份信息登记规定</td><td>开卡、补卡、过户必须核验</td><td>核验通过率与拦截率</td></tr><tr><td>反诈要求</td><td>断卡行动相关要求</td><td>一证多卡限制、异常开卡模型、涉诈名单拦截</td><td>E02 拦截量统计</td></tr><tr><td>数据留存期限</td><td>企业内部规定</td><td>录音录像 6 个月（待确认）、受理单 3 年、AI 会话 6 个月</td><td>定期清理任务</td></tr><tr><td>数据出境</td><td>数安法</td><td>全部数据境内存储，模型如用外部 API 需评估</td><td>部署架构评审</td></tr><tr><td>审计可追溯</td><td>内控要求</td><td>所有敏感操作留痕，日志不可篡改</td><td>审计抽查</td></tr></tbody></table></div>
+<h3 id="4-2-风险清单">4.2 风险清单</h3>
+<div class="tw"><table><thead><tr><th>#</th><th>风险</th><th>可能性</th><th>影响</th><th>应对</th><th>责任人</th></tr></thead><tbody><tr><td>R01</td><td>AI 报价与资费不一致，引发投诉</td><td>中</td><td>高</td><td>价格只读引擎；输出层过滤；上线前跑 200 条资费对账</td><td>产品</td></tr><tr><td>R02</td><td>AI 承诺赠品或时限</td><td>中</td><td>高</td><td>禁用词表 + 输出审核；坐席培训</td><td>产品 + 运营</td></tr><tr><td>R03</td><td>客户信息被越权查看</td><td>中</td><td>高</td><td>签入即授权；二次确认；每日次数上限；审计告警</td><td>安全</td></tr><tr><td>R04</td><td>同一客户被重复受理产生双单</td><td>低</td><td>高</td><td>客户锁 + 幂等键</td><td>研发</td></tr><tr><td>R05</td><td>商品配置错误导致不可售商品被提交</td><td>中</td><td>高</td><td>提交前二次校验；配置变更双人复核</td><td>运营</td></tr><tr><td>R06</td><td>模型把内部竞品应对话术直接说给客户</td><td>低</td><td>中</td><td>竞品库标记 <code>internal_only</code>，输出层拦截</td><td>产品</td></tr><tr><td>R07</td><td>坐席绕过 AI 直接用旧系统，导致数据不回流</td><td>高</td><td>中</td><td>不强制使用；用效率对比说服；考核不挂钩 AI 使用率</td><td>运营</td></tr><tr><td>R08</td><td>录音与 AI 会话记录不同步，事后无法复盘</td><td>中</td><td>中</td><td>统一 session_id 关联</td><td>研发</td></tr><tr><td>R09</td><td>灰度期间某门店 AI 全挂，无手工预案</td><td>低</td><td>高</td><td>灰度门店强制演练手工流程</td><td>运营</td></tr><tr><td>R10</td><td>权限模板配置过宽，新人拿到店长权限</td><td>中</td><td>高</td><td>权限模板 + 二级审批；月度权限巡检</td><td>管理员</td></tr></tbody></table></div>
+<hr>
+<h2 id="5-审计日志设计">5. 审计日志设计</h2>
+<h3 id="5-1-事件类型">5.1 事件类型</h3>
+<div class="tw"><table><thead><tr><th>事件</th><th>触发</th><th>必录字段</th></tr></thead><tbody><tr><td>客户签入 / 释放</td><td>签入、超时释放、接管</td><td>工号、门店、客户标识（脱敏）、时间、IP/终端号</td></tr><tr><td>敏感字段查看</td><td>点击查看完整、查看证件影像</td><td>工号、字段名、事由、时间</td></tr><tr><td>方案生成</td><td>AI 生成方案</td><td>session_id、候选 SKU、置信度、耗时、模型版本</td></tr><tr><td>方案变更</td><td>坐席切换方案、改预算</td><td>原方案、新方案、操作人</td></tr><tr><td>授权申请 / 审批</td><td>发起、批准、驳回</td><td>申请工号、审批工号、超限项、金额、结果、原因</td></tr><tr><td>提交 / 退单</td><td>提交 CRM、退单</td><td>订单号、幂等键、结果、错误码</td></tr><tr><td>配置变更</td><td>商品池、话术、阈值、权限</td><td>变更前后值、操作人、复核人、变更原因</td></tr><tr><td>导出</td><td>导出看板或日志</td><td>工号、导出范围、水印编号</td></tr><tr><td>异常触发</td><td>任一异常码</td><td>异常码、上下文、处理动作</td></tr></tbody></table></div>
+<h3 id="5-2-技术约束">5.2 技术约束</h3>
+<ul><li>日志写入独立存储，业务侧只能追加，不能修改或删除。</li><li>保留期：审计日志 3 年（待确认），操作日志 1 年。</li><li>查询本身也是审计事件（谁在什么时候查了谁的日志）。</li><li>支持按客户标识反查全部操作，用于投诉溯源；该能力仅稽核与法务可用。</li></ul>
+<hr>
+<h2 id="6-监控与告警">6. 监控与告警</h2>
+<div class="tw"><table><thead><tr><th>指标</th><th>阈值</th><th>通知对象</th><th>处置 SOP</th></tr></thead><tbody><tr><td>AI 调用错误率</td><td>&gt; 2% 持续 5 分钟</td><td>模型运营 + 值班</td><td>检查上游；必要时单省降级</td></tr><tr><td>AI 首字时延 P95</td><td>&gt; 3s 持续 10 分钟</td><td>模型运营</td><td>切备用通道</td></tr><tr><td>方案生成失败率</td><td>&gt; 5%</td><td>产品 + 研发</td><td>查规则引擎与商品池配置</td></tr><tr><td>CRM 提交失败率</td><td>&gt; 1%</td><td>研发 + 运营</td><td>查接口；启用补偿队列；通知门店暂缓提交</td></tr><tr><td>提交超时堆积</td><td>补偿队列 &gt; 50 条</td><td>研发</td><td>人工介入逐条核对</td></tr><tr><td>敏感字段查看次数</td><td>单工号单日 &gt; 40 次</td><td>稽核</td><td>核实是否为正常业务；异常则冻结受理权</td></tr><tr><td>授权驳回率</td><td>单门店单日 &gt; 30%</td><td>区域运营</td><td>检查商品池与权限配置是否不合理</td></tr><tr><td>门店零单量</td><td>营业时段连续 2 小时无单</td><td>店长 + 区域运营</td><td>确认是否系统故障或客流问题</td></tr><tr><td>AI 采纳率</td><td>单店周环比下降 &gt; 15pt</td><td>产品 + 模型运营</td><td>拉 badcase 复盘；检查知识库是否过期</td></tr><tr><td>异常单占比</td><td>单省日 &gt; 8%</td><td>产品</td><td>按异常码分布定位根因</td></tr></tbody></table></div>
+<hr>
+<h2 id="7-灰度发布与回滚">7. 灰度发布与回滚</h2>
+<h3 id="7-1-灰度批次">7.1 灰度批次</h3>
+<div class="tw"><table><thead><tr><th>批次</th><th>范围</th><th>时长</th><th>通过条件</th></tr></thead><tbody><tr><td>B0</td><td>内部 1 个厅，5 名坐席</td><td>2 周</td><td>无 P0 故障；AI 采纳率 ≥ 50%；退单率不高于手工基线</td></tr><tr><td>B1</td><td>1 个地市 5 个厅</td><td>4 周</td><td>一次受理成功率不低于手工基线；客诉无新增类型</td></tr><tr><td>B2</td><td>1 个省 20 个厅</td><td>4 周</td><td>指标稳定；运维告警可控</td></tr><tr><td>B3</td><td>全省</td><td>—</td><td>业务方验收通过</td></tr></tbody></table></div>
+<h3 id="7-2-回滚">7.2 回滚</h3>
+<div class="tw"><table><thead><tr><th>层级</th><th>手段</th><th>生效时间</th><th>影响范围</th></tr></thead><tbody><tr><td>单门店关闭 AI</td><td>后台门店开关</td><td>刷新即生效</td><td>该门店切手工受理</td></tr><tr><td>单省关闭 AI</td><td>省级开关</td><td>5 分钟</td><td>全省切手工</td></tr><tr><td>关闭某类商品推荐</td><td>场景开关</td><td>即时</td><td>该场景不出 AI 方案，保留手工选品</td></tr><tr><td>版本回滚</td><td>前端静态资源回滚 + 后端镜像回滚</td><td>15 分钟</td><td>全量</td></tr><tr><td>配置回滚</td><td>配置中心历史版本</td><td>即时</td><td>按配置粒度</td></tr></tbody></table></div>
+<p>回滚触发条件写死三条：核心链路可用性 &lt; 99%、提交失败率连续 10 分钟 &gt; 5%、出现资费错误导致的客诉 ≥ 3 起。</p>
+<h3 id="7-3-发布纪律">7.3 发布纪律</h3>
+<ul><li>商品池与话术配置走变更单，双人复核，禁止直接改生产。</li><li>模型提示词变更视为版本发布，需带回放测试集（≥50 条历史会话）。</li><li>每次发布记录：版本号、变更内容、影响范围、回滚方案、验证人。</li></ul>
+<hr>
+<h2 id="8-sla">8. SLA</h2>
+<div class="tw"><table><thead><tr><th>级别</th><th>定义</th><th>响应</th><th>恢复</th><th>示例</th></tr></thead><tbody><tr><td>P0</td><td>核心受理不可用，影响全省营业</td><td>10 分钟</td><td>60 分钟</td><td>提交接口全挂、登录失败</td></tr><tr><td>P1</td><td>主要功能受损，有绕行方案</td><td>30 分钟</td><td>4 小时</td><td>AI 不可用（可手工）、方案生成失败</td></tr><tr><td>P2</td><td>局部功能异常</td><td>4 小时</td><td>2 工作日</td><td>某类商品无法推荐、看板数据延迟</td></tr><tr><td>P3</td><td>体验问题</td><td>1 工作日</td><td>按排期</td><td>文案、样式</td></tr></tbody></table></div>
+<p>营业时段可用性目标 99.9%，按月统计，非营业时段的计划内维护不计入。</p>
+<hr>
+<h2 id="9-运营后台说明">9. 运营后台说明</h2>
+<h3 id="9-1-后台功能与权限">9.1 后台功能与权限</h3>
+<div class="tw"><table><thead><tr><th>模块</th><th>功能</th><th>操作角色</th><th>是否需复核</th></tr></thead><tbody><tr><td>商品池</td><td>上下架、资费、可售区域、互斥规则</td><td>区域运营</td><td>是（双人）</td></tr><tr><td>号卡与终端</td><td>号段、靓号等级、终端 SKU 可售量</td><td>区域运营</td><td>是</td></tr><tr><td>话术库</td><td>政策条文、异议话术、竞品应对</td><td>区域运营</td><td>部分（政策类需复核）</td></tr><tr><td>推荐策略</td><td>排序因子权重、预算硬约束、黑名单</td><td>区域运营 + 产品</td><td>是</td></tr><tr><td>AI 配置</td><td>置信度阈值、追问上限、禁用词表</td><td>产品</td><td>是</td></tr><tr><td>授权额度</td><td>角色 × 业务 × 金额上限</td><td>系统管理员 + 业务负责人</td><td>是</td></tr><tr><td>稽核规则</td><td>抽检比例、异常标记条件</td><td>稽核</td><td>否</td></tr><tr><td>看板</td><td>门店日报、坐席日报、AI 效果</td><td>全部只读</td><td>否</td></tr><tr><td>工号与权限</td><td>新增、停用、权限模板</td><td>系统管理员</td><td>停用即时生效</td></tr></tbody></table></div>
+<h3 id="9-2-配置变更的生效策略">9.2 配置变更的生效策略</h3>
+<div class="tw"><table><thead><tr><th>配置类型</th><th>生效方式</th><th>是否需要灰度</th></tr></thead><tbody><tr><td>商品停售</td><td>即时生效（立刻从候选池移除）</td><td>否</td></tr><tr><td>商品新增</td><td>即时生效，但前 24 小时仅对配置人所属门店可见</td><td>是（小范围）</td></tr><tr><td>资费调整</td><td>需指定生效时间，按生效时间切换</td><td>否，必须提前 1 天配置</td></tr><tr><td>话术</td><td>即时生效</td><td>否</td></tr><tr><td>推荐策略</td><td>灰度到指定门店，观察 3 天</td><td>是</td></tr><tr><td>阈值与提示词</td><td>灰度到 10% 门店，观察 7 天</td><td>是</td></tr><tr><td>权限</td><td>即时生效，变更留痕</td><td>否</td></tr></tbody></table></div>
+<h3 id="9-3-配置错误的历史教训-设计约束">9.3 配置错误的历史教训（设计约束）</h3>
+<div class="tw"><table><thead><tr><th>曾出现的问题</th><th>设计上的应对</th></tr></thead><tbody><tr><td>资费配错，一天内产生 30 单错价</td><td>资费变更双人复核 + 生效前预演（对 10 个虚拟客户试算）</td></tr><tr><td>商品区域配错，异地客户被推荐不可售商品</td><td>提交前二次校验区域</td></tr><tr><td>话术含未生效政策</td><td>政策必须填生效期，过期自动下架并告警</td></tr><tr><td>阈值被改成 0.3，AI 大量输出错误方案</td><td>阈值变更需复核，且设置允许区间 [0.6, 0.95]</td></tr></tbody></table></div>
+    </article>
+  </div>
+  <div class="doc__foot">
+    <a href="../../index.html#docs">← 全部文档</a>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>网络域工单「看不见」诊断决策树 · 周一鸣作品集</title>
+<style>
+  :root{--ink:#10151c;--muted:#5c6879;--line:#e4e8ee;--bg:#fafbfc;--accent:#0b5fbf}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+  header{border-bottom:1px solid var(--line);background:#fff}
+  .bar{max-width:980px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .bar a{color:var(--accent);text-decoration:none;font-size:14px}
+  .bar a:hover{text-decoration:underline}
+  h1{font-size:16px;margin:0;font-weight:600;letter-spacing:.01em}
+  .tag{font:11px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--muted);
+       border:1px solid var(--line);border-radius:999px;padding:5px 9px}
+  main{max-width:980px;margin:0 auto;padding:28px 24px 64px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:4px;padding:20px 20px 8px;overflow-x:auto}
+  .card svg{display:block;width:100%;height:auto;min-width:620px}
+  p.note{color:var(--muted);font-size:13px;margin:16px 0 0}
+  @media(max-width:640px){main{padding:20px 14px 48px}.card{padding:12px 12px 4px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <h1>网络域工单「看不见」诊断决策树</h1>
+    <span class="tag">7 类场景 · 顺序判定</span>
+    <a href="../index.html#works">← 返回作品集</a>
+  </div>
+</header>
+<main>
+  <div class="card">
+<svg viewBox="0 0 680 420" width="100%" role="img">
+  <title>SD网络域工单"看不见"诊断决策树</title>
+  <desc>从用户反馈"看不见工单"到7大场景的诊断决策流程图</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5"
+      markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke"
+        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <g>
+    <rect x="235" y="40" width="210" height="44" rx="8" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+    <text x="340" y="62" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="14" font-weight="500" fill="#444441">用户反馈：看不见工单</text>
+  </g>
+
+  <path d="M340 84 L340 120" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <g>
+    <rect x="170" y="120" width="340" height="44" rx="8" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+    <text x="340" y="142" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="14" font-weight="500" fill="#444441">Step 1: 查询 dresworkorder 确认工单状态</text>
+  </g>
+
+  <path d="M340 164 L340 187" fill="none" stroke="#B4B2A9" stroke-width="1"/>
+  <path d="M115.5 187 L565.5 187" fill="none" stroke="#B4B2A9" stroke-width="1"/>
+  <path d="M115.5 187 L115.5 210" fill="none" stroke="#B4B2A9" stroke-width="1" marker-end="url(#arrow)"/>
+  <path d="M265.5 187 L265.5 210" fill="none" stroke="#B4B2A9" stroke-width="1" marker-end="url(#arrow)"/>
+  <path d="M415.5 187 L415.5 210" fill="none" stroke="#B4B2A9" stroke-width="1" marker-end="url(#arrow)"/>
+  <path d="M565.5 187 L565.5 210" fill="none" stroke="#B4B2A9" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <g>
+    <rect x="48" y="210" width="135" height="56" rx="8" fill="#E6F1FB" stroke="#378ADD" stroke-width="0.5"/>
+    <text x="115.5" y="228" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="13" font-weight="500" fill="#0C447C">状态 = 已领单</text>
+    <text x="115.5" y="250" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="12" fill="#185FA5">DEAL_LOGIN 有值</text>
+  </g>
+  <g>
+    <rect x="198" y="210" width="135" height="56" rx="8" fill="#E6F1FB" stroke="#378ADD" stroke-width="0.5"/>
+    <text x="265.5" y="228" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="13" font-weight="500" fill="#0C447C">状态 = 外勘/待派单</text>
+    <text x="265.5" y="250" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="12" fill="#185FA5">卡在营服环节</text>
+  </g>
+  <g>
+    <rect x="348" y="210" width="135" height="56" rx="8" fill="#E6F1FB" stroke="#378ADD" stroke-width="0.5"/>
+    <text x="415.5" y="228" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="13" font-weight="500" fill="#0C447C">状态 = 已派单</text>
+    <text x="415.5" y="250" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="12" fill="#185FA5">已分配装维工号</text>
+  </g>
+  <g>
+    <rect x="498" y="210" width="135" height="56" rx="8" fill="#E6F1FB" stroke="#378ADD" stroke-width="0.5"/>
+    <text x="565.5" y="228" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="13" font-weight="500" fill="#0C447C">状态 = 异常/找不到</text>
+    <text x="565.5" y="250" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="12" fill="#185FA5">深层异常</text>
+  </g>
+
+  <path d="M115.5 266 L115.5 310" fill="none" stroke="#B4B2A9" stroke-width="1" marker-end="url(#arrow)"/>
+  <path d="M265.5 266 L265.5 310" fill="none" stroke="#B4B2A9" stroke-width="1" marker-end="url(#arrow)"/>
+  <path d="M415.5 266 L415.5 310" fill="none" stroke="#B4B2A9" stroke-width="1" marker-end="url(#arrow)"/>
+  <path d="M565.5 266 L565.5 310" fill="none" stroke="#B4B2A9" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <g>
+    <rect x="48" y="310" width="135" height="90" rx="8" fill="#EEEDFE" stroke="#7F77DD" stroke-width="0.5"/>
+    <text x="115.5" y="328" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="13" font-weight="500" fill="#3C3489">场景 2</text>
+    <text x="115.5" y="348" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="12" fill="#534AB7">工单被别人接收</text>
+    <text x="115.5" y="370" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="12" fill="#534AB7">查 t_sys_user</text>
+    <text x="115.5" y="388" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="12" fill="#534AB7">找领单工号告知</text>
+  </g>
+  <g>
+    <rect x="198" y="310" width="135" height="90" rx="8" fill="#EEEDFE" stroke="#7F77DD" stroke-width="0.5"/>
+    <text x="265.5" y="328" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="13" font-weight="500" fill="#3C3489">场景 3 / 5</text>
+    <text x="265.5" y="348" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="12" fill="#534AB7">外勘/营服问题</text>
+    <text x="265.5" y="370" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="12" fill="#534AB7">查 t_ps_order_qr</text>
+    <text x="265.5" y="388" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="12" fill="#534AB7">+ gongke_yfperson</text>
+  </g>
+  <g>
+    <rect x="348" y="310" width="135" height="90" rx="8" fill="#EEEDFE" stroke="#7F77DD" stroke-width="0.5"/>
+    <text x="415.5" y="328" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="13" font-weight="500" fill="#3C3489">场景 4</text>
+    <text x="415.5" y="348" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="12" fill="#534AB7">派单工号离职</text>
+    <text x="415.5" y="370" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="12" fill="#534AB7">查 t_sys_user</text>
+    <text x="415.5" y="388" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="12" fill="#534AB7">换工号转派</text>
+  </g>
+  <g>
+    <rect x="498" y="310" width="135" height="90" rx="8" fill="#EEEDFE" stroke="#7F77DD" stroke-width="0.5"/>
+    <text x="565.5" y="328" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="13" font-weight="500" fill="#3C3489">场景 1 / 6 / 7</text>
+    <text x="565.5" y="348" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="12" fill="#534AB7">报文/操作/参数异常</text>
+    <text x="565.5" y="370" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="12" fill="#534AB7">查 tin_crm_info</text>
+    <text x="565.5" y="388" text-anchor="middle" dominant-baseline="central"
+      font-family="sans-serif" font-size="12" fill="#534AB7">+ msg_log + prod_attr</text>
+  </g>
+</svg>  </div>
+  <p class="note">原文件为独立 SVG 片段，此处加了 HTML 外壳以便直接浏览，图形内容未改动。源文件：<code>业务场景skills/网络域投诉工单处理skill/工单看不见诊断决策树.html</code></p>
+</main>
+</body>
+</html>
