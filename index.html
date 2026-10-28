@@ -30,7 +30,7 @@
       <a href="#contact">联系我</a>
     </nav>
     <div class="nav__cta">
-      <a class="btn btn--primary btn--sm" href="mailto:zhouym9207@163.com?subject=%E7%B4%A2%E5%8F%96%E7%AE%80%E5%8E%86%20-%20%E5%91%A8%E4%B8%80%E9%B8%A3">索取简历</a>
+      <button class="btn btn--primary btn--sm" type="button" data-modal-open="resume">下载简历PDF</button>
     </div>
   </div>
 </header>
@@ -59,7 +59,7 @@
           </ul>
           <div class="hero__cta">
             <a class="btn btn--primary" href="#works">查看作品</a>
-            <a class="btn btn--ghost" href="mailto:zhouym9207@163.com?subject=%E7%B4%A2%E5%8F%96%E7%AE%80%E5%8E%86%20-%20%E5%91%A8%E4%B8%80%E9%B8%A3">邮件索取简历</a>
+            <button class="btn btn--ghost" type="button" data-modal-open="resume">下载简历PDF</button>
           </div>
         </div>
 
@@ -393,8 +393,8 @@
           </div>
           <div class="crow">
             <span class="crow__k">简历</span>
-            <span class="crow__v">PDF，一页半，含完整项目描述，可邮件索取</span>
-            <a class="btn btn--sm" href="mailto:zhouym9207@163.com?subject=%E7%B4%A2%E5%8F%96%E7%AE%80%E5%8E%86%20-%20%E5%91%A8%E4%B8%80%E9%B8%A3">索取</a>
+            <span class="crow__v">PDF，一页半，含完整项目描述</span>
+            <button class="btn btn--sm" type="button" data-modal-open="resume">下载简历PDF</button>
           </div>
         </div>
       </div>
@@ -408,6 +408,30 @@
 
   </div>
 </main>
+
+<!-- ============ 简历说明弹窗 ============ -->
+<div class="modal" id="resumeModal" hidden>
+  <div class="modal__mask" data-close></div>
+  <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="resumeModalTitle" aria-describedby="resumeModalDesc" tabindex="-1">
+    <button class="modal__x" type="button" aria-label="关闭弹窗" data-close>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <p class="modal__eyebrow">RESUME</p>
+    <h2 class="modal__title" id="resumeModalTitle">简历说明</h2>
+    <p class="modal__desc" id="resumeModalDesc">简历包含较多私人信息，不便公开。若希望查看完整版，请通过手机或邮箱联系我。</p>
+    <div class="modal__info">
+      <div class="modal__row">
+        <span class="modal__k">手机</span>
+        <a class="modal__v" href="tel:+8618326071176">183 2607 1176</a>
+      </div>
+      <div class="modal__row">
+        <span class="modal__k">邮箱</span>
+        <a class="modal__v" href="mailto:zhouym9207@163.com?subject=%E6%9F%A5%E7%9C%8B%E7%AE%80%E5%8E%86%20-%20%E5%91%A8%E4%B8%80%E9%B8%A3">zhouym9207@163.com</a>
+      </div>
+    </div>
+    <button class="btn btn--primary modal__ok" type="button" data-close>知道了</button>
+  </div>
+</div>
 
 <script src="assets/main.js"></script>
 </body>

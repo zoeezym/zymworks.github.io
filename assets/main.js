@@ -74,4 +74,65 @@
       btn.setAttribute("aria-expanded", shown ? "true" : "false");
     });
   }
+
+  /* ---------- 4. 简历说明弹窗 ---------- */
+  var modal = document.getElementById("resumeModal");
+  var openers = Array.prototype.slice.call(
+    document.querySelectorAll('[data-modal-open="resume"]')
+  );
+
+  if (modal && openers.length) {
+    var lastFocus = null;
+
+    function openModal() {
+      lastFocus = document.activeElement;
+      modal.hidden = false;
+      document.body.style.overflow = "hidden";
+
+      var card = modal.querySelector(".modal__card");
+      if (card) card.focus();
+    }
+
+    function closeModal() {
+      modal.hidden = true;
+      document.body.style.overflow = "";
+
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+
+    openers.forEach(function (trigger) {
+      trigger.addEventListener("click", openModal);
+    });
+
+    /* 点遮罩、点 × 、点「知道了」都关闭 */
+    modal.addEventListener("click", function (e) {
+      if (e.target.closest("[data-close]")) closeModal();
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (modal.hidden) return;
+
+      if (e.key === "Escape") {
+        closeModal();
+        return;
+      }
+
+      if (e.key !== "Tab") return;
+
+      /* 焦点锁在弹窗内，避免 Tab 跑到被遮住的页面上 */
+      var focusables = modal.querySelectorAll("button, a[href]");
+      if (!focusables.length) return;
+
+      var first = focusables[0];
+      var last = focusables[focusables.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+  }
 })();
