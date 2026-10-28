@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>小思Bot - 管理后台首页原型</title>
+<title>智能比数助手 · 数据比对对话原型</title>
 <style>
 /* ===================================================================
    以下 CSS 全部从源码抽取：
@@ -517,6 +517,183 @@ a { text-decoration: none; color: inherit; }
   border: 5px solid transparent; border-top-color: #303133;
 }
 .upload-tip-wrapper:hover .upload-tip { display: block; }
+
+/* ===================================================================
+   视觉主题 · 深蓝侧栏 + 净白对话区
+   原样式从业务系统源码提取保留；本段只做外观覆盖，不改结构
+   =================================================================== */
+:root {
+  --tr-brand: #1D5BD6;
+  --tr-brand-soft: #EDF4FF;
+  --tr-line: #E3EBF6;
+  --main-bg-color: #F2F7FD;
+  --panel-bg-color: #ffffff;
+  --panel-border-color: #E3EBF6;
+  --text-primary-clr: #0C1A2E;
+  --text-regular-clr: #3E5069;
+  --text-secondary-clr: #5F7085;
+  --text-placeholder-clr: #9FAEC1;
+  --divider-color: #EAF0F8;
+  --tag-default-assistant-bg: #EDF4FF;
+  --tag-default-assistant-color: #1D5BD6;
+  --shadow-color: rgba(12, 40, 86, 0.08);
+}
+
+/* --- 侧栏 --- */
+.sidebar {
+  background: linear-gradient(180deg, #0E1E33 0%, #122A44 100%);
+  border-right: 0;
+  box-shadow: 18px 0 42px -34px rgba(9, 24, 44, .9);
+}
+.sidebar-header { border-bottom: 1px solid rgba(255, 255, 255, .08); padding: 16px 18px; }
+.logo-img {
+  width: 28px; height: 28px; border-radius: 9px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 13px; font-weight: 700;
+  background: linear-gradient(150deg, #4E8EF7, #1B4FD6);
+  box-shadow: 0 6px 14px -6px rgba(78, 142, 247, .9);
+}
+.logo-text { color: #fff; font-size: 15px; letter-spacing: .01em; }
+
+.new-chat {
+  height: 44px; margin: 12px 12px 4px; border-radius: 10px; font-size: 13px;
+  color: #C8DCFF; border: 1px solid rgba(120, 170, 255, .26);
+  background: linear-gradient(135deg, rgba(78, 142, 247, .2), rgba(29, 91, 214, .26));
+}
+.new-chat:hover { color: #fff; background: linear-gradient(135deg, rgba(78, 142, 247, .32), rgba(29, 91, 214, .42)); }
+.new-chat.active { box-shadow: inset 0 0 0 1px rgba(140, 185, 255, .18); }
+
+.history-section { padding: 10px 12px 16px; }
+.history-header { color: rgba(255, 255, 255, .42); font-size: 12px; }
+.history-group-label { color: rgba(255, 255, 255, .3); font-size: 11.5px; }
+.history-item { color: rgba(255, 255, 255, .7); border-radius: 7px; padding: 6px 8px; }
+.history-item:hover { background: rgba(255, 255, 255, .07); }
+.history-item:hover .history-item-title { color: #fff; }
+.history-item-time { color: rgba(255, 255, 255, .32); }
+.history-item-check { color: #4FBF8B; }
+.history-item-delete { color: rgba(255, 255, 255, .34); }
+.history-item-delete:hover { color: #FF8A8A; }
+.sidebar ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, .16); }
+.sidebar ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, .28); }
+
+/* --- 主区：白色对话面板浮在浅蓝画布上 --- */
+.layout-main {
+  padding: 14px;
+  background: radial-gradient(1150px 520px at 50% -14%, #E8F1FF 0%, #F2F7FD 64%) no-repeat, #F2F7FD;
+}
+.chat-panel {
+  height: 100%; border-radius: 18px; background: #fff;
+  box-shadow: 0 22px 52px -34px rgba(12, 40, 86, .5), 0 0 0 1px rgba(16, 52, 110, .05);
+}
+
+/* --- 欢迎区 --- */
+.welcome-area { background: radial-gradient(720px 330px at 50% -6%, #E7F1FF 0%, rgba(255, 255, 255, 0) 72%); }
+.welcome-content { max-width: 740px; }
+.welcome-logo {
+  width: 58px; height: 58px; border-radius: 18px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 24px; font-weight: 700;
+  background: linear-gradient(150deg, #5A95F8, #1B4FD6);
+  box-shadow: 0 16px 30px -14px rgba(27, 79, 214, .85), inset 0 1px 0 rgba(255, 255, 255, .35);
+}
+.welcome-title { margin-top: 20px; font-size: 26px; font-weight: 700; letter-spacing: -.01em; color: #0C1A2E; }
+.welcome-subtitle { margin: 10px auto 28px; max-width: 620px; font-size: 13.5px; line-height: 1.8; color: #5F7085; }
+
+/* --- 示例问题卡：编号 + 浅蓝悬停 --- */
+.faq-grid { counter-reset: faq; gap: 13px; }
+.faq-item {
+  counter-increment: faq; gap: 12px; align-items: flex-start;
+  padding: 15px 17px; background: #fff; border: 1px solid var(--tr-line);
+  border-radius: 14px; box-shadow: 0 1px 2px rgba(16, 52, 110, .04);
+}
+.faq-item::before {
+  content: counter(faq, decimal-leading-zero);
+  position: static; inset: auto; width: 26px; height: 26px; flex: none;
+  display: block; border-radius: 8px; background: var(--tr-brand-soft);
+  color: #2560CE; font-size: 11px; font-weight: 700; line-height: 26px; text-align: center;
+  opacity: 1; transition: background .22s ease;
+}
+.faq-item:hover { background: #FBFDFF; border-color: #B9D2F5; transform: translateY(-2px); box-shadow: 0 14px 26px -18px rgba(20, 60, 140, .6); }
+.faq-item:hover::before { background: #E1EDFF; opacity: 1; }
+.faq-item:active { transform: translateY(0); box-shadow: 0 4px 12px -10px rgba(20, 60, 140, .5); }
+.faq-item-text { font-size: 13px; color: #3E5069; line-height: 1.68; }
+.faq-item:hover .faq-item-text { color: #12233A; }
+
+/* --- 输入区 --- */
+.message-input-area { width: 100%; max-width: 860px; padding: 8px 22px 22px; background: transparent; }
+.input-wrapper {
+  background: #fff; border: 1px solid #DFE8F4; border-radius: 16px;
+  padding: 10px 16px 8px; box-shadow: 0 8px 24px -20px rgba(12, 40, 86, .7);
+}
+.input-wrapper:focus-within { border-color: #3B78E8; box-shadow: 0 0 0 3px rgba(45, 110, 220, .12); }
+.tag-default-assistant {
+  background: var(--tr-brand-soft); color: var(--tr-brand);
+  border: 1px solid #CFE0FB; border-radius: 7px; font-size: 12.5px;
+}
+.tag-icon { color: var(--tr-brand); }
+.chat-textarea { font-size: 13.5px; color: #22314A; }
+.chat-textarea::placeholder { color: #9FAEC1; }
+.input-actions { border-top: 1px solid #EDF2FA; }
+.toolbar-btn { color: #8595AA; }
+.toolbar-btn:hover { background: #EDF3FC; color: var(--tr-brand); }
+.model-select-btn { border: 1px solid #E3EAF5; background: #F7FAFE; border-radius: 8px; }
+.model-name-text { color: #42536B; }
+.model-dropdown { border-color: #E3EBF6; box-shadow: 0 14px 34px -18px rgba(12, 40, 86, .5); }
+.model-dropdown-header { color: #93A3B6; border-bottom-color: #EFF3FA; }
+.model-option:hover { background: #F5F9FF; }
+.model-option.active { background: #EDF4FF; }
+.model-option.active .option-check { color: #1D5BD6; }
+.send-btn {
+  width: 38px; height: 38px;
+  background: linear-gradient(150deg, #4E8EF7, #1B4FD6);
+  box-shadow: 0 10px 20px -10px rgba(27, 79, 214, .95);
+}
+.send-btn:hover { background: linear-gradient(150deg, #5F9AF8, #2058E0); }
+.send-btn:active { background: linear-gradient(150deg, #3D7BF2, #1641B4); }
+
+/* --- 对话气泡 --- */
+.user-bubble {
+  background: linear-gradient(150deg, #4E8EF7, #1B4FD6);
+  border-radius: 14px 4px 14px 14px;
+  box-shadow: 0 8px 18px -12px rgba(27, 79, 214, .85);
+}
+.ai-bubble {
+  border-radius: 4px 14px 14px 14px; border-color: #E5ECF7;
+  color: #26364D; box-shadow: 0 6px 16px -12px rgba(12, 40, 86, .5);
+}
+.msg-avatar {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 14px; font-weight: 600;
+  background: linear-gradient(150deg, #6E9BF2, #3B6BD8);
+  box-shadow: 0 6px 14px -8px rgba(27, 79, 214, .9);
+}
+.msg-avatar--ai { background: linear-gradient(150deg, #5A95F8, #1B4FD6); font-weight: 700; }
+.typing-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: #3B78E8;
+  animation: bounce 1.4s infinite ease-in-out;
+}
+.typing-dot:nth-child(2) { animation-delay: .2s; }
+.typing-dot:nth-child(3) { animation-delay: .4s; }
+.messages-container > .msg-row:first-child { margin-top: 16px; }
+
+/* --- 窄屏 --- */
+@media (max-width: 1024px) {
+  .message-input-area, .welcome-content { max-width: 100%; }
+  .welcome-content { padding: 0 4px; }
+}
+@media (max-width: 880px) {
+  .sidebar { display: none; }
+  .layout-main { padding: 10px; }
+  .chat-panel { border-radius: 14px; }
+  .welcome-area { padding: 22px 14px; align-items: flex-start; }
+  .welcome-logo { width: 50px; height: 50px; border-radius: 15px; font-size: 21px; }
+  .welcome-title { font-size: 21px; margin-top: 16px; }
+  .welcome-subtitle { font-size: 12.8px; margin-bottom: 20px; }
+  .faq-grid { grid-template-columns: 1fr; gap: 10px; }
+  .faq-item { padding: 13px 14px; }
+  .message-input-area { padding: 8px 12px 12px; }
+}
 </style>
 </head>
 <body>
@@ -528,7 +705,7 @@ a { text-decoration: none; color: inherit; }
       <!-- sidebar-header -->
       <div class="sidebar-header">
         <div class="logo-area" onclick="goHome()">
-          <div class="logo-img" style="width:28px;height:28px;border-radius:6px;background:#6B5CE7;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700;flex-shrink:0;">黔</div>
+          <div class="logo-img">比</div>
           <span class="logo-text">智能比数助手</span>
         </div>
        
@@ -737,10 +914,9 @@ a { text-decoration: none; color: inherit; }
         <!-- welcome-area (WelcomeArea.vue) -->
         <div class="welcome-area" id="welcomeArea">
           <div class="welcome-content">
-            <div class="welcome-logo" style="width:64px;height:64px;border-radius:14px;background:#6B5CE7;display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;font-weight:700;margin:0 auto;">黔</div>
+            <div class="welcome-logo">比</div>
             <h2 class="welcome-title">智能比数助手</h2>
-            <p class="welcome-subtitle">根据用户上传的多个数据表格(Excel/CSV)和自然语言描述的需求，通过多轮对话调用SKILL读取并处理数据，最终输
-出合并、比对或统计分析的结果文件与统计摘要。</p>
+            <p class="welcome-subtitle">根据用户上传的多个数据表格(Excel/CSV)和自然语言描述的需求，通过多轮对话调用SKILL读取并处理数据，最终输出合并、比对或统计分析的结果文件与统计摘要。</p>
             <div class="faq-grid">
               <div class="faq-item" onclick="handleFaq(this, '以《5月拟新增社会救助对象名单》、《应急比对受灾家庭人员救助信息》为基础进行对比，最终将比对信息汇总输出。')">
                 <span class="faq-item-text">以《5月拟新增社会救助对象名单》、《应急比对受灾家庭人员救助信息》为基础进行对比，最终将比对信息汇总输出。</span>
@@ -905,7 +1081,7 @@ function handleSend() {
   userRow.className = 'msg-row';
   userRow.style.cssText = 'display:flex;justify-content:flex-end;gap:8px;padding:0 24px 16px;';
   userRow.innerHTML = '<div class="user-bubble">' + escHtml(text) + '</div>' +
-    '<div style="width:36px;height:36px;border-radius:50%;background:#6B5CE7;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:600;flex-shrink:0;">周</div>';
+    '<div class="msg-avatar">周</div>';
   mc.appendChild(userRow);
 
   // AI 消息 (MessageBubble.vue assistant role: 左对齐, white bg, shadow)
@@ -913,13 +1089,13 @@ function handleSend() {
   aiRow.className = 'msg-row';
   aiRow.style.cssText = 'display:flex;gap:8px;padding:0 24px 16px;';
   aiRow.innerHTML =
-    '<div style="width:36px;height:36px;border-radius:50%;background:#6B5CE7;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;flex-shrink:0;">黔</div>' +
+    '<div class="msg-avatar msg-avatar--ai">比</div>' +
     '<div style="max-width:70%;">' +
-      '<div style="font-size:12px;color:#909399;margin-bottom:4px;">智能比数助手</div>' +
+      '<div style="font-size:12px;color:#8494A8;margin-bottom:4px;">智能比数助手</div>' +
       '<div class="ai-bubble"><span style="display:inline-flex;gap:4px;">' +
-        '<span style="width:6px;height:6px;border-radius:50%;background:#6B5CE7;animation:bounce 1.4s infinite ease-in-out;"></span>' +
-        '<span style="width:6px;height:6px;border-radius:50%;background:#6B5CE7;animation:bounce 1.4s infinite ease-in-out 0.2s;"></span>' +
-        '<span style="width:6px;height:6px;border-radius:50%;background:#6B5CE7;animation:bounce 1.4s infinite ease-in-out 0.4s;"></span>' +
+        '<span class="typing-dot"></span>' +
+        '<span class="typing-dot"></span>' +
+        '<span class="typing-dot"></span>' +
       '</span></div>' +
     '</div>';
   mc.appendChild(aiRow);

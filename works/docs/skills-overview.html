@@ -56,7 +56,7 @@ scripts/                    可执行逻辑。判定引擎、CLI、自测</code>
 <div class="tw"><table><thead><tr><th>问题</th><th>影响</th><th>处理</th></tr></thead><tbody><tr><td>两个包共用 <code>approval_engine.py</code>，各存一份</td><td>改一处忘另一处会不一致</td><td>待合并为单包 + 一个共用依赖目录</td></tr><tr><td><code>references</code> 内文件名在 Linux/Mac 解压后乱码（GBK 编码打包）</td><td>跨平台不可用</td><td>重新用 UTF-8 打包</td></tr><tr><td>审批严重度标尺是推演规则，未与业务制度逐条核对</td><td>对外讲述时可能被质疑</td><td>讲述时明确说明是设计推演</td></tr></tbody></table></div>
 <hr>
 <h2 id="4-案例二-智能比数">4. 案例二：智能比数</h2>
-<p><strong>目录</strong>：<code>智能比数skill/</code> <strong>包</strong>：<code>data-table.zip</code>（6 文件） <strong>图</strong>：<code>黔南智能比数助手-对话页面原型.html</code>（57 KB）</p>
+<p><strong>目录</strong>：<code>智能比数skill/</code> <strong>包</strong>：<code>data-table.zip</code>（6 文件） <strong>图</strong>：<code>智能比数助手-对话页面原型.html</code>（57 KB）</p>
 <h3 id="4-1-业务问题">4.1 业务问题</h3>
 <p>业务人员每周要拿两份表格做比对：哪几行新增、哪几行消失、同一条记录的字段变了什么。用 Excel 手工做，几万行要几小时，还容易看错列。更麻烦的是每次比对的规则不一样——有时按订单号，有时按&quot;手机号+日期&quot;，有时要模糊匹配。</p>
 <h3 id="4-2-做了什么">4.2 做了什么</h3>
